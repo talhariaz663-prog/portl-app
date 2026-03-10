@@ -1,444 +1,341 @@
-'use client'
-import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+"use client";
 
-function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [mounted, setMounted] = useState(false)
-  const searchParams = useSearchParams()
-  const message = searchParams.get('message')
+import { useEffect, useRef, useState } from "react";
+
+export default function LoginPage() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    let animId: number;
+    let renderer: import("three").WebGLRenderer;
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    const supabase = createClient()
+    async function init() {
+      const THREE = await import("three");
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.z = 5;
+
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const clock = new THREE.Clock();
+      const orbs: import("three").Mesh[] = [];
+
+      const orbData: { pos: [number, number, number]; color: number; size: number; speed: number }[] = [
+        { pos: [-3.5, 1.5, -1],   color: 0x5B4CF5, size: 0.9, speed: 0.4  },
+        { pos: [3.2, -1.2, -2],   color: 0x0BAB6C, size: 1.1, speed: 0.3  },
+        { pos: [-2, -2.5, -3],    color: 0x5B4CF5, size: 0.6, speed: 0.55 },
+        { pos: [2.5, 2.5, -2.5],  color: 0x0BAB6C, size: 0.7, speed: 0.45 },
+        { pos: [0, -3, -1.5],     color: 0x7B6CF9, size: 0.5, speed: 0.6  },
+      ];
+
+      orbData.forEach(({ pos, color, size, speed }) => {
+        const geo = new THREE.IcosahedronGeometry(size, 4);
+        const mat = new THREE.MeshStandardMaterial({
+          color, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.55,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(...pos);
+        mesh.userData = { originY: pos[1], speed, phase: Math.random() * Math.PI * 2 };
+        scene.add(mesh);
+        orbs.push(mesh);
+
+        const ringGeo = new THREE.TorusGeometry(size * 1.35, 0.02, 8, 64);
+        const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.25 });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 4;
+        mesh.add(ring);
+      });
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+      const dirLight = new THREE.DirectionalLight(0x5B4CF5, 2);
+      dirLight.position.set(5, 5, 5);
+      scene.add(dirLight);
+      const greenLight = new THREE.PointLight(0x0BAB6C, 3, 10);
+      greenLight.position.set(-4, -3, 1);
+      scene.add(greenLight);
+
+      const pCount = 280;
+      const pGeo = new THREE.BufferGeometry();
+      const pPos = new Float32Array(pCount * 3);
+      for (let i = 0; i < pCount * 3; i++) pPos[i] = (Math.random() - 0.5) * 18;
+      pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
+      const particles = new THREE.Points(
+        pGeo,
+        new THREE.PointsMaterial({ color: 0x5B4CF5, size: 0.03, transparent: true, opacity: 0.5 })
+      );
+      scene.add(particles);
+
+      const gridHelper = new THREE.GridHelper(20, 30, 0x5B4CF5, 0x5B4CF5);
+      (gridHelper.material as import("three").Material).opacity = 0.04;
+      (gridHelper.material as import("three").Material).transparent = true;
+      gridHelper.position.y = -4;
+      scene.add(gridHelper);
+
+      const onMouse = (e: MouseEvent) => {
+        mouseRef.current = {
+          x:  (e.clientX / window.innerWidth  - 0.5) * 2,
+          y: -(e.clientY / window.innerHeight - 0.5) * 2,
+        };
+      };
+      window.addEventListener("mousemove", onMouse);
+
+      const onResize = () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      };
+      window.addEventListener("resize", onResize);
+
+      const animate = () => {
+        animId = requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+
+        orbs.forEach((orb) => {
+          const { originY, speed, phase } = orb.userData as { originY: number; speed: number; phase: number };
+          orb.position.y = originY + Math.sin(t * speed + phase) * 0.4;
+          orb.rotation.x += 0.003;
+          orb.rotation.y += 0.005;
+        });
+
+        particles.rotation.y = t * 0.02;
+        camera.position.x += (mouseRef.current.x * 0.6 - camera.position.x) * 0.04;
+        camera.position.y += (mouseRef.current.y * 0.4 - camera.position.y) * 0.04;
+        camera.lookAt(0, 0, 0);
+        renderer.render(scene, camera);
+      };
+      animate();
+
+      return () => {
+        window.removeEventListener("mousemove", onMouse);
+        window.removeEventListener("resize", onResize);
+        cancelAnimationFrame(animId);
+        renderer.dispose();
+      };
+    }
+
+    let cleanup: (() => void) | undefined;
+    init().then((fn) => { cleanup = fn; });
+    return () => { cleanup?.(); cancelAnimationFrame(animId); };
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!email || loading) return;
+    setLoading(true);
+
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` }
-    })
+      options: {
+        emailRedirectTo: window.location.origin + "/dashboard",
+      },
+    });
+
+    setLoading(false);
+
     if (error) {
-      setError(error.message)
-      setLoading(false)
-      return
+      alert("Something went wrong: " + error.message);
+    } else {
+      setSent(true);
     }
-    setSent(true)
-    setLoading(false)
-  }
+  };
 
   return (
-    <>
+    <div style={{ position: "relative", minHeight: "100vh", overflow: "hidden", background: "#080a18", fontFamily: "'Outfit', sans-serif" }}>
+
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        .login-root {
-          min-height: 100vh;
-          background: #0D0B1A;
-          display: flex;
-          font-family: 'Outfit', sans-serif;
-          position: relative;
-          overflow: hidden;
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-
-        /* Ambient background blobs */
-        .blob {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(80px);
-          opacity: 0.18;
-          pointer-events: none;
+        @keyframes pulse-ring {
+          0%   { transform: scale(1);   opacity: 0.6; }
+          100% { transform: scale(1.8); opacity: 0; }
         }
-        .blob-1 {
-          width: 500px; height: 500px;
-          background: #5B4CF5;
-          top: -100px; left: -100px;
-          animation: drift1 12s ease-in-out infinite alternate;
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .fade-1 { animation: fadeUp 0.7s 0.00s ease forwards; opacity: 0; }
+        .fade-2 { animation: fadeUp 0.7s 0.15s ease forwards; opacity: 0; }
+        .fade-3 { animation: fadeUp 0.7s 0.30s ease forwards; opacity: 0; }
+        .fade-4 { animation: fadeUp 0.7s 0.45s ease forwards; opacity: 0; }
+        .magic-btn {
+          width: 100%; padding: 14px; border: none; border-radius: 10px;
+          background: linear-gradient(135deg, #5B4CF5 0%, #0BAB6C 100%);
+          color: #fff; font-family: 'Outfit', sans-serif; font-size: 15px;
+          font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+          letter-spacing: 0.01em;
         }
-        .blob-2 {
-          width: 400px; height: 400px;
-          background: #0BAB6C;
-          bottom: -80px; right: -80px;
-          animation: drift2 14s ease-in-out infinite alternate;
-        }
-        .blob-3 {
-          width: 300px; height: 300px;
-          background: #5B4CF5;
-          bottom: 30%; right: 20%;
-          opacity: 0.08;
-          animation: drift1 18s ease-in-out infinite alternate-reverse;
-        }
-
-        @keyframes drift1 {
-          from { transform: translate(0, 0) scale(1); }
-          to { transform: translate(40px, 30px) scale(1.1); }
-        }
-        @keyframes drift2 {
-          from { transform: translate(0, 0) scale(1); }
-          to { transform: translate(-30px, -40px) scale(1.08); }
-        }
-
-        /* Subtle grid overlay */
-        .grid-overlay {
-          position: absolute;
-          inset: 0;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-          background-size: 48px 48px;
-          pointer-events: none;
-        }
-
-        /* Left panel */
-        .left-panel {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 60px 64px;
-          position: relative;
-          z-index: 1;
-        }
-
-        .wordmark {
-          font-size: 2rem;
-          font-weight: 800;
-          color: #fff;
-          letter-spacing: -0.02em;
-          margin-bottom: 64px;
-        }
-        .wordmark span {
-          color: #5B4CF5;
-        }
-
-        .hero-text {
-          font-size: 3.2rem;
-          font-weight: 700;
-          color: #fff;
-          line-height: 1.1;
-          letter-spacing: -0.03em;
-          margin-bottom: 20px;
-        }
-        .hero-text em {
-          font-style: normal;
-          background: linear-gradient(135deg, #7B6EF8, #0BAB6C);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .hero-sub {
-          font-size: 1rem;
-          color: rgba(255,255,255,0.45);
-          line-height: 1.6;
-          max-width: 360px;
-          margin-bottom: 48px;
-        }
-
-        .feature-list {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-        .feature-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          opacity: 0;
-          transform: translateX(-16px);
-          transition: all 0.5s ease;
-        }
-        .feature-item.visible {
-          opacity: 1;
-          transform: translateX(0);
-        }
-        .feature-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #5B4CF5;
-          flex-shrink: 0;
-        }
-        .feature-dot.green { background: #0BAB6C; }
-        .feature-text {
-          font-size: 0.9rem;
-          color: rgba(255,255,255,0.6);
-          font-weight: 400;
-        }
-
-        /* Right panel - login card */
-        .right-panel {
-          width: 480px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 40px 48px;
-          position: relative;
-          z-index: 1;
-        }
-
-        .card {
-          width: 100%;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 20px;
-          padding: 44px 40px;
-          backdrop-filter: blur(20px);
-          opacity: 0;
-          transform: translateY(20px);
-          transition: all 0.6s ease 0.2s;
-        }
-        .card.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        .card-title {
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: #fff;
-          margin-bottom: 8px;
-          letter-spacing: -0.02em;
-        }
-        .card-sub {
-          font-size: 0.9rem;
-          color: rgba(255,255,255,0.4);
-          margin-bottom: 32px;
-          line-height: 1.5;
-        }
-
-        .input-label {
-          font-size: 0.78rem;
-          font-weight: 600;
-          color: rgba(255,255,255,0.5);
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          margin-bottom: 8px;
-          display: block;
-        }
-
+        .magic-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
+        .magic-btn:active:not(:disabled) { transform: translateY(0); }
+        .magic-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .email-input {
-          width: 100%;
-          padding: 14px 16px;
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 10px;
-          color: #fff;
-          font-size: 0.95rem;
-          font-family: 'Outfit', sans-serif;
-          outline: none;
-          transition: border-color 0.2s, background 0.2s;
+          width: 100%; padding: 13px 16px;
+          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px; color: #fff; font-family: 'Outfit', sans-serif;
+          font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s;
           margin-bottom: 16px;
         }
         .email-input::placeholder { color: rgba(255,255,255,0.25); }
-        .email-input:focus {
-          border-color: #5B4CF5;
-          background: rgba(91,76,245,0.08);
-        }
-
-        .submit-btn {
-          width: 100%;
-          padding: 14px;
-          background: #5B4CF5;
-          border: none;
-          border-radius: 10px;
-          color: #fff;
-          font-size: 0.95rem;
-          font-weight: 600;
-          font-family: 'Outfit', sans-serif;
-          cursor: pointer;
-          transition: all 0.2s;
-          position: relative;
-          overflow: hidden;
-        }
-        .submit-btn:hover:not(:disabled) {
-          background: #7B6EF8;
-          transform: translateY(-1px);
-          box-shadow: 0 8px 24px rgba(91,76,245,0.4);
-        }
-        .submit-btn:active { transform: translateY(0); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .error-msg {
-          font-size: 0.85rem;
-          color: #EF4444;
-          margin-bottom: 14px;
-          padding: 10px 14px;
-          background: rgba(239,68,68,0.1);
-          border-radius: 8px;
-          border: 1px solid rgba(239,68,68,0.2);
-        }
-
-        .success-msg {
-          font-size: 0.85rem;
-          color: #0BAB6C;
-          margin-bottom: 14px;
-          padding: 10px 14px;
-          background: rgba(11,171,108,0.1);
-          border-radius: 8px;
-          border: 1px solid rgba(11,171,108,0.2);
-        }
-
-        .divider {
-          height: 1px;
-          background: rgba(255,255,255,0.06);
-          margin: 28px 0;
-        }
-
-        .footer-note {
-          font-size: 0.78rem;
-          color: rgba(255,255,255,0.25);
-          text-align: center;
-          line-height: 1.5;
-        }
-
-        /* Sent state */
-        .sent-icon {
-          font-size: 3rem;
-          margin-bottom: 16px;
-          display: block;
-        }
-        .sent-title {
-          font-size: 1.3rem;
-          font-weight: 700;
-          color: #fff;
-          margin-bottom: 8px;
-          letter-spacing: -0.02em;
-        }
-        .sent-desc {
-          font-size: 0.9rem;
-          color: rgba(255,255,255,0.45);
-          line-height: 1.6;
-        }
-        .sent-email {
-          color: #7B6EF8;
-          font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-          .left-panel { display: none; }
-          .right-panel { width: 100%; padding: 24px; }
-          .card { padding: 32px 28px; }
-        }
+        .email-input:focus { border-color: rgba(91,76,245,0.6); background: rgba(91,76,245,0.08); }
+        .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
       `}</style>
 
-      <div className="login-root">
-        <div className="blob blob-1" />
-        <div className="blob blob-2" />
-        <div className="blob blob-3" />
-        <div className="grid-overlay" />
+      {/* 3D Canvas */}
+      <canvas ref={canvasRef} style={{
+        position: "fixed", top: 0, left: 0,
+        width: "100%", height: "100%",
+        pointerEvents: "none", zIndex: 0,
+      }} />
 
-        {/* Left panel */}
-        <div className="left-panel">
-          <div className="wordmark">Portl<span>.</span></div>
-          <h1 className="hero-text">
+      {/* Vignette */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none",
+        background: "radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, rgba(8,10,24,0.75) 100%)",
+      }} />
+
+      {/* Content */}
+      <div style={{
+        position: "relative", zIndex: 2, minHeight: "100vh",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        padding: "40px 20px", textAlign: "center",
+      }}>
+
+        {/* Logo */}
+        <div className="fade-1" style={{ marginBottom: "36px" }}>
+          <span style={{ fontSize: "30px", fontWeight: 800, color: "#fff", letterSpacing: "-0.5px" }}>
+            Portl<span style={{ color: "#5B4CF5", fontSize: "36px", lineHeight: "0" }}>.</span>
+          </span>
+        </div>
+
+        {/* Headline */}
+        <div className="fade-2" style={{ marginBottom: "36px", maxWidth: "440px" }}>
+          <h1 style={{
+            fontSize: "clamp(36px, 6vw, 56px)", fontWeight: 800,
+            lineHeight: 1.08, color: "#fff", letterSpacing: "-1.5px", marginBottom: "16px",
+          }}>
             Your studio.<br />
-            <em>Your clients.</em><br />
-            One portal.
+            <span style={{
+              background: "linear-gradient(90deg, #7B6CF9 0%, #0BAB6C 100%)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            }}>
+              Your clients.
+            </span>
+            <br />One portal.
           </h1>
-          <p className="hero-sub">
-            Send clients a link. They see your work, leave feedback, and approve — without the back-and-forth.
+          <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.45)", lineHeight: 1.65 }}>
+            Send clients a link. They see your work, leave feedback,
+            and approve — without the back-and-forth.
           </p>
-          <div className="feature-list">
-            {[
-              { text: 'Project timelines your clients actually understand', green: false, delay: 0 },
-              { text: 'File delivery with one-click approvals', green: true, delay: 100 },
-              { text: 'No client account needed — just a link', green: false, delay: 200 },
-              { text: 'Built for freelance designers', green: true, delay: 300 },
-            ].map((f, i) => (
-              <div
-                key={i}
-                className={`feature-item ${mounted ? 'visible' : ''}`}
-                style={{ transitionDelay: `${f.delay + 400}ms` }}
-              >
-                <div className={`feature-dot ${f.green ? 'green' : ''}`} />
-                <span className="feature-text">{f.text}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* Right panel */}
-        <div className="right-panel">
-          <div className={`card ${mounted ? 'visible' : ''}`}>
-            {sent ? (
-              <div>
-                <span className="sent-icon">📬</span>
-                <p className="sent-title">Check your inbox</p>
-                <p className="sent-desc">
-                  We sent a magic link to{' '}
-                  <span className="sent-email">{email}</span>
-                  .<br />Click it to sign in — no password needed.
-                </p>
-                <div className="divider" />
-                <p className="footer-note">
-                  Didn't get it? Check your spam folder<br />or{' '}
-                  <span
-                    onClick={() => setSent(false)}
-                    style={{ color: '#7B6EF8', cursor: 'pointer', fontWeight: 600 }}
-                  >
-                    try again
+        {/* Card */}
+        <div className="fade-3" style={{
+          width: "100%", maxWidth: "380px",
+          background: "rgba(255,255,255,0.035)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: "20px", padding: "32px 28px",
+          backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
+          marginBottom: "32px",
+        }}>
+          {sent ? (
+            <div style={{ padding: "12px 0", textAlign: "center" }}>
+              <div style={{ position: "relative", width: "56px", height: "56px", margin: "0 auto 20px" }}>
+                <div style={{
+                  position: "absolute", inset: 0, borderRadius: "50%",
+                  background: "rgba(11,171,108,0.2)",
+                  animation: "pulse-ring 1.4s ease-out infinite",
+                }} />
+                <div style={{
+                  width: "56px", height: "56px", borderRadius: "50%",
+                  background: "linear-gradient(135deg, #0BAB6C, #5B4CF5)",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px",
+                }}>✉️</div>
+              </div>
+              <h2 style={{ color: "#fff", fontSize: "19px", fontWeight: 700, marginBottom: "8px" }}>
+                Check your inbox
+              </h2>
+              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "14px", lineHeight: 1.6 }}>
+                Magic link sent to <span style={{ color: "#fff", fontWeight: 600 }}>{email}</span>
+              </p>
+            </div>
+          ) : (
+            <>
+              <h2 style={{ color: "#fff", fontSize: "20px", fontWeight: 700, marginBottom: "6px" }}>
+                Sign in to Portl
+              </h2>
+              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginBottom: "24px", lineHeight: 1.55 }}>
+                Enter your email — we&apos;ll send a magic link. No password needed.
+              </p>
+
+              <label style={{
+                display: "block", fontSize: "10px", fontWeight: 700,
+                letterSpacing: "0.1em", color: "rgba(255,255,255,0.35)",
+                textTransform: "uppercase", marginBottom: "8px",
+              }}>
+                Email Address
+              </label>
+
+              <input
+                className="email-input"
+                type="email"
+                placeholder="you@studio.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              />
+
+              <button className="magic-btn" onClick={handleSubmit} disabled={loading || !email}>
+                {loading ? (
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                    <span style={{
+                      width: "16px", height: "16px",
+                      border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff",
+                      borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block",
+                    }} />
+                    Sending…
                   </span>
-                </p>
-              </div>
-            ) : (
-              <>
-                <p className="card-title">Sign in to Portl</p>
-                <p className="card-sub">Enter your email and we'll send you a magic link — no password required.</p>
+                ) : "Send Magic Link →"}
+              </button>
 
-                {message && <p className="success-msg">{message}</p>}
-                {error && <p className="error-msg">{error}</p>}
-
-                <form onSubmit={handleLogin}>
-                  <label className="input-label">Email address</label>
-                  <input
-                    type="email"
-                    className="email-input"
-                    placeholder="you@studio.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="submit-btn"
-                    disabled={loading}
-                  >
-                    {loading ? 'Sending link...' : 'Send Magic Link →'}
-                  </button>
-                </form>
-
-                <div className="divider" />
-                <p className="footer-note">
-                  By signing in you agree to our terms of service.<br />
-                  No spam, ever.
-                </p>
-              </>
-            )}
-          </div>
+              <p style={{ marginTop: "16px", color: "rgba(255,255,255,0.2)", fontSize: "12px" }}>
+                By signing in you agree to our terms of service. No spam, ever.
+              </p>
+            </>
+          )}
         </div>
-      </div>
-    </>
-  )
-}
 
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div style={{ minHeight: '100vh', background: '#0D0B1A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'sans-serif' }}>Loading...</p>
+        {/* Bullets */}
+        <div className="fade-4" style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
+          {[
+            { color: "#5B4CF5", text: "Project timelines your clients actually understand" },
+            { color: "#0BAB6C", text: "File delivery with one-click approvals" },
+            { color: "#5B4CF5", text: "No client account needed — just a link" },
+            { color: "#0BAB6C", text: "Built for freelance designers" },
+          ].map(({ color, text }) => (
+            <div key={text} style={{
+              display: "flex", alignItems: "flex-start", gap: "10px",
+              color: "rgba(255,255,255,0.5)", fontSize: "13.5px",
+            }}>
+              <span className="dot" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+              {text}
+            </div>
+          ))}
+        </div>
+
       </div>
-    }>
-      <LoginForm />
-    </Suspense>
-  )
+    </div>
+  );
 }
