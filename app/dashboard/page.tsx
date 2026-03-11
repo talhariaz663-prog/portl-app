@@ -222,7 +222,7 @@ export default function DashboardPage() {
               </span>
             </div>
           </div>
-          <button className="new-btn" onClick={() => router.push("/dashboard/new-project")}>
+          <button className="new-btn" onClick={() => router.push("/dashboard/new")}>
             <span style={{ fontSize: "18px", lineHeight: "1" }}>+</span> New Project
           </button>
         </div>
