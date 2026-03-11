@@ -1,229 +1,575 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+"use client";
 
-export default function PortalPage() {
-  const params = useParams()
-  const slug = params.slug as string
-  const [project, setProject] = useState<any>(null)
-  const [stages, setStages] = useState<any[]>([])
-  const [stageFiles, setStageFiles] = useState<Record<string, any[]>>({})
-  const [stageApprovals, setStageApprovals] = useState<Record<string, any>>({})
-  const [revisionNotes, setRevisionNotes] = useState<Record<string, string>>({})
-  const [showRevisionInput, setShowRevisionInput] = useState<Record<string, boolean>>({})
-  const [loading, setLoading] = useState(true)
-  const [notFound, setNotFound] = useState(false)
+import { useEffect, useState, useCallback } from "react";
+import { useParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient()
+type StageStatus = "not_started" | "in_progress" | "complete";
 
-      const { data: proj } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('portal_slug', slug)
-        .maybeSingle()
+interface Project {
+  id: string;
+  name: string;
+  client_name: string;
+  status: string;
+}
 
-      if (!proj) { setNotFound(true); setLoading(false); return }
-      setProject(proj)
+interface Stage {
+  id: string;
+  name: string;
+  position: number;
+  status: StageStatus;
+  notes: string | null;
+}
 
-      const { data: stagesData } = await supabase
-        .from('stages')
-        .select('*')
-        .eq('project_id', proj.id)
-        .order('position', { ascending: true })
+interface ProjectFile {
+  id: string;
+  stage_id: string;
+  name: string;
+  file_url: string;
+  file_size: number | null;
+  created_at: string;
+}
 
-      if (!stagesData) { setLoading(false); return }
-      setStages(stagesData)
+const STAGE_STATUS = {
+  not_started: { label: "Not Started", color: "#6b7280", bg: "rgba(107,114,128,0.12)" },
+  in_progress:  { label: "In Progress", color: "#F5A623", bg: "rgba(245,166,35,0.12)"  },
+  complete:     { label: "Complete",    color: "#0BAB6C", bg: "rgba(11,171,108,0.12)"  },
+};
 
-      const filesMap: Record<string, any[]> = {}
-      const approvalsMap: Record<string, any> = {}
+function formatBytes(b: number) {
+  if (b < 1024) return `${b} B`;
+  if (b < 1048576) return `${(b/1024).toFixed(1)} KB`;
+  return `${(b/1048576).toFixed(1)} MB`;
+}
 
-      for (const stage of stagesData) {
-        const { data: files } = await supabase
-          .from('files')
-          .select('*')
-          .eq('stage_id', stage.id)
-        filesMap[stage.id] = files || []
+function fileIcon(name: string) {
+  if (/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name)) return "🖼";
+  if (/\.pdf$/i.test(name)) return "📄";
+  if (/\.(zip|rar)$/i.test(name)) return "📦";
+  if (/\.(fig|sketch|xd)$/i.test(name)) return "🎨";
+  return "📎";
+}
 
-        const { data: approval } = await supabase
-          .from('approvals')
-          .select('*')
-          .eq('stage_id', stage.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-        approvalsMap[stage.id] = approval || null
-      }
+export default function ClientPortalPage() {
+  const params   = useParams();
+  const supabase = createClient();
+  const slug     = params?.slug as string;
 
-      setStageFiles(filesMap)
-      setStageApprovals(approvalsMap)
-      setLoading(false)
-    }
-    load()
-  }, [slug])
+  const [project,       setProject]       = useState<Project | null>(null);
+  const [stages,        setStages]        = useState<Stage[]>([]);
+  const [files,         setFiles]         = useState<ProjectFile[]>([]);
+  const [activeStageId, setActiveStageId] = useState<string | null>(null);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState<string | null>(null);
+  const [approved,      setApproved]      = useState<string | null>(null);
+  const [feedback,      setFeedback]      = useState("");
+  const [showFeedback,  setShowFeedback]  = useState(false);
+  const [submitted,     setSubmitted]     = useState<string | null>(null);
 
-  async function handleApprove(stageId: string) {
-    const supabase = createClient()
-    const approval = stageApprovals[stageId]
-    if (!approval) return
-    await supabase
-      .from('approvals')
-      .update({ status: 'complete', approved_at: new Date().toISOString() })
-      .eq('id', approval.id)
-    setStageApprovals(prev => ({ ...prev, [stageId]: { ...approval, status: 'complete' } }))
-  }
+  const fetchData = useCallback(async () => {
+    setLoading(true); setError(null);
 
-  async function handleRevision(stageId: string) {
-    const supabase = createClient()
-    const approval = stageApprovals[stageId]
-    if (!approval) return
-    const note = revisionNotes[stageId] || ''
-    await supabase
-      .from('approvals')
-      .update({ status: 'revision', client_note: note })
-      .eq('id', approval.id)
-    setStageApprovals(prev => ({ ...prev, [stageId]: { ...approval, status: 'revision', client_note: note } }))
-    setShowRevisionInput(prev => ({ ...prev, [stageId]: false }))
-  }
+    const { data: proj, error: pe } = await supabase
+      .from("projects")
+      .select("id, name, client_name, status")
+      .eq("portal_slug", slug)
+      .single();
 
-  function formatSize(bytes: number) {
-    if (!bytes) return ''
-    if (bytes < 1024) return bytes + ' B'
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
-  }
+    if (pe || !proj) { setError("Portal not found."); setLoading(false); return; }
+    setProject(proj as Project);
+
+    const { data: sd } = await supabase
+      .from("stages").select("*")
+      .eq("project_id", proj.id).order("position", { ascending: true });
+    const sl = (sd as Stage[]) ?? [];
+    setStages(sl);
+    if (sl.length > 0) setActiveStageId(sl[0].id);
+
+    const { data: fd } = await supabase
+      .from("files").select("*")
+      .eq("project_id", proj.id).order("created_at", { ascending: false });
+    setFiles((fd as ProjectFile[]) ?? []);
+
+    setLoading(false);
+  }, [supabase, slug]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handleApprove = async () => {
+    if (!activeStageId) return;
+    await supabase.from("stages").update({ status: "complete" }).eq("id", activeStageId);
+    setStages(prev => prev.map(s => s.id === activeStageId ? { ...s, status: "complete" } : s));
+    setApproved(activeStageId);
+    setTimeout(() => setApproved(null), 4000);
+  };
+
+  const handleRevision = async () => {
+    if (!activeStageId || !feedback.trim()) return;
+    // Store feedback as a note update (prepend to existing notes)
+    const stage = stages.find(s => s.id === activeStageId);
+    const newNote = `📝 Client revision request:\n${feedback.trim()}\n\n${stage?.notes ?? ""}`.trim();
+    await supabase.from("stages").update({ status: "in_progress", notes: newNote }).eq("id", activeStageId);
+    setStages(prev => prev.map(s => s.id === activeStageId ? { ...s, status: "in_progress", notes: newNote } : s));
+    setSubmitted(activeStageId);
+    setShowFeedback(false);
+    setFeedback("");
+    setTimeout(() => setSubmitted(null), 4000);
+  };
+
+  const activeStage      = stages.find(s => s.id === activeStageId);
+  const activeStageFiles = files.filter(f => f.stage_id === activeStageId);
+  const completeCount    = stages.filter(s => s.status === "complete").length;
+  const progressPct      = stages.length > 0 ? Math.round((completeCount / stages.length) * 100) : 0;
+  const allComplete      = stages.length > 0 && completeCount === stages.length;
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontFamily: 'var(--font-outfit), sans-serif', background: '#FAFAFA' }}>
-      <p style={{ color: '#8A8A9A' }}>Loading...</p>
+    <div style={{ minHeight:"100vh", background:"#080a18", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ textAlign:"center" }}>
+        <div style={{ width:"36px", height:"36px", border:"2px solid rgba(255,255,255,0.08)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }} />
+        <div style={{ fontSize:"14px", color:"rgba(255,255,255,0.3)", fontFamily:"'Outfit',sans-serif" }}>Loading your portal…</div>
+      </div>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
-  )
+  );
 
-  if (notFound) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontFamily: 'var(--font-outfit), sans-serif', background: '#FAFAFA' }}>
-      <p style={{ color: '#EF4444' }}>Project not found.</p>
+  if (error) return (
+    <div style={{ minHeight:"100vh", background:"#080a18", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Outfit',sans-serif" }}>
+      <div style={{ textAlign:"center", maxWidth:"320px" }}>
+        <div style={{ fontSize:"40px", marginBottom:"16px" }}>⬡</div>
+        <h2 style={{ color:"#fff", fontSize:"20px", fontWeight:700, marginBottom:"8px" }}>Portal not found</h2>
+        <p style={{ color:"rgba(255,255,255,0.35)", fontSize:"14px", lineHeight:1.6 }}>
+          This link may have expired or the project was removed.
+        </p>
+      </div>
     </div>
-  )
+  );
 
   return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh', fontFamily: 'var(--font-outfit), sans-serif' }}>
-      <div style={{ textAlign: 'center', padding: '1.5rem', borderBottom: '1px solid #E4E4E8', background: '#fff' }}>
-        <span style={{ fontWeight: 700, fontSize: '1.4rem', color: '#12111A' }}>Portl<span style={{ color: '#5B4CF5' }}>.</span></span>
-        <p style={{ color: '#8A8A9A', fontSize: '0.75rem', marginTop: '0.25rem' }}>Powered by Portl</p>
-      </div>
+    <div style={{ minHeight:"100vh", background:"#f8f7ff", fontFamily:"'Outfit',sans-serif", color:"#0f0e1a" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        * { box-sizing:border-box; margin:0; padding:0; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes pop { 0%{transform:scale(0.8);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+        @keyframes confetti-fall {
+          0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+          100%{transform:translateY(80px) rotate(720deg);opacity:0}
+        }
 
-      <main style={{ maxWidth: '780px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#12111A', marginBottom: '0.25rem' }}>{project.name}</h1>
-        <p style={{ color: '#8A8A9A', marginBottom: '2.5rem' }}>Client: {project.client_name}</p>
+        .fi{animation:fadeUp 0.5s ease forwards;opacity:0}
+        .fi1{animation-delay:0.05s} .fi2{animation-delay:0.12s}
+        .fi3{animation-delay:0.20s} .fi4{animation-delay:0.28s}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-          {stages.map((stage, i) => (
-            <div key={stage.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{
-                padding: '0.4rem 1rem', borderRadius: '999px', fontSize: '0.85rem', whiteSpace: 'nowrap',
-                background: stage.status === 'complete' ? '#E6F9F2' : stage.status === 'in_progress' ? '#EEF0FE' : '#fff',
-                color: stage.status === 'complete' ? '#0BAB6C' : stage.status === 'in_progress' ? '#5B4CF5' : '#8A8A9A',
-                border: '1px solid ' + (stage.status === 'complete' ? '#0BAB6C' : stage.status === 'in_progress' ? '#5B4CF5' : '#E4E4E8'),
-                fontWeight: stage.status === 'in_progress' ? 600 : 400
-              }}>{stage.title}</span>
-              {i < stages.length - 1 && <span style={{ color: '#E4E4E8' }}>→</span>}
-            </div>
+        .stage-tab {
+          display:flex; align-items:center; gap:8px;
+          padding:10px 18px; border-radius:10px; cursor:pointer;
+          font-family:'Outfit',sans-serif; font-size:13px; font-weight:500;
+          white-space:nowrap; transition:all 0.18s ease;
+          border:1px solid rgba(15,14,26,0.08);
+          background:rgba(255,255,255,0.7); color:rgba(15,14,26,0.45);
+        }
+        .stage-tab:hover { background:#fff; color:rgba(15,14,26,0.8); border-color:rgba(91,76,245,0.2); }
+        .stage-tab.active { background:#fff; border-color:rgba(91,76,245,0.4); color:#0f0e1a; font-weight:700; box-shadow:0 2px 12px rgba(91,76,245,0.12); }
+
+        .approve-btn {
+          display:flex; align-items:center; justify-content:center; gap:8px;
+          padding:14px 28px; border:none; border-radius:12px; cursor:pointer;
+          font-family:'Outfit',sans-serif; font-size:15px; font-weight:700;
+          background:linear-gradient(135deg,#0BAB6C,#059652);
+          color:#fff; transition:opacity 0.2s, transform 0.15s;
+          box-shadow:0 4px 20px rgba(11,171,108,0.3);
+          flex:1;
+        }
+        .approve-btn:hover { opacity:0.9; transform:translateY(-1px); }
+        .approve-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+        .revision-btn {
+          display:flex; align-items:center; justify-content:center; gap:8px;
+          padding:14px 28px; border-radius:12px; cursor:pointer;
+          font-family:'Outfit',sans-serif; font-size:15px; font-weight:700;
+          background:transparent;
+          border:1.5px solid rgba(15,14,26,0.15);
+          color:rgba(15,14,26,0.55); transition:all 0.15s;
+          flex:1;
+        }
+        .revision-btn:hover { border-color:rgba(15,14,26,0.3); color:#0f0e1a; background:rgba(15,14,26,0.04); }
+
+        .file-card {
+          display:flex; align-items:center; gap:14px;
+          padding:14px 18px; border-radius:12px;
+          background:#fff; border:1px solid rgba(15,14,26,0.07);
+          transition:all 0.15s; box-shadow:0 1px 4px rgba(15,14,26,0.05);
+        }
+        .file-card:hover { border-color:rgba(91,76,245,0.2); box-shadow:0 4px 16px rgba(91,76,245,0.08); transform:translateY(-1px); }
+
+        .feedback-area {
+          width:100%; min-height:100px; padding:14px 16px;
+          background:#fff; border:1.5px solid rgba(91,76,245,0.25);
+          border-radius:12px; color:#0f0e1a;
+          font-family:'Outfit',sans-serif; font-size:14px; line-height:1.6;
+          resize:vertical; outline:none; transition:border-color 0.2s;
+        }
+        .feedback-area::placeholder { color:rgba(15,14,26,0.3); }
+        .feedback-area:focus { border-color:rgba(91,76,245,0.55); }
+
+        .submit-feedback-btn {
+          padding:11px 24px; border:none; border-radius:10px;
+          background:linear-gradient(135deg,#5B4CF5,#7B6CF9);
+          color:#fff; font-family:'Outfit',sans-serif;
+          font-size:14px; font-weight:700; cursor:pointer;
+          transition:opacity 0.2s, transform 0.15s;
+        }
+        .submit-feedback-btn:hover:not(:disabled) { opacity:0.9; transform:translateY(-1px); }
+        .submit-feedback-btn:disabled { opacity:0.45; cursor:not-allowed; }
+
+        .confetti-piece {
+          position:fixed; width:8px; height:8px; border-radius:2px;
+          animation:confetti-fall 1.2s ease-out forwards;
+          pointer-events:none; z-index:999;
+        }
+
+        .success-toast {
+          position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+          background:#0f0e1a; color:#fff; padding:14px 24px;
+          border-radius:14px; font-size:14px; font-weight:600;
+          display:flex; align-items:center; gap:10px;
+          box-shadow:0 8px 32px rgba(0,0,0,0.25);
+          animation:pop 0.4s ease forwards; z-index:100;
+          white-space:nowrap;
+        }
+      `}</style>
+
+      {/* Confetti on approve */}
+      {approved && (
+        <>
+          {Array.from({ length: 24 }).map((_, i) => (
+            <div key={i} className="confetti-piece" style={{
+              left: `${Math.random()*100}%`,
+              top: `${Math.random()*30}%`,
+              background: ["#5B4CF5","#0BAB6C","#F5A623","#E85D75","#7B6CF9"][i%5],
+              animationDelay: `${Math.random()*0.5}s`,
+              animationDuration: `${0.8+Math.random()*0.8}s`,
+            }} />
           ))}
+          <div className="success-toast">
+            <span style={{ fontSize:"18px" }}>✓</span>
+            Stage approved! Your designer has been notified.
+          </div>
+        </>
+      )}
+
+      {submitted && (
+        <div className="success-toast">
+          <span style={{ fontSize:"18px" }}>📝</span>
+          Feedback sent! Your designer will get back to you.
+        </div>
+      )}
+
+      {/* Light BG texture */}
+      <div style={{
+        position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
+        backgroundImage:`
+          radial-gradient(ellipse 60% 50% at 100% 0%, rgba(91,76,245,0.06) 0%, transparent 70%),
+          radial-gradient(ellipse 50% 40% at 0% 100%, rgba(11,171,108,0.05) 0%, transparent 70%)
+        `,
+      }} />
+
+      {/* ── Top nav ── */}
+      <nav style={{
+        position:"sticky", top:0, zIndex:20,
+        background:"rgba(248,247,255,0.9)", backdropFilter:"blur(20px)",
+        borderBottom:"1px solid rgba(15,14,26,0.07)",
+        padding:"0 40px", display:"flex", alignItems:"center",
+        justifyContent:"space-between", height:"60px",
+      }}>
+        <span style={{ fontSize:"20px", fontWeight:800, letterSpacing:"-0.5px", color:"#0f0e1a" }}>
+          Portl<span style={{ color:"#5B4CF5", fontSize:"24px" }}>.</span>
+        </span>
+        <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+          <div style={{
+            width:"8px", height:"8px", borderRadius:"50%", background:"#0BAB6C",
+          }} />
+          <span style={{ fontSize:"13px", color:"rgba(15,14,26,0.45)", fontWeight:500 }}>
+            Live portal
+          </span>
+        </div>
+      </nav>
+
+      {/* ── Main ── */}
+      <main style={{ maxWidth:"720px", margin:"0 auto", padding:"48px 24px 80px", position:"relative", zIndex:1 }}>
+
+        {/* Project header */}
+        <div className="fi fi1" style={{ marginBottom:"40px" }}>
+          <div style={{
+            display:"inline-flex", alignItems:"center", gap:"6px",
+            background:"rgba(91,76,245,0.08)", border:"1px solid rgba(91,76,245,0.15)",
+            borderRadius:"20px", padding:"4px 12px", marginBottom:"14px",
+          }}>
+            <span style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#5B4CF5" }} />
+            <span style={{ fontSize:"12px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.07em" }}>
+              Your Project Portal
+            </span>
+          </div>
+
+          <h1 style={{ fontSize:"clamp(26px,5vw,38px)", fontWeight:800, letterSpacing:"-0.8px", marginBottom:"8px", lineHeight:1.1 }}>
+            {project?.name}
+          </h1>
+          <p style={{ fontSize:"15px", color:"rgba(15,14,26,0.45)", lineHeight:1.6 }}>
+            Hi {project?.client_name} 👋 — here&apos;s where you can track progress, review deliverables, and approve stages.
+          </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {stages.map((stage) => {
-            const files = stageFiles[stage.id] || []
-            const approval = stageApprovals[stage.id]
-            return (
-              <div key={stage.id} style={{ background: '#fff', border: '1px solid #E4E4E8', borderRadius: '12px', padding: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                  <h2 style={{ fontWeight: 600, fontSize: '1.05rem', color: '#12111A' }}>{stage.title}</h2>
-                  <span style={{
-                    fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: '999px',
-                    background: stage.status === 'complete' ? '#E6F9F2' : stage.status === 'in_progress' ? '#EEF0FE' : '#F4F4F6',
-                    color: stage.status === 'complete' ? '#0BAB6C' : stage.status === 'in_progress' ? '#5B4CF5' : '#8A8A9A',
-                  }}>
-                    {stage.status === 'complete' ? 'Complete' : stage.status === 'in_progress' ? 'In Progress' : 'Not Started'}
-                  </span>
-                </div>
-
-                {files.length > 0 && (
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <p style={{ fontSize: '0.8rem', color: '#8A8A9A', marginBottom: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Files</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {files.map((file: any) => (
-                        <div key={file.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0.85rem', background: '#F4F4F6', borderRadius: '8px' }}>
-                          <div>
-                            <p style={{ fontSize: '0.875rem', color: '#12111A', fontWeight: 500 }}>{file.name}</p>
-                            <p style={{ fontSize: '0.75rem', color: '#8A8A9A' }}>{formatSize(file.size)}</p>
-                          </div>
-                          <a href={file.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: '#5B4CF5', fontWeight: 600, textDecoration: 'none' }}>Open</a>
-                        </div>
-                      ))}
+        {/* Progress card */}
+        <div className="fi fi2" style={{
+          background:"#fff", border:"1px solid rgba(15,14,26,0.08)",
+          borderRadius:"18px", padding:"24px 28px", marginBottom:"32px",
+          boxShadow:"0 2px 16px rgba(15,14,26,0.06)",
+        }}>
+          {allComplete ? (
+            <div style={{ textAlign:"center", padding:"8px 0" }}>
+              <div style={{ fontSize:"36px", marginBottom:"8px" }}>🎉</div>
+              <div style={{ fontSize:"18px", fontWeight:800, color:"#0BAB6C", marginBottom:"4px" }}>Project Complete!</div>
+              <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.45)" }}>All stages have been approved. Amazing work!</div>
+            </div>
+          ) : (
+            <>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"12px" }}>
+                <span style={{ fontSize:"13px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em" }}>
+                  Overall Progress
+                </span>
+                <span style={{ fontSize:"14px", fontWeight:700, color: progressPct===100?"#0BAB6C":"#5B4CF5" }}>
+                  {completeCount} of {stages.length} stages complete
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div style={{ height:"8px", background:"rgba(15,14,26,0.07)", borderRadius:"99px", overflow:"hidden", marginBottom:"16px" }}>
+                <div style={{
+                  height:"100%", borderRadius:"99px",
+                  width:`${progressPct}%`,
+                  background:"linear-gradient(90deg,#5B4CF5,#0BAB6C)",
+                  transition:"width 0.6s ease",
+                }} />
+              </div>
+              {/* Stage pills summary */}
+              <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
+                {stages.map((s) => {
+                  const st = STAGE_STATUS[s.status];
+                  return (
+                    <div key={s.id} style={{
+                      display:"flex", alignItems:"center", gap:"5px",
+                      padding:"4px 10px", borderRadius:"20px",
+                      background: st.bg, fontSize:"12px", fontWeight:600,
+                      color: st.color,
+                    }}>
+                      <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:st.color }} />
+                      {s.name}
                     </div>
-                  </div>
-                )}
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
 
-                {approval && (
-                  <div>
-                    <p style={{ fontSize: '0.8rem', color: '#8A8A9A', marginBottom: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Approval</p>
-                    {approval.status === 'pending' && (
-                      <div>
-                        <p style={{ fontSize: '0.9rem', color: '#12111A', marginBottom: '1rem' }}>Your approval is needed for this stage.</p>
-                        {!showRevisionInput[stage.id] ? (
-                          <div style={{ display: 'flex', gap: '0.75rem' }}>
-                            <button onClick={() => handleApprove(stage.id)} style={{ background: '#0BAB6C', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.6rem 1.25rem', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
-                              Approve ✓
-                            </button>
-                            <button onClick={() => setShowRevisionInput(prev => ({ ...prev, [stage.id]: true }))} style={{ background: '#F4F4F6', color: '#12111A', border: '1px solid #E4E4E8', borderRadius: '8px', padding: '0.6rem 1.25rem', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
-                              Request Revision
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            <textarea
-                              placeholder="Describe what needs to be changed..."
-                              value={revisionNotes[stage.id] || ''}
-                              onChange={(e) => setRevisionNotes(prev => ({ ...prev, [stage.id]: e.target.value }))}
-                              style={{ width: '100%', minHeight: '80px', padding: '0.75rem', borderRadius: '8px', border: '1px solid #E4E4E8', fontSize: '0.875rem', fontFamily: 'inherit', marginBottom: '0.75rem', boxSizing: 'border-box', resize: 'vertical' }}
-                            />
-                            <div style={{ display: 'flex', gap: '0.75rem' }}>
-                              <button onClick={() => handleRevision(stage.id)} style={{ background: '#EF4444', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.6rem 1.25rem', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
-                                Submit Revision Request
-                              </button>
-                              <button onClick={() => setShowRevisionInput(prev => ({ ...prev, [stage.id]: false }))} style={{ background: 'none', color: '#8A8A9A', border: 'none', fontSize: '0.9rem', cursor: 'pointer' }}>
-                                Cancel
-                              </button>
-                            </div>
+        {/* Stage tabs */}
+        {stages.length > 0 && (
+          <div className="fi fi3" style={{ display:"flex", gap:"0", overflowX:"auto", marginBottom:"24px", paddingBottom:"4px" }}>
+            {stages.map((stage, i) => {
+              const st = STAGE_STATUS[stage.status];
+              const isActive = activeStageId === stage.id;
+              const fileCount = files.filter(f => f.stage_id === stage.id).length;
+              return (
+                <div key={stage.id} style={{ display:"flex", alignItems:"center" }}>
+                  <button className={`stage-tab${isActive?" active":""}`} onClick={() => setActiveStageId(stage.id)}>
+                    <span style={{
+                      width:"20px", height:"20px", borderRadius:"50%", flexShrink:0,
+                      background: stage.status==="complete" ? "#0BAB6C" : isActive ? "#5B4CF5" : "rgba(15,14,26,0.08)",
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      fontSize:"10px", fontWeight:700,
+                      color: stage.status==="complete"||isActive ? "#fff" : "rgba(15,14,26,0.35)",
+                    }}>
+                      {stage.status==="complete" ? "✓" : i+1}
+                    </span>
+                    {stage.name}
+                    <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:st.color, flexShrink:0 }} />
+                    {fileCount > 0 && (
+                      <span style={{ background:"rgba(91,76,245,0.1)", color:"#5B4CF5", fontSize:"10px", fontWeight:700, borderRadius:"10px", padding:"1px 6px" }}>
+                        {fileCount}
+                      </span>
+                    )}
+                  </button>
+                  {i < stages.length-1 && (
+                    <div style={{ width:"16px", height:"1px", background:"rgba(15,14,26,0.1)", flexShrink:0 }} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Active stage panel */}
+        {activeStage && (
+          <div className="fi fi4" style={{
+            background:"#fff", border:"1px solid rgba(15,14,26,0.08)",
+            borderRadius:"18px", padding:"32px",
+            boxShadow:"0 2px 16px rgba(15,14,26,0.06)",
+          }}>
+
+            {/* Stage header */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"20px", flexWrap:"wrap", gap:"12px" }}>
+              <div>
+                <h2 style={{ fontSize:"20px", fontWeight:800, marginBottom:"6px" }}>{activeStage.name}</h2>
+                <div style={{
+                  display:"inline-flex", alignItems:"center", gap:"5px",
+                  background: STAGE_STATUS[activeStage.status].bg,
+                  color: STAGE_STATUS[activeStage.status].color,
+                  padding:"3px 10px", borderRadius:"20px",
+                  fontSize:"11px", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em",
+                }}>
+                  <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:STAGE_STATUS[activeStage.status].color }} />
+                  {STAGE_STATUS[activeStage.status].label}
+                </div>
+              </div>
+            </div>
+
+            {/* Designer notes */}
+            {activeStage.notes && (
+              <div style={{
+                background:"rgba(91,76,245,0.04)", border:"1px solid rgba(91,76,245,0.12)",
+                borderRadius:"12px", padding:"16px 20px", marginBottom:"24px",
+              }}>
+                <div style={{ fontSize:"11px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"8px" }}>
+                  📌 Note from your designer
+                </div>
+                <p style={{ fontSize:"14px", color:"rgba(15,14,26,0.7)", lineHeight:1.7, whiteSpace:"pre-wrap" }}>
+                  {activeStage.notes}
+                </p>
+              </div>
+            )}
+
+            {/* Divider */}
+            <div style={{ height:"1px", background:"rgba(15,14,26,0.07)", marginBottom:"24px" }} />
+
+            {/* Files */}
+            <div style={{ marginBottom:"28px" }}>
+              <h3 style={{ fontSize:"13px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>
+                Deliverables
+                {activeStageFiles.length > 0 && (
+                  <span style={{ marginLeft:"6px", fontWeight:400, textTransform:"none", color:"rgba(15,14,26,0.3)", letterSpacing:0 }}>
+                    {activeStageFiles.length} file{activeStageFiles.length!==1?"s":""}
+                  </span>
+                )}
+              </h3>
+
+              {activeStageFiles.length === 0 ? (
+                <div style={{
+                  padding:"32px", textAlign:"center",
+                  border:"1.5px dashed rgba(15,14,26,0.1)", borderRadius:"12px",
+                  color:"rgba(15,14,26,0.35)", fontSize:"14px",
+                }}>
+                  No files uploaded yet — check back soon.
+                </div>
+              ) : (
+                <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
+                  {activeStageFiles.map((file) => (
+                    <div key={file.id} className="file-card">
+                      <div style={{
+                        width:"40px", height:"40px", borderRadius:"10px",
+                        background:"rgba(91,76,245,0.07)", border:"1px solid rgba(91,76,245,0.12)",
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:"18px", flexShrink:0,
+                      }}>{fileIcon(file.name)}</div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:"14px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"#0f0e1a" }}>
+                          {file.name}
+                        </div>
+                        {file.file_size && (
+                          <div style={{ fontSize:"12px", color:"rgba(15,14,26,0.35)", marginTop:"2px" }}>
+                            {formatBytes(file.file_size)}
                           </div>
                         )}
                       </div>
-                    )}
-                    {approval.status === 'complete' && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1rem', background: '#E6F9F2', borderRadius: '8px' }}>
-                        <span style={{ color: '#0BAB6C', fontWeight: 600 }}>✓ Approved</span>
-                      </div>
-                    )}
-                    {approval.status === 'revision' && (
-                      <div style={{ padding: '0.75rem 1rem', background: '#FEF2F2', borderRadius: '8px', border: '1px solid #FECACA' }}>
-                        <p style={{ color: '#EF4444', fontWeight: 600, marginBottom: approval.client_note ? '0.4rem' : 0 }}>Revision Requested</p>
-                        {approval.client_note && <p style={{ color: '#12111A', fontSize: '0.875rem' }}>{approval.client_note}</p>}
-                      </div>
-                    )}
+                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{
+                        padding:"8px 16px", borderRadius:"8px",
+                        background:"rgba(91,76,245,0.08)", border:"1px solid rgba(91,76,245,0.15)",
+                        color:"#5B4CF5", fontSize:"13px", fontWeight:700,
+                        textDecoration:"none", transition:"all 0.15s", whiteSpace:"nowrap",
+                        fontFamily:"'Outfit',sans-serif",
+                      }}>View →</a>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div style={{ height:"1px", background:"rgba(15,14,26,0.07)", marginBottom:"24px" }} />
+
+            {/* Approval actions */}
+            {activeStage.status !== "complete" ? (
+              <div>
+                <h3 style={{ fontSize:"13px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>
+                  Your Review
+                </h3>
+
+                {!showFeedback ? (
+                  <div style={{ display:"flex", gap:"12px" }}>
+                    <button className="approve-btn" onClick={handleApprove}>
+                      ✓ Approve this stage
+                    </button>
+                    <button className="revision-btn" onClick={() => setShowFeedback(true)}>
+                      ✏️ Request changes
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+                    <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.55)", marginBottom:"4px" }}>
+                      What changes would you like? Be as specific as possible.
+                    </div>
+                    <textarea
+                      className="feedback-area"
+                      value={feedback}
+                      onChange={e => setFeedback(e.target.value)}
+                      placeholder="e.g. Can we try a darker shade of blue? The logo feels too large on mobile…"
+                    />
+                    <div style={{ display:"flex", gap:"10px" }}>
+                      <button className="submit-feedback-btn" disabled={!feedback.trim()} onClick={handleRevision}>
+                        Send feedback →
+                      </button>
+                      <button onClick={() => { setShowFeedback(false); setFeedback(""); }} style={{
+                        padding:"11px 20px", borderRadius:"10px", border:"1px solid rgba(15,14,26,0.12)",
+                        background:"transparent", color:"rgba(15,14,26,0.45)",
+                        fontFamily:"'Outfit',sans-serif", fontSize:"14px", fontWeight:600, cursor:"pointer",
+                      }}>Cancel</button>
+                    </div>
                   </div>
                 )}
-
-                {files.length === 0 && !approval && (
-                  <p style={{ color: '#8A8A9A', fontSize: '0.875rem' }}>Nothing to review yet for this stage.</p>
-                )}
               </div>
-            )
-          })}
+            ) : (
+              <div style={{
+                display:"flex", alignItems:"center", gap:"12px",
+                padding:"16px 20px", borderRadius:"12px",
+                background:"rgba(11,171,108,0.07)", border:"1px solid rgba(11,171,108,0.2)",
+              }}>
+                <span style={{ fontSize:"22px" }}>✓</span>
+                <div>
+                  <div style={{ fontSize:"15px", fontWeight:700, color:"#0BAB6C" }}>Stage approved</div>
+                  <div style={{ fontSize:"13px", color:"rgba(15,14,26,0.45)" }}>Your designer has been notified and will move to the next stage.</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Powered by Portl */}
+        <div style={{ textAlign:"center", marginTop:"48px" }}>
+          <span style={{ fontSize:"12px", color:"rgba(15,14,26,0.25)", fontWeight:500 }}>
+            Powered by{" "}
+            <span style={{ fontWeight:700, color:"rgba(91,76,245,0.5)" }}>Portl.</span>
+          </span>
         </div>
       </main>
     </div>
-  )
+  );
 }
