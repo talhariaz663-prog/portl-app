@@ -294,7 +294,7 @@ export default function DashboardPage() {
             <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)", maxWidth: "320px", lineHeight: 1.6 }}>
               Create your first project and start delivering work to clients like a pro.
             </div>
-            <button className="new-btn" style={{ marginTop: "8px" }} onClick={() => router.push("/dashboard/new-project")}>
+            <button className="new-btn" style={{ marginTop: "8px" }} onClick={() => router.push("/dashboard/new")}>
               <span style={{ fontSize: "18px", lineHeight: "1" }}>+</span> Create First Project
             </button>
           </div>
@@ -358,7 +358,7 @@ export default function DashboardPage() {
                   display: "flex", flexDirection: "column", alignItems: "center",
                   justifyContent: "center", gap: "12px", minHeight: "200px",
                 }}
-                onClick={() => router.push("/dashboard/new-project")}
+                onClick={() => router.push("/dashboard/new")}
               >
                 <div style={{
                   width: "44px", height: "44px", borderRadius: "50%",
