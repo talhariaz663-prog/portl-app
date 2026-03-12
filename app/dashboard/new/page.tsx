@@ -83,7 +83,7 @@ export default function NewProjectPage() {
     if (pe || !proj) { setError(pe?.message ?? "Failed to create project."); setLoading(false); return; }
 
     const stageRows = stages.map((s, i) => ({
-      project_id: proj.id, name: s, position: i, status: "not_started",
+      project_id: proj.id, title: s, position: i, status: "not_started",
     }));
 
     const { error: se } = await supabase.from("stages").insert(stageRows);
