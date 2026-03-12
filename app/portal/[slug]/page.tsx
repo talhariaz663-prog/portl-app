@@ -15,7 +15,7 @@ interface Project {
 
 interface Stage {
   id: string;
-  name: string;
+  title: string;
   position: number;
   status: StageStatus;
   notes: string | null;
@@ -32,8 +32,8 @@ interface ProjectFile {
 
 const STAGE_STATUS = {
   not_started: { label: "Not Started", color: "#6b7280", bg: "rgba(107,114,128,0.12)" },
-  in_progress:  { label: "In Progress", color: "#F5A623", bg: "rgba(245,166,35,0.12)"  },
-  complete:     { label: "Complete",    color: "#0BAB6C", bg: "rgba(11,171,108,0.12)"  },
+  in_progress: { label: "In Progress", color: "#F5A623", bg: "rgba(245,166,35,0.12)"  },
+  complete:    { label: "Complete",    color: "#0BAB6C", bg: "rgba(11,171,108,0.12)"  },
 };
 
 function formatBytes(b: number) {
@@ -70,10 +70,8 @@ export default function ClientPortalPage() {
     setLoading(true); setError(null);
 
     const { data: proj, error: pe } = await supabase
-      .from("projects")
-      .select("id, name, client_name, status")
-      .eq("portal_slug", slug)
-      .single();
+      .from("projects").select("id, name, client_name, status")
+      .eq("portal_slug", slug).single();
 
     if (pe || !proj) { setError("Portal not found."); setLoading(false); return; }
     setProject(proj as Project);
@@ -81,7 +79,7 @@ export default function ClientPortalPage() {
     const { data: sd } = await supabase
       .from("stages").select("*")
       .eq("project_id", proj.id).order("position", { ascending: true });
-    const sl = (sd as Stage[]) ?? [];
+    const sl = (sd as unknown as Stage[]) ?? [];
     setStages(sl);
     if (sl.length > 0) setActiveStageId(sl[0].id);
 
@@ -89,7 +87,6 @@ export default function ClientPortalPage() {
       .from("files").select("*")
       .eq("project_id", proj.id).order("created_at", { ascending: false });
     setFiles((fd as ProjectFile[]) ?? []);
-
     setLoading(false);
   }, [supabase, slug]);
 
@@ -105,7 +102,6 @@ export default function ClientPortalPage() {
 
   const handleRevision = async () => {
     if (!activeStageId || !feedback.trim()) return;
-    // Store feedback as a note update (prepend to existing notes)
     const stage = stages.find(s => s.id === activeStageId);
     const newNote = `📝 Client revision request:\n${feedback.trim()}\n\n${stage?.notes ?? ""}`.trim();
     await supabase.from("stages").update({ status: "in_progress", notes: newNote }).eq("id", activeStageId);
@@ -123,21 +119,21 @@ export default function ClientPortalPage() {
   const allComplete      = stages.length > 0 && completeCount === stages.length;
 
   if (loading) return (
-    <div style={{ minHeight:"100vh", background:"#080a18", display:"flex", alignItems:"center", justifyContent:"center" }}>
+    <div style={{ minHeight:"100vh", background:"#f8f7ff", display:"flex", alignItems:"center", justifyContent:"center" }}>
       <div style={{ textAlign:"center" }}>
-        <div style={{ width:"36px", height:"36px", border:"2px solid rgba(255,255,255,0.08)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }} />
-        <div style={{ fontSize:"14px", color:"rgba(255,255,255,0.3)", fontFamily:"'Outfit',sans-serif" }}>Loading your portal…</div>
+        <div style={{ width:"36px", height:"36px", border:"2px solid rgba(91,76,245,0.2)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }} />
+        <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.4)", fontFamily:"'Outfit',sans-serif" }}>Loading your portal…</div>
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
   if (error) return (
-    <div style={{ minHeight:"100vh", background:"#080a18", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Outfit',sans-serif" }}>
+    <div style={{ minHeight:"100vh", background:"#f8f7ff", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Outfit',sans-serif", padding:"24px" }}>
       <div style={{ textAlign:"center", maxWidth:"320px" }}>
         <div style={{ fontSize:"40px", marginBottom:"16px" }}>⬡</div>
-        <h2 style={{ color:"#fff", fontSize:"20px", fontWeight:700, marginBottom:"8px" }}>Portal not found</h2>
-        <p style={{ color:"rgba(255,255,255,0.35)", fontSize:"14px", lineHeight:1.6 }}>
+        <h2 style={{ color:"#0f0e1a", fontSize:"20px", fontWeight:700, marginBottom:"8px" }}>Portal not found</h2>
+        <p style={{ color:"rgba(15,14,26,0.45)", fontSize:"14px", lineHeight:1.6 }}>
           This link may have expired or the project was removed.
         </p>
       </div>
@@ -151,19 +147,19 @@ export default function ClientPortalPage() {
         * { box-sizing:border-box; margin:0; padding:0; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin { to{transform:rotate(360deg)} }
-        @keyframes pop { 0%{transform:scale(0.8);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+        @keyframes pop { 0%{transform:scale(0.8) translateX(-50%);opacity:0} 60%{transform:scale(1.05) translateX(-50%)} 100%{transform:scale(1) translateX(-50%);opacity:1} }
         @keyframes confetti-fall {
           0%{transform:translateY(-10px) rotate(0deg);opacity:1}
           100%{transform:translateY(80px) rotate(720deg);opacity:0}
         }
 
         .fi{animation:fadeUp 0.5s ease forwards;opacity:0}
-        .fi1{animation-delay:0.05s} .fi2{animation-delay:0.12s}
-        .fi3{animation-delay:0.20s} .fi4{animation-delay:0.28s}
+        .fi1{animation-delay:0.05s}.fi2{animation-delay:0.12s}
+        .fi3{animation-delay:0.20s}.fi4{animation-delay:0.28s}
 
         .stage-tab {
-          display:flex; align-items:center; gap:8px;
-          padding:10px 18px; border-radius:10px; cursor:pointer;
+          display:flex; align-items:center; gap:7px;
+          padding:9px 14px; border-radius:10px; cursor:pointer;
           font-family:'Outfit',sans-serif; font-size:13px; font-weight:500;
           white-space:nowrap; transition:all 0.18s ease;
           border:1px solid rgba(15,14,26,0.08);
@@ -174,34 +170,30 @@ export default function ClientPortalPage() {
 
         .approve-btn {
           display:flex; align-items:center; justify-content:center; gap:8px;
-          padding:14px 28px; border:none; border-radius:12px; cursor:pointer;
+          padding:14px; border:none; border-radius:12px; cursor:pointer;
           font-family:'Outfit',sans-serif; font-size:15px; font-weight:700;
           background:linear-gradient(135deg,#0BAB6C,#059652);
           color:#fff; transition:opacity 0.2s, transform 0.15s;
-          box-shadow:0 4px 20px rgba(11,171,108,0.3);
-          flex:1;
+          box-shadow:0 4px 20px rgba(11,171,108,0.25); flex:1;
         }
         .approve-btn:hover { opacity:0.9; transform:translateY(-1px); }
-        .approve-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
 
         .revision-btn {
           display:flex; align-items:center; justify-content:center; gap:8px;
-          padding:14px 28px; border-radius:12px; cursor:pointer;
+          padding:14px; border-radius:12px; cursor:pointer;
           font-family:'Outfit',sans-serif; font-size:15px; font-weight:700;
-          background:transparent;
-          border:1.5px solid rgba(15,14,26,0.15);
-          color:rgba(15,14,26,0.55); transition:all 0.15s;
-          flex:1;
+          background:transparent; border:1.5px solid rgba(15,14,26,0.15);
+          color:rgba(15,14,26,0.55); transition:all 0.15s; flex:1;
         }
         .revision-btn:hover { border-color:rgba(15,14,26,0.3); color:#0f0e1a; background:rgba(15,14,26,0.04); }
 
         .file-card {
-          display:flex; align-items:center; gap:14px;
-          padding:14px 18px; border-radius:12px;
+          display:flex; align-items:center; gap:12px;
+          padding:12px 16px; border-radius:12px;
           background:#fff; border:1px solid rgba(15,14,26,0.07);
           transition:all 0.15s; box-shadow:0 1px 4px rgba(15,14,26,0.05);
         }
-        .file-card:hover { border-color:rgba(91,76,245,0.2); box-shadow:0 4px 16px rgba(91,76,245,0.08); transform:translateY(-1px); }
+        .file-card:hover { border-color:rgba(91,76,245,0.2); box-shadow:0 4px 16px rgba(91,76,245,0.08); }
 
         .feedback-area {
           width:100%; min-height:100px; padding:14px 16px;
@@ -213,15 +205,14 @@ export default function ClientPortalPage() {
         .feedback-area::placeholder { color:rgba(15,14,26,0.3); }
         .feedback-area:focus { border-color:rgba(91,76,245,0.55); }
 
-        .submit-feedback-btn {
-          padding:11px 24px; border:none; border-radius:10px;
+        .submit-btn {
+          padding:12px 24px; border:none; border-radius:10px;
           background:linear-gradient(135deg,#5B4CF5,#7B6CF9);
           color:#fff; font-family:'Outfit',sans-serif;
           font-size:14px; font-weight:700; cursor:pointer;
-          transition:opacity 0.2s, transform 0.15s;
+          transition:opacity 0.2s; flex:1;
         }
-        .submit-feedback-btn:hover:not(:disabled) { opacity:0.9; transform:translateY(-1px); }
-        .submit-feedback-btn:disabled { opacity:0.45; cursor:not-allowed; }
+        .submit-btn:disabled { opacity:0.45; cursor:not-allowed; }
 
         .confetti-piece {
           position:fixed; width:8px; height:8px; border-radius:2px;
@@ -234,22 +225,37 @@ export default function ClientPortalPage() {
           background:#0f0e1a; color:#fff; padding:14px 24px;
           border-radius:14px; font-size:14px; font-weight:600;
           display:flex; align-items:center; gap:10px;
-          box-shadow:0 8px 32px rgba(0,0,0,0.25);
+          box-shadow:0 8px 32px rgba(0,0,0,0.2);
           animation:pop 0.4s ease forwards; z-index:100;
           white-space:nowrap;
         }
+
+        /* Stage tabs scrollable, hide scrollbar */
+        .tabs-scroll { overflow-x:auto; scrollbar-width:none; }
+        .tabs-scroll::-webkit-scrollbar { display:none; }
+
+        /* Mobile adjustments */
+        @media (max-width:768px) {
+          .nav-padding { padding:0 16px !important; }
+          .main-padding { padding:32px 16px 80px !important; }
+          .stage-panel { padding:20px !important; }
+          .action-row { flex-direction:column !important; }
+          .action-row .approve-btn,
+          .action-row .revision-btn { flex:none !important; width:100% !important; }
+          .file-name { font-size:13px !important; }
+          .progress-header { flex-direction:column !important; align-items:flex-start !important; gap:4px !important; }
+        }
       `}</style>
 
-      {/* Confetti on approve */}
+      {/* Confetti */}
       {approved && (
         <>
           {Array.from({ length: 24 }).map((_, i) => (
             <div key={i} className="confetti-piece" style={{
-              left: `${Math.random()*100}%`,
-              top: `${Math.random()*30}%`,
-              background: ["#5B4CF5","#0BAB6C","#F5A623","#E85D75","#7B6CF9"][i%5],
-              animationDelay: `${Math.random()*0.5}s`,
-              animationDuration: `${0.8+Math.random()*0.8}s`,
+              left:`${Math.random()*100}%`, top:`${Math.random()*30}%`,
+              background:["#5B4CF5","#0BAB6C","#F5A623","#E85D75","#7B6CF9"][i%5],
+              animationDelay:`${Math.random()*0.5}s`,
+              animationDuration:`${0.8+Math.random()*0.8}s`,
             }} />
           ))}
           <div className="success-toast">
@@ -266,104 +272,80 @@ export default function ClientPortalPage() {
         </div>
       )}
 
-      {/* Light BG texture */}
+      {/* BG */}
       <div style={{
         position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
         backgroundImage:`
-          radial-gradient(ellipse 60% 50% at 100% 0%, rgba(91,76,245,0.06) 0%, transparent 70%),
-          radial-gradient(ellipse 50% 40% at 0% 100%, rgba(11,171,108,0.05) 0%, transparent 70%)
+          radial-gradient(ellipse 60% 50% at 100% 0%,rgba(91,76,245,0.06) 0%,transparent 70%),
+          radial-gradient(ellipse 50% 40% at 0% 100%,rgba(11,171,108,0.05) 0%,transparent 70%)
         `,
       }} />
 
-      {/* ── Top nav ── */}
+      {/* Nav */}
       <nav style={{
         position:"sticky", top:0, zIndex:20,
-        background:"rgba(248,247,255,0.9)", backdropFilter:"blur(20px)",
+        background:"rgba(248,247,255,0.92)", backdropFilter:"blur(20px)",
         borderBottom:"1px solid rgba(15,14,26,0.07)",
-        padding:"0 40px", display:"flex", alignItems:"center",
-        justifyContent:"space-between", height:"60px",
+        height:"60px",
       }}>
-        <span style={{ fontSize:"20px", fontWeight:800, letterSpacing:"-0.5px", color:"#0f0e1a" }}>
-          Portl<span style={{ color:"#5B4CF5", fontSize:"24px" }}>.</span>
-        </span>
-        <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-          <div style={{
-            width:"8px", height:"8px", borderRadius:"50%", background:"#0BAB6C",
-          }} />
-          <span style={{ fontSize:"13px", color:"rgba(15,14,26,0.45)", fontWeight:500 }}>
-            Live portal
+        <div className="nav-padding" style={{ maxWidth:"720px", margin:"0 auto", height:"100%", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px" }}>
+          <span style={{ fontSize:"20px", fontWeight:800, letterSpacing:"-0.5px", color:"#0f0e1a" }}>
+            Portl<span style={{ color:"#5B4CF5", fontSize:"24px" }}>.</span>
           </span>
+          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+            <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:"#0BAB6C" }} />
+            <span style={{ fontSize:"13px", color:"rgba(15,14,26,0.45)", fontWeight:500 }}>Live portal</span>
+          </div>
         </div>
       </nav>
 
-      {/* ── Main ── */}
-      <main style={{ maxWidth:"720px", margin:"0 auto", padding:"48px 24px 80px", position:"relative", zIndex:1 }}>
+      {/* Main */}
+      <main className="main-padding" style={{ maxWidth:"720px", margin:"0 auto", padding:"48px 24px 80px", position:"relative", zIndex:1 }}>
 
-        {/* Project header */}
-        <div className="fi fi1" style={{ marginBottom:"40px" }}>
+        {/* Header */}
+        <div className="fi fi1" style={{ marginBottom:"32px" }}>
           <div style={{
             display:"inline-flex", alignItems:"center", gap:"6px",
             background:"rgba(91,76,245,0.08)", border:"1px solid rgba(91,76,245,0.15)",
             borderRadius:"20px", padding:"4px 12px", marginBottom:"14px",
           }}>
             <span style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#5B4CF5" }} />
-            <span style={{ fontSize:"12px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.07em" }}>
-              Your Project Portal
-            </span>
+            <span style={{ fontSize:"12px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.07em" }}>Your Project Portal</span>
           </div>
-
-          <h1 style={{ fontSize:"clamp(26px,5vw,38px)", fontWeight:800, letterSpacing:"-0.8px", marginBottom:"8px", lineHeight:1.1 }}>
+          <h1 style={{ fontSize:"clamp(24px,5vw,38px)", fontWeight:800, letterSpacing:"-0.8px", marginBottom:"8px", lineHeight:1.1 }}>
             {project?.name}
           </h1>
           <p style={{ fontSize:"15px", color:"rgba(15,14,26,0.45)", lineHeight:1.6 }}>
-            Hi {project?.client_name} 👋 — here&apos;s where you can track progress, review deliverables, and approve stages.
+            Hi {project?.client_name} 👋 — track progress, review deliverables, and approve stages.
           </p>
         </div>
 
         {/* Progress card */}
-        <div className="fi fi2" style={{
-          background:"#fff", border:"1px solid rgba(15,14,26,0.08)",
-          borderRadius:"18px", padding:"24px 28px", marginBottom:"32px",
-          boxShadow:"0 2px 16px rgba(15,14,26,0.06)",
-        }}>
+        <div className="fi fi2" style={{ background:"#fff", border:"1px solid rgba(15,14,26,0.08)", borderRadius:"18px", padding:"20px 24px", marginBottom:"24px", boxShadow:"0 2px 16px rgba(15,14,26,0.06)" }}>
           {allComplete ? (
             <div style={{ textAlign:"center", padding:"8px 0" }}>
-              <div style={{ fontSize:"36px", marginBottom:"8px" }}>🎉</div>
+              <div style={{ fontSize:"32px", marginBottom:"8px" }}>🎉</div>
               <div style={{ fontSize:"18px", fontWeight:800, color:"#0BAB6C", marginBottom:"4px" }}>Project Complete!</div>
-              <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.45)" }}>All stages have been approved. Amazing work!</div>
+              <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.45)" }}>All stages approved. Amazing work!</div>
             </div>
           ) : (
             <>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"12px" }}>
-                <span style={{ fontSize:"13px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em" }}>
-                  Overall Progress
-                </span>
-                <span style={{ fontSize:"14px", fontWeight:700, color: progressPct===100?"#0BAB6C":"#5B4CF5" }}>
+              <div className="progress-header" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"12px" }}>
+                <span style={{ fontSize:"12px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em" }}>Overall Progress</span>
+                <span style={{ fontSize:"13px", fontWeight:700, color:progressPct===100?"#0BAB6C":"#5B4CF5" }}>
                   {completeCount} of {stages.length} stages complete
                 </span>
               </div>
-              {/* Progress bar */}
-              <div style={{ height:"8px", background:"rgba(15,14,26,0.07)", borderRadius:"99px", overflow:"hidden", marginBottom:"16px" }}>
-                <div style={{
-                  height:"100%", borderRadius:"99px",
-                  width:`${progressPct}%`,
-                  background:"linear-gradient(90deg,#5B4CF5,#0BAB6C)",
-                  transition:"width 0.6s ease",
-                }} />
+              <div style={{ height:"8px", background:"rgba(15,14,26,0.07)", borderRadius:"99px", overflow:"hidden", marginBottom:"14px" }}>
+                <div style={{ height:"100%", borderRadius:"99px", width:`${progressPct}%`, background:"linear-gradient(90deg,#5B4CF5,#0BAB6C)", transition:"width 0.6s ease" }} />
               </div>
-              {/* Stage pills summary */}
               <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
-                {stages.map((s) => {
+                {stages.map(s => {
                   const st = STAGE_STATUS[s.status];
                   return (
-                    <div key={s.id} style={{
-                      display:"flex", alignItems:"center", gap:"5px",
-                      padding:"4px 10px", borderRadius:"20px",
-                      background: st.bg, fontSize:"12px", fontWeight:600,
-                      color: st.color,
-                    }}>
+                    <div key={s.id} style={{ display:"flex", alignItems:"center", gap:"5px", padding:"4px 10px", borderRadius:"20px", background:st.bg, fontSize:"12px", fontWeight:600, color:st.color }}>
                       <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:st.color }} />
-                      {s.name}
+                      {s.title}
                     </div>
                   );
                 })}
@@ -374,34 +356,26 @@ export default function ClientPortalPage() {
 
         {/* Stage tabs */}
         {stages.length > 0 && (
-          <div className="fi fi3" style={{ display:"flex", gap:"0", overflowX:"auto", marginBottom:"24px", paddingBottom:"4px" }}>
+          <div className="fi fi3 tabs-scroll" style={{ display:"flex", marginBottom:"20px", paddingBottom:"4px", gap:"0" }}>
             {stages.map((stage, i) => {
               const st = STAGE_STATUS[stage.status];
               const isActive = activeStageId === stage.id;
-              const fileCount = files.filter(f => f.stage_id === stage.id).length;
+              const fc = files.filter(f => f.stage_id === stage.id).length;
               return (
                 <div key={stage.id} style={{ display:"flex", alignItems:"center" }}>
                   <button className={`stage-tab${isActive?" active":""}`} onClick={() => setActiveStageId(stage.id)}>
                     <span style={{
                       width:"20px", height:"20px", borderRadius:"50%", flexShrink:0,
-                      background: stage.status==="complete" ? "#0BAB6C" : isActive ? "#5B4CF5" : "rgba(15,14,26,0.08)",
+                      background:stage.status==="complete"?"#0BAB6C":isActive?"#5B4CF5":"rgba(15,14,26,0.08)",
                       display:"flex", alignItems:"center", justifyContent:"center",
                       fontSize:"10px", fontWeight:700,
-                      color: stage.status==="complete"||isActive ? "#fff" : "rgba(15,14,26,0.35)",
-                    }}>
-                      {stage.status==="complete" ? "✓" : i+1}
-                    </span>
-                    {stage.name}
+                      color:stage.status==="complete"||isActive?"#fff":"rgba(15,14,26,0.35)",
+                    }}>{stage.status==="complete"?"✓":i+1}</span>
+                    {stage.title}
                     <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:st.color, flexShrink:0 }} />
-                    {fileCount > 0 && (
-                      <span style={{ background:"rgba(91,76,245,0.1)", color:"#5B4CF5", fontSize:"10px", fontWeight:700, borderRadius:"10px", padding:"1px 6px" }}>
-                        {fileCount}
-                      </span>
-                    )}
+                    {fc>0&&<span style={{ background:"rgba(91,76,245,0.1)", color:"#5B4CF5", fontSize:"10px", fontWeight:700, borderRadius:"10px", padding:"1px 6px" }}>{fc}</span>}
                   </button>
-                  {i < stages.length-1 && (
-                    <div style={{ width:"16px", height:"1px", background:"rgba(15,14,26,0.1)", flexShrink:0 }} />
-                  )}
+                  {i<stages.length-1&&<div style={{ width:"12px", height:"1px", background:"rgba(15,14,26,0.1)", flexShrink:0 }} />}
                 </div>
               );
             })}
@@ -410,135 +384,83 @@ export default function ClientPortalPage() {
 
         {/* Active stage panel */}
         {activeStage && (
-          <div className="fi fi4" style={{
-            background:"#fff", border:"1px solid rgba(15,14,26,0.08)",
-            borderRadius:"18px", padding:"32px",
-            boxShadow:"0 2px 16px rgba(15,14,26,0.06)",
-          }}>
+          <div className="fi fi4 stage-panel" style={{ background:"#fff", border:"1px solid rgba(15,14,26,0.08)", borderRadius:"18px", padding:"28px", boxShadow:"0 2px 16px rgba(15,14,26,0.06)" }}>
 
             {/* Stage header */}
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"20px", flexWrap:"wrap", gap:"12px" }}>
-              <div>
-                <h2 style={{ fontSize:"20px", fontWeight:800, marginBottom:"6px" }}>{activeStage.name}</h2>
-                <div style={{
-                  display:"inline-flex", alignItems:"center", gap:"5px",
-                  background: STAGE_STATUS[activeStage.status].bg,
-                  color: STAGE_STATUS[activeStage.status].color,
-                  padding:"3px 10px", borderRadius:"20px",
-                  fontSize:"11px", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em",
-                }}>
-                  <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:STAGE_STATUS[activeStage.status].color }} />
-                  {STAGE_STATUS[activeStage.status].label}
-                </div>
+            <div style={{ marginBottom:"20px" }}>
+              <h2 style={{ fontSize:"clamp(17px,3vw,20px)", fontWeight:800, marginBottom:"8px" }}>{activeStage.title}</h2>
+              <div style={{
+                display:"inline-flex", alignItems:"center", gap:"5px",
+                background:STAGE_STATUS[activeStage.status].bg,
+                color:STAGE_STATUS[activeStage.status].color,
+                padding:"3px 10px", borderRadius:"20px",
+                fontSize:"11px", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em",
+              }}>
+                <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:STAGE_STATUS[activeStage.status].color }} />
+                {STAGE_STATUS[activeStage.status].label}
               </div>
             </div>
 
             {/* Designer notes */}
             {activeStage.notes && (
-              <div style={{
-                background:"rgba(91,76,245,0.04)", border:"1px solid rgba(91,76,245,0.12)",
-                borderRadius:"12px", padding:"16px 20px", marginBottom:"24px",
-              }}>
+              <div style={{ background:"rgba(91,76,245,0.04)", border:"1px solid rgba(91,76,245,0.12)", borderRadius:"12px", padding:"16px", marginBottom:"20px" }}>
                 <div style={{ fontSize:"11px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"8px" }}>
                   📌 Note from your designer
                 </div>
-                <p style={{ fontSize:"14px", color:"rgba(15,14,26,0.7)", lineHeight:1.7, whiteSpace:"pre-wrap" }}>
-                  {activeStage.notes}
-                </p>
+                <p style={{ fontSize:"14px", color:"rgba(15,14,26,0.7)", lineHeight:1.7, whiteSpace:"pre-wrap" }}>{activeStage.notes}</p>
               </div>
             )}
 
-            {/* Divider */}
-            <div style={{ height:"1px", background:"rgba(15,14,26,0.07)", marginBottom:"24px" }} />
+            <div style={{ height:"1px", background:"rgba(15,14,26,0.07)", marginBottom:"20px" }} />
 
             {/* Files */}
-            <div style={{ marginBottom:"28px" }}>
-              <h3 style={{ fontSize:"13px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>
+            <div style={{ marginBottom:"24px" }}>
+              <h3 style={{ fontSize:"12px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"12px" }}>
                 Deliverables
-                {activeStageFiles.length > 0 && (
-                  <span style={{ marginLeft:"6px", fontWeight:400, textTransform:"none", color:"rgba(15,14,26,0.3)", letterSpacing:0 }}>
-                    {activeStageFiles.length} file{activeStageFiles.length!==1?"s":""}
-                  </span>
-                )}
+                {activeStageFiles.length>0&&<span style={{ marginLeft:"6px", fontWeight:400, textTransform:"none", color:"rgba(15,14,26,0.3)", letterSpacing:0 }}>{activeStageFiles.length} file{activeStageFiles.length!==1?"s":""}</span>}
               </h3>
 
-              {activeStageFiles.length === 0 ? (
-                <div style={{
-                  padding:"32px", textAlign:"center",
-                  border:"1.5px dashed rgba(15,14,26,0.1)", borderRadius:"12px",
-                  color:"rgba(15,14,26,0.35)", fontSize:"14px",
-                }}>
+              {activeStageFiles.length===0 ? (
+                <div style={{ padding:"28px", textAlign:"center", border:"1.5px dashed rgba(15,14,26,0.1)", borderRadius:"12px", color:"rgba(15,14,26,0.35)", fontSize:"14px" }}>
                   No files uploaded yet — check back soon.
                 </div>
               ) : (
                 <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
-                  {activeStageFiles.map((file) => (
+                  {activeStageFiles.map(file => (
                     <div key={file.id} className="file-card">
-                      <div style={{
-                        width:"40px", height:"40px", borderRadius:"10px",
-                        background:"rgba(91,76,245,0.07)", border:"1px solid rgba(91,76,245,0.12)",
-                        display:"flex", alignItems:"center", justifyContent:"center",
-                        fontSize:"18px", flexShrink:0,
-                      }}>{fileIcon(file.name)}</div>
+                      <div style={{ width:"38px", height:"38px", borderRadius:"10px", background:"rgba(91,76,245,0.07)", border:"1px solid rgba(91,76,245,0.12)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"18px", flexShrink:0 }}>{fileIcon(file.name)}</div>
                       <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontSize:"14px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"#0f0e1a" }}>
-                          {file.name}
-                        </div>
-                        {file.file_size && (
-                          <div style={{ fontSize:"12px", color:"rgba(15,14,26,0.35)", marginTop:"2px" }}>
-                            {formatBytes(file.file_size)}
-                          </div>
-                        )}
+                        <div className="file-name" style={{ fontSize:"14px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"#0f0e1a" }}>{file.name}</div>
+                        {file.file_size&&<div style={{ fontSize:"12px", color:"rgba(15,14,26,0.35)", marginTop:"2px" }}>{formatBytes(file.file_size)}</div>}
                       </div>
-                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{
-                        padding:"8px 16px", borderRadius:"8px",
-                        background:"rgba(91,76,245,0.08)", border:"1px solid rgba(91,76,245,0.15)",
-                        color:"#5B4CF5", fontSize:"13px", fontWeight:700,
-                        textDecoration:"none", transition:"all 0.15s", whiteSpace:"nowrap",
-                        fontFamily:"'Outfit',sans-serif",
-                      }}>View →</a>
+                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{ padding:"8px 14px", borderRadius:"8px", background:"rgba(91,76,245,0.08)", border:"1px solid rgba(91,76,245,0.15)", color:"#5B4CF5", fontSize:"13px", fontWeight:700, textDecoration:"none", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif" }}>View →</a>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Divider */}
-            <div style={{ height:"1px", background:"rgba(15,14,26,0.07)", marginBottom:"24px" }} />
+            <div style={{ height:"1px", background:"rgba(15,14,26,0.07)", marginBottom:"20px" }} />
 
-            {/* Approval actions */}
-            {activeStage.status !== "complete" ? (
+            {/* Review actions */}
+            {activeStage.status!=="complete" ? (
               <div>
-                <h3 style={{ fontSize:"13px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>
-                  Your Review
-                </h3>
+                <h3 style={{ fontSize:"12px", fontWeight:700, color:"rgba(15,14,26,0.4)", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>Your Review</h3>
 
                 {!showFeedback ? (
-                  <div style={{ display:"flex", gap:"12px" }}>
-                    <button className="approve-btn" onClick={handleApprove}>
-                      ✓ Approve this stage
-                    </button>
-                    <button className="revision-btn" onClick={() => setShowFeedback(true)}>
-                      ✏️ Request changes
-                    </button>
+                  <div className="action-row" style={{ display:"flex", gap:"12px" }}>
+                    <button className="approve-btn" onClick={handleApprove}>✓ Approve this stage</button>
+                    <button className="revision-btn" onClick={() => setShowFeedback(true)}>✏️ Request changes</button>
                   </div>
                 ) : (
                   <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
-                    <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.55)", marginBottom:"4px" }}>
-                      What changes would you like? Be as specific as possible.
-                    </div>
-                    <textarea
-                      className="feedback-area"
-                      value={feedback}
-                      onChange={e => setFeedback(e.target.value)}
-                      placeholder="e.g. Can we try a darker shade of blue? The logo feels too large on mobile…"
-                    />
+                    <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.55)" }}>What changes would you like? Be as specific as possible.</div>
+                    <textarea className="feedback-area" value={feedback} onChange={e=>setFeedback(e.target.value)}
+                      placeholder="e.g. Can we try a darker shade of blue? The logo feels too large on mobile…" />
                     <div style={{ display:"flex", gap:"10px" }}>
-                      <button className="submit-feedback-btn" disabled={!feedback.trim()} onClick={handleRevision}>
-                        Send feedback →
-                      </button>
+                      <button className="submit-btn" disabled={!feedback.trim()} onClick={handleRevision}>Send feedback →</button>
                       <button onClick={() => { setShowFeedback(false); setFeedback(""); }} style={{
-                        padding:"11px 20px", borderRadius:"10px", border:"1px solid rgba(15,14,26,0.12)",
+                        padding:"12px 20px", borderRadius:"10px", border:"1px solid rgba(15,14,26,0.12)",
                         background:"transparent", color:"rgba(15,14,26,0.45)",
                         fontFamily:"'Outfit',sans-serif", fontSize:"14px", fontWeight:600, cursor:"pointer",
                       }}>Cancel</button>
@@ -547,11 +469,7 @@ export default function ClientPortalPage() {
                 )}
               </div>
             ) : (
-              <div style={{
-                display:"flex", alignItems:"center", gap:"12px",
-                padding:"16px 20px", borderRadius:"12px",
-                background:"rgba(11,171,108,0.07)", border:"1px solid rgba(11,171,108,0.2)",
-              }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"12px", padding:"16px", borderRadius:"12px", background:"rgba(11,171,108,0.07)", border:"1px solid rgba(11,171,108,0.2)" }}>
                 <span style={{ fontSize:"22px" }}>✓</span>
                 <div>
                   <div style={{ fontSize:"15px", fontWeight:700, color:"#0BAB6C" }}>Stage approved</div>
@@ -562,11 +480,10 @@ export default function ClientPortalPage() {
           </div>
         )}
 
-        {/* Powered by Portl */}
+        {/* Footer */}
         <div style={{ textAlign:"center", marginTop:"48px" }}>
           <span style={{ fontSize:"12px", color:"rgba(15,14,26,0.25)", fontWeight:500 }}>
-            Powered by{" "}
-            <span style={{ fontWeight:700, color:"rgba(91,76,245,0.5)" }}>Portl.</span>
+            Powered by <span style={{ fontWeight:700, color:"rgba(91,76,245,0.5)" }}>Portl.</span>
           </span>
         </div>
       </main>
