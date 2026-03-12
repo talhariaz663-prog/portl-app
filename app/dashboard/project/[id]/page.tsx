@@ -10,7 +10,7 @@ type ProjectStatus = "draft" | "active" | "review" | "approved";
 interface Stage {
   id: string;
   project_id: string;
-  name: string;
+  title: string;
   position: number;
   status: StageStatus;
   notes: string | null;
@@ -101,14 +101,14 @@ export default function ProjectDetailPage() {
     setProject(proj as Project);
 
     const { data: sd } = await supabase
-      .from("stages").select("*")
+      .from("stages").select("id, title, position, status, notes, project_id")
       .eq("project_id", projectId).order("position", { ascending: true });
     const sl = (sd as Stage[]) ?? [];
     setStages(sl);
     if (sl.length > 0) { setActiveStageId(sl[0].id); setNoteText(sl[0].notes ?? ""); }
 
     const { data: fd } = await supabase
-      .from("files").select("*")
+    .from("files").select("id, stage_id, name, file_url, file_size, created_at, project_id")
       .eq("project_id", projectId).order("created_at", { ascending: false });
     setFiles((fd as ProjectFile[]) ?? []);
     setLoading(false);
@@ -446,7 +446,7 @@ export default function ProjectDetailPage() {
                     </span>
 
                     {/* Stage name */}
-                    <span>{stage.name}</span>
+                    <span>{stage.title}</span>
 
                     {/* Status dot */}
                     <span style={{ width:"6px", height:"6px", borderRadius:"50%", background: st.color, flexShrink:0 }} />
@@ -497,7 +497,7 @@ export default function ProjectDetailPage() {
             <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"20px", marginBottom:"24px", flexWrap:"wrap" }}>
               <div>
                 <h2 style={{ fontSize:"20px", fontWeight:800, marginBottom:"10px", letterSpacing:"-0.3px" }}>
-                  {activeStage.name}
+                  {activeStage.title}
                 </h2>
 
                 {/* Segmented pill status buttons */}
