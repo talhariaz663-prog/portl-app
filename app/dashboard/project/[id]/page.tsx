@@ -89,9 +89,14 @@ export default function ProjectDetailPage() {
   const [noteSaved,     setNoteSaved]     = useState(false);
   const [noteText,      setNoteText]      = useState("");
   const [approvalSent,  setApprovalSent]  = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting,      setDeleting]      = useState(false);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true); setError(null);
+  // ── Fetch (silent refresh = no loading spinner) ──
+  const fetchData = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    setError(null);
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.replace("/login"); return; }
 
@@ -106,92 +111,150 @@ export default function ProjectDetailPage() {
       .eq("project_id", projectId).order("position", { ascending: true });
     const sl = (sd as Stage[]) ?? [];
     setStages(sl);
-    if (sl.length > 0) { setActiveStageId(sl[0].id); setNoteText(sl[0].notes ?? ""); }
+
+    // Only set active stage on first load
+    if (!silent && sl.length > 0) {
+      setActiveStageId(sl[0].id);
+      setNoteText(sl[0].notes ?? "");
+    }
 
     const { data: fd } = await supabase
       .from("files").select("id, stage_id, name, file_url, file_size, created_at, project_id")
       .eq("project_id", projectId).order("created_at", { ascending: false });
     setFiles((fd as unknown as ProjectFile[]) ?? []);
-    setLoading(false);
+
+    if (!silent) setLoading(false);
   }, [supabase, router, projectId]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(false); }, [fetchData]);
 
+  // Sync note text when switching stages
   useEffect(() => {
     const s = stages.find(s => s.id === activeStageId);
-    setNoteText(s?.notes ?? "");
-    setNoteSaved(false);
+    if (s) { setNoteText(s.notes ?? ""); setNoteSaved(false); }
   }, [activeStageId, stages]);
 
+  // ── Stage status ──
   const updateStageStatus = async (stageId: string, status: StageStatus) => {
-    await supabase.from("stages").update({ status }).eq("id", stageId);
+    const { error } = await supabase.from("stages").update({ status }).eq("id", stageId);
+    if (error) { setError(`Status update failed: ${error.message}`); return; }
     setStages(prev => prev.map(s => s.id === stageId ? { ...s, status } : s));
   };
 
+  // ── Project status ──
   const cycleProjectStatus = async () => {
     if (!project) return;
     const next = PROJECT_STATUS[project.status].next;
-    await supabase.from("projects").update({ status: next }).eq("id", projectId);
+    const { error } = await supabase.from("projects").update({ status: next }).eq("id", projectId);
+    if (error) { setError(`Status update failed: ${error.message}`); return; }
     setProject(prev => prev ? { ...prev, status: next } : prev);
   };
 
+  // ── Save note — with .select() to confirm it worked ──
   const saveNote = async () => {
     if (!activeStageId) return;
     setSavingNote(true);
-    await supabase.from("stages").update({ notes: noteText }).eq("id", activeStageId);
+    setNoteSaved(false);
+
+    const { data, error } = await supabase
+      .from("stages")
+      .update({ notes: noteText })
+      .eq("id", activeStageId)
+      .select("id, notes")
+      .single();
+
+    if (error || !data) {
+      setError(`Note save failed: ${error?.message ?? "RLS may be blocking this update. Check Supabase policies."}`);
+      setSavingNote(false);
+      return;
+    }
+
     setStages(prev => prev.map(s => s.id === activeStageId ? { ...s, notes: noteText } : s));
     setSavingNote(false);
     setNoteSaved(true);
-    setTimeout(() => setNoteSaved(false), 2000);
+    setTimeout(() => setNoteSaved(false), 2500);
   };
 
-  // ── File upload (FIXED) ──
+  // ── File upload (fixed) ──
   const handleUpload = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0 || !activeStageId || !project) return;
     setUploading(true);
     setError(null);
 
     for (const file of Array.from(fileList)) {
+      // Sanitize filename for storage path
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `${project.id}/${activeStageId}/${Date.now()}-${safeName}`;
+      const path = `${project.id}/${activeStageId}/${Date.now()}_${safeName}`;
 
-      const { error: ue } = await supabase.storage
+      // 1. Upload to storage
+      const { error: storageErr } = await supabase.storage
         .from("project-files")
         .upload(path, file, { upsert: false });
 
-      if (ue) { setError(`Upload failed: ${ue.message}`); continue; }
+      if (storageErr) {
+        setError(`Storage upload failed: ${storageErr.message}`);
+        continue;
+      }
 
+      // 2. Get public URL
       const { data: urlData } = supabase.storage
         .from("project-files")
         .getPublicUrl(path);
 
-      const { error: ie } = await supabase.from("files").insert({
-        project_id: project.id,
-        stage_id:   activeStageId,
-        name:       file.name,
-        file_url:   urlData.publicUrl,
-        file_size:  file.size,
-      });
+      // 3. Insert DB record — use .select().single() to confirm it worked
+      const { data: insertedFile, error: dbErr } = await supabase
+        .from("files")
+        .insert({
+          project_id: project.id,
+          stage_id:   activeStageId,
+          name:       file.name,
+          file_url:   urlData.publicUrl,
+          file_size:  file.size,
+        })
+        .select("id, stage_id, name, file_url, file_size, created_at")
+        .single();
 
-      if (ie) { setError(`DB insert failed: ${ie.message}`); }
+      if (dbErr || !insertedFile) {
+        setError(`File record failed: ${dbErr?.message ?? "RLS may be blocking insert. Check Supabase policies for the files table."}`);
+        continue;
+      }
+
+      // 4. Optimistically add to local state (no need to refetch)
+      setFiles(prev => [insertedFile as ProjectFile, ...prev]);
     }
 
-    // Reset input so same file can be re-selected
+    // Reset input so same file can be re-uploaded
     if (fileInputRef.current) fileInputRef.current.value = "";
-
     setUploading(false);
-    fetchData();
   };
 
+  // ── Request approval ──
   const requestApproval = async () => {
     if (!activeStageId || !project) return;
     await updateStageStatus(activeStageId, "in_progress");
-    await supabase.from("projects").update({ status: "review" }).eq("id", projectId);
-    setProject(prev => prev ? { ...prev, status: "review" } : prev);
+    const { error } = await supabase.from("projects").update({ status: "review" }).eq("id", projectId);
+    if (!error) setProject(prev => prev ? { ...prev, status: "review" } : prev);
     setApprovalSent(true);
     setTimeout(() => setApprovalSent(false), 3000);
   };
 
+  // ── Delete project ──
+  const deleteProject = async () => {
+    setDeleting(true);
+    // Delete files from storage first (best effort)
+    for (const file of files) {
+      const path = file.file_url.split("/project-files/")[1];
+      if (path) await supabase.storage.from("project-files").remove([path]);
+    }
+    // Delete DB records (cascades should handle stages + files if set up)
+    await supabase.from("files").delete().eq("project_id", projectId);
+    await supabase.from("stages").delete().eq("project_id", projectId);
+    const { error } = await supabase.from("projects").delete().eq("id", projectId);
+    if (error) { setError(`Delete failed: ${error.message}`); setDeleting(false); return; }
+    router.replace("/dashboard");
+  };
+
+  // ── Copy portal link ──
   const copyPortalLink = () => {
     if (!project) return;
     navigator.clipboard.writeText(`${window.location.origin}/portal/${project.portal_slug}`);
@@ -219,7 +282,6 @@ export default function ProjectDetailPage() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin    { to{transform:rotate(360deg)} }
-        @keyframes pop     { 0%{transform:scale(0.9);opacity:0} 100%{transform:scale(1);opacity:1} }
 
         .fi  { animation: fadeUp 0.35s ease forwards; opacity: 0; }
         .fi1 { animation-delay: 0.04s; }
@@ -227,7 +289,6 @@ export default function ProjectDetailPage() {
         .fi3 { animation-delay: 0.16s; }
         .fi4 { animation-delay: 0.22s; }
 
-        /* Nav */
         .nav-item {
           display:flex; align-items:center; gap:10px;
           padding:10px 12px; border-radius:10px; font-size:14px;
@@ -237,27 +298,22 @@ export default function ProjectDetailPage() {
         .nav-item:not(.active) { color:rgba(255,255,255,0.4); }
         .nav-item:not(.active):hover { color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.04); }
 
-        /* Stage tabs */
         .stage-tab {
           display:flex; align-items:center; gap:6px;
           padding:8px 14px; border-radius:10px; cursor:pointer;
-          border:1px solid rgba(255,255,255,0.07);
-          background:rgba(255,255,255,0.03);
+          border:1px solid rgba(255,255,255,0.07); background:rgba(255,255,255,0.03);
           font-family:'Outfit',sans-serif; font-size:13px; font-weight:500;
-          color:rgba(255,255,255,0.4); white-space:nowrap;
-          transition:all 0.18s ease;
+          color:rgba(255,255,255,0.4); white-space:nowrap; transition:all 0.18s ease;
         }
         .stage-tab:hover  { color:rgba(255,255,255,0.8); border-color:rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); }
         .stage-tab.active { background:rgba(91,76,245,0.16); border-color:rgba(91,76,245,0.5); color:#fff; font-weight:700; }
 
-        /* Status pills */
         .status-pill {
           padding:5px 12px; border-radius:20px; cursor:pointer;
           font-family:'Outfit',sans-serif; font-size:12px; font-weight:600;
           transition:all 0.15s; border:1px solid transparent; white-space:nowrap;
         }
 
-        /* Upload zone */
         .upload-zone {
           border:1.5px dashed rgba(91,76,245,0.28); border-radius:12px;
           padding:24px 16px; display:flex; flex-direction:column;
@@ -268,7 +324,6 @@ export default function ProjectDetailPage() {
           border-color:rgba(91,76,245,0.6); background:rgba(91,76,245,0.08);
         }
 
-        /* File rows */
         .file-row {
           display:flex; align-items:center; gap:10px;
           padding:10px 12px; border-radius:10px;
@@ -277,7 +332,6 @@ export default function ProjectDetailPage() {
         }
         .file-row:hover { background:rgba(255,255,255,0.055); border-color:rgba(255,255,255,0.11); }
 
-        /* Share btn */
         .share-btn {
           display:flex; align-items:center; gap:6px;
           padding:9px 16px; border-radius:10px;
@@ -288,7 +342,6 @@ export default function ProjectDetailPage() {
         .share-btn:hover  { background:rgba(91,76,245,0.2); color:#fff; }
         .share-btn.copied { border-color:rgba(11,171,108,0.4); background:rgba(11,171,108,0.1); color:#0BAB6C; }
 
-        /* Note textarea */
         .note-area {
           width:100%; min-height:90px; padding:12px 14px;
           background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
@@ -299,10 +352,9 @@ export default function ProjectDetailPage() {
         .note-area::placeholder { color:rgba(255,255,255,0.2); }
         .note-area:focus { border-color:rgba(91,76,245,0.45); background:rgba(91,76,245,0.04); }
 
-        /* Approval btn */
         .approval-btn {
           width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
-          padding:12px; border-radius:10px; border:none; cursor:pointer;
+          padding:13px; border-radius:10px; border:none; cursor:pointer;
           font-family:'Outfit',sans-serif; font-size:14px; font-weight:700;
           background:linear-gradient(135deg,#5B4CF5,#0BAB6C);
           color:#fff; transition:opacity 0.2s, transform 0.15s;
@@ -310,30 +362,75 @@ export default function ProjectDetailPage() {
         .approval-btn:hover { opacity:0.88; transform:translateY(-1px); }
         .approval-btn.sent  { background:rgba(11,171,108,0.15); border:1px solid rgba(11,171,108,0.35); color:#0BAB6C; transform:none; }
 
-        /* Layout */
+        .delete-btn {
+          width:100%; display:flex; align-items:center; justify-content:center; gap:6px;
+          padding:10px; border-radius:10px; cursor:pointer;
+          font-family:'Outfit',sans-serif; font-size:13px; font-weight:600;
+          background:rgba(232,93,117,0.07); border:1px solid rgba(232,93,117,0.2);
+          color:rgba(232,93,117,0.6); transition:all 0.15s;
+        }
+        .delete-btn:hover { background:rgba(232,93,117,0.12); border-color:rgba(232,93,117,0.4); color:#E85D75; }
+
         .sidebar       { display:flex; }
         .topbar        { display:none; }
         .main-content  { margin-left:220px; padding:36px 40px; }
         .stage-grid    { display:grid; grid-template-columns:1fr 1.4fr; gap:20px; align-items:start; }
 
-        @media (max-width:900px) {
-          .stage-grid { grid-template-columns:1fr !important; }
-        }
+        @media (max-width:900px)  { .stage-grid { grid-template-columns:1fr !important; } }
         @media (max-width:768px) {
           .sidebar      { display:none !important; }
           .topbar       { display:flex !important; }
           .main-content { margin-left:0 !important; padding:76px 16px 40px !important; }
           .header-row   { flex-direction:column !important; gap:14px !important; }
-          .header-meta  { flex-direction:row !important; flex-wrap:wrap !important; }
           #desktop-back { display:none !important; }
         }
 
-        /* Scrollbar hide */
         .tabs-row { scrollbar-width:none; }
         .tabs-row::-webkit-scrollbar { display:none; }
+
+        /* Delete modal overlay */
+        .modal-overlay {
+          position:fixed; inset:0; background:rgba(8,10,24,0.85);
+          backdrop-filter:blur(8px); z-index:100;
+          display:flex; align-items:center; justify-content:center; padding:24px;
+        }
       `}</style>
 
-      {/* BG grid */}
+      {/* Delete confirm modal */}
+      {showDeleteConfirm && (
+        <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background:"#0d0f1e", border:"1px solid rgba(232,93,117,0.3)",
+            borderRadius:"20px", padding:"32px", maxWidth:"380px", width:"100%",
+            boxShadow:"0 24px 64px rgba(0,0,0,0.5)",
+          }}>
+            <div style={{ fontSize:"32px", marginBottom:"16px" }}>🗑️</div>
+            <h2 style={{ fontSize:"20px", fontWeight:800, marginBottom:"8px" }}>Delete project?</h2>
+            <p style={{ fontSize:"14px", color:"rgba(255,255,255,0.45)", lineHeight:1.6, marginBottom:"24px" }}>
+              This will permanently delete <strong style={{ color:"#fff" }}>{project?.name}</strong>, all its stages, and all uploaded files. This cannot be undone.
+            </p>
+            <div style={{ display:"flex", gap:"10px" }}>
+              <button onClick={() => setShowDeleteConfirm(false)} style={{
+                flex:1, padding:"12px", borderRadius:"10px",
+                border:"1px solid rgba(255,255,255,0.1)", background:"rgba(255,255,255,0.05)",
+                color:"rgba(255,255,255,0.6)", fontFamily:"'Outfit',sans-serif",
+                fontSize:"14px", fontWeight:600, cursor:"pointer",
+              }}>Cancel</button>
+              <button onClick={deleteProject} disabled={deleting} style={{
+                flex:1, padding:"12px", borderRadius:"10px", border:"none",
+                background:"linear-gradient(135deg,#E85D75,#c0392b)",
+                color:"#fff", fontFamily:"'Outfit',sans-serif",
+                fontSize:"14px", fontWeight:700, cursor:deleting?"not-allowed":"pointer",
+                opacity:deleting?0.6:1,
+              }}>
+                {deleting ? "Deleting…" : "Yes, delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BG */}
       <div style={{
         position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
         backgroundImage:`
@@ -395,7 +492,6 @@ export default function ProjectDetailPage() {
       {/* ── Main ── */}
       <main className="main-content" style={{ position:"relative", zIndex:1 }}>
 
-        {/* Back — desktop */}
         <button id="desktop-back" className="fi fi1" onClick={() => router.push("/dashboard")} style={{
           background:"none", border:"none", color:"rgba(255,255,255,0.3)",
           fontFamily:"'Outfit',sans-serif", fontSize:"13px", cursor:"pointer",
@@ -408,27 +504,20 @@ export default function ProjectDetailPage() {
           borderRadius:"18px", padding:"22px 24px", marginBottom:"20px",
         }}>
           <div className="header-row" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"16px", marginBottom:"16px" }}>
-            {/* Left: name + client */}
             <div style={{ flex:1, minWidth:0 }}>
               <h1 style={{ fontSize:"clamp(18px,3.5vw,26px)", fontWeight:800, letterSpacing:"-0.5px", marginBottom:"5px", lineHeight:1.1 }}>
                 {project?.name}
               </h1>
-              <div className="header-meta" style={{ display:"flex", alignItems:"center", gap:"10px" }}>
-                <span style={{ fontSize:"14px", color:"rgba(255,255,255,0.5)", fontWeight:500 }}>
-                  {project?.client_name}
-                </span>
+              <div style={{ display:"flex", alignItems:"center", gap:"10px", flexWrap:"wrap" }}>
+                <span style={{ fontSize:"14px", color:"rgba(255,255,255,0.5)", fontWeight:500 }}>{project?.client_name}</span>
                 {project?.client_email && (
-                  <span style={{ fontSize:"13px", color:"rgba(255,255,255,0.22)" }}>
-                    {project.client_email}
-                  </span>
+                  <span style={{ fontSize:"13px", color:"rgba(255,255,255,0.22)" }}>{project.client_email}</span>
                 )}
               </div>
             </div>
-
-            {/* Right: status badge + share */}
             <div style={{ display:"flex", alignItems:"center", gap:"10px", flexShrink:0 }}>
               {ps && (
-                <button onClick={cycleProjectStatus} style={{
+                <button onClick={cycleProjectStatus} title="Click to change status" style={{
                   display:"flex", alignItems:"center", gap:"6px",
                   padding:"7px 14px", borderRadius:"20px",
                   background:ps.bg, border:"none", cursor:"pointer",
@@ -438,7 +527,6 @@ export default function ProjectDetailPage() {
                   {ps.label}
                 </button>
               )}
-              {/* Desktop share — hidden on mobile via topbar */}
               <button className={`share-btn${copied?" copied":""}`} onClick={copyPortalLink}
                 style={{ display:"none" }} id="desktop-share-btn">
                 {copied ? "✓ Copied!" : "⬡ Share portal"}
@@ -447,7 +535,7 @@ export default function ProjectDetailPage() {
             </div>
           </div>
 
-          {/* Progress bar */}
+          {/* Progress */}
           <div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"7px" }}>
               <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.35)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em" }}>Progress</span>
@@ -456,19 +544,16 @@ export default function ProjectDetailPage() {
               </span>
             </div>
             <div style={{ height:"5px", background:"rgba(255,255,255,0.07)", borderRadius:"99px", overflow:"hidden" }}>
-              <div style={{
-                height:"100%", borderRadius:"99px", width:`${progressPct}%`,
-                background:"linear-gradient(90deg,#5B4CF5,#0BAB6C)", transition:"width 0.6s ease",
-              }} />
+              <div style={{ height:"100%", borderRadius:"99px", width:`${progressPct}%`, background:"linear-gradient(90deg,#5B4CF5,#0BAB6C)", transition:"width 0.6s ease" }} />
             </div>
           </div>
         </div>
 
-        {/* Error */}
+        {/* Error banner */}
         {error && (
-          <div style={{ background:"rgba(232,93,117,0.1)", border:"1px solid rgba(232,93,117,0.3)", borderRadius:"10px", padding:"12px 16px", marginBottom:"16px", fontSize:"13px", color:"#E85D75", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div style={{ background:"rgba(232,93,117,0.1)", border:"1px solid rgba(232,93,117,0.3)", borderRadius:"10px", padding:"12px 16px", marginBottom:"16px", fontSize:"13px", color:"#E85D75", display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"12px" }}>
             <span>⚠️ {error}</span>
-            <button onClick={() => setError(null)} style={{ background:"none", border:"none", color:"#E85D75", cursor:"pointer", fontSize:"16px" }}>✕</button>
+            <button onClick={() => setError(null)} style={{ background:"none", border:"none", color:"#E85D75", cursor:"pointer", fontSize:"16px", flexShrink:0 }}>✕</button>
           </div>
         )}
 
@@ -491,23 +576,21 @@ export default function ProjectDetailPage() {
                   }}>{stage.status==="complete"?"✓":i+1}</span>
                   {stage.title}
                   <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:st.color, flexShrink:0 }} />
-                  {fc>0 && (
-                    <span style={{ background:"rgba(91,76,245,0.2)", color:"#a093ff", fontSize:"10px", fontWeight:700, borderRadius:"8px", padding:"1px 5px" }}>{fc}</span>
-                  )}
+                  {fc>0&&<span style={{ background:"rgba(91,76,245,0.2)", color:"#a093ff", fontSize:"10px", fontWeight:700, borderRadius:"8px", padding:"1px 5px" }}>{fc}</span>}
                 </button>
               );
             })}
           </div>
         )}
 
-        {/* ── Stage panel (two-column grid) ── */}
+        {/* ── Stage panel ── */}
         {activeStage && (
           <div className="fi fi3 stage-grid">
 
-            {/* ── LEFT: Notes + Approval ── */}
+            {/* LEFT: Status + Notes + Actions */}
             <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
 
-              {/* Stage title + status */}
+              {/* Stage title + status pills */}
               <div style={{ background:"rgba(255,255,255,0.022)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px", padding:"20px" }}>
                 <h2 style={{ fontSize:"clamp(15px,2.5vw,18px)", fontWeight:800, letterSpacing:"-0.3px", marginBottom:"14px" }}>
                   {activeStage.title}
@@ -523,8 +606,7 @@ export default function ProjectDetailPage() {
                         border:`1px solid ${isSel?cfg.border:"rgba(255,255,255,0.07)"}`,
                         color:isSel?cfg.color:"rgba(255,255,255,0.3)",
                       }}>
-                        {isSel && <span style={{ marginRight:"4px" }}>●</span>}
-                        {cfg.label}
+                        {isSel&&<span style={{ marginRight:"4px" }}>●</span>}{cfg.label}
                       </button>
                     );
                   })}
@@ -534,65 +616,64 @@ export default function ProjectDetailPage() {
               {/* Notes */}
               <div style={{ background:"rgba(255,255,255,0.022)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px", padding:"20px" }}>
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"10px" }}>
-                  <span style={{ fontSize:"12px", fontWeight:700, color:"rgba(255,255,255,0.5)", textTransform:"uppercase", letterSpacing:"0.07em" }}>
-                    Client notes
-                  </span>
+                  <span style={{ fontSize:"12px", fontWeight:700, color:"rgba(255,255,255,0.5)", textTransform:"uppercase", letterSpacing:"0.07em" }}>Client notes</span>
                   <button onClick={saveNote} disabled={savingNote} style={{
-                    padding:"4px 12px", borderRadius:"7px",
+                    padding:"5px 14px", borderRadius:"7px",
                     border:"1px solid rgba(91,76,245,0.3)",
-                    background:noteSaved?"rgba(11,171,108,0.12)":savingNote?"transparent":"rgba(91,76,245,0.1)",
-                    color:noteSaved?"#0BAB6C":savingNote?"rgba(255,255,255,0.25)":"#a093ff",
-                    fontFamily:"'Outfit',sans-serif", fontSize:"11px", fontWeight:700,
-                    cursor:savingNote?"not-allowed":"pointer", transition:"all 0.2s",
+                    background:noteSaved?"rgba(11,171,108,0.12)":"rgba(91,76,245,0.1)",
+                    color:noteSaved?"#0BAB6C":savingNote?"rgba(255,255,255,0.3)":"#a093ff",
+                    fontFamily:"'Outfit',sans-serif", fontSize:"12px", fontWeight:700,
+                    cursor:savingNote?"not-allowed":"pointer", transition:"all 0.25s",
+                    minWidth:"60px",
                   }}>
-                    {noteSaved ? "✓ Saved" : savingNote ? "Saving…" : "Save"}
+                    {noteSaved?"✓ Saved":savingNote?"Saving…":"Save"}
                   </button>
                 </div>
                 <textarea className="note-area" value={noteText} onChange={e => setNoteText(e.target.value)}
+                  onKeyDown={e => { if (e.key==="s"&&(e.metaKey||e.ctrlKey)) { e.preventDefault(); saveNote(); } }}
                   placeholder="Add context for your client — what to review, what feedback you need…" />
+                <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.2)", marginTop:"6px" }}>
+                  Tip: Press ⌘S / Ctrl+S to save
+                </div>
               </div>
 
               {/* Request approval */}
               <button className={`approval-btn${approvalSent?" sent":""}`} onClick={requestApproval}>
                 {approvalSent
                   ? <><span>✓</span> Approval requested!</>
-                  : <><span style={{ fontSize:"16px" }}>→</span> Request client approval</>
-                }
+                  : <><span style={{ fontSize:"16px" }}>→</span> Request client approval</>}
+              </button>
+
+              {/* Delete project */}
+              <button className="delete-btn" onClick={() => setShowDeleteConfirm(true)}>
+                🗑 Delete project
               </button>
 
             </div>
 
-            {/* ── RIGHT: Files ── */}
+            {/* RIGHT: Files */}
             <div style={{ background:"rgba(255,255,255,0.022)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px", padding:"20px" }}>
-
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"14px" }}>
                 <span style={{ fontSize:"12px", fontWeight:700, color:"rgba(255,255,255,0.5)", textTransform:"uppercase", letterSpacing:"0.07em" }}>
-                  Files
-                  {activeStageFiles.length>0 && (
-                    <span style={{ marginLeft:"6px", fontWeight:400, color:"rgba(255,255,255,0.25)", textTransform:"none", letterSpacing:0, fontSize:"12px" }}>
-                      · {activeStageFiles.length}
-                    </span>
-                  )}
+                  Files{activeStageFiles.length>0&&<span style={{ marginLeft:"6px", fontWeight:400, color:"rgba(255,255,255,0.25)", textTransform:"none", letterSpacing:0 }}>· {activeStageFiles.length}</span>}
                 </span>
               </div>
 
-              {/* Hidden file input */}
               <input ref={fileInputRef} type="file" multiple style={{ display:"none" }}
                 onChange={e => handleUpload(e.target.files)} />
 
-              {/* Upload zone */}
               <div className={`upload-zone${dragOver?" drag":""}`}
-                style={{ marginBottom: activeStageFiles.length>0?"14px":"0" }}
+                style={{ marginBottom:activeStageFiles.length>0?"14px":"0" }}
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={e => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={e => { e.preventDefault(); setDragOver(false); handleUpload(e.dataTransfer.files); }}>
-                {uploading ? (
+                {uploading?(
                   <>
                     <div style={{ width:"22px", height:"22px", border:"2px solid rgba(91,76,245,0.3)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
                     <span style={{ fontSize:"13px", color:"rgba(255,255,255,0.4)" }}>Uploading…</span>
                   </>
-                ) : (
+                ):(
                   <>
                     <div style={{ fontSize:"24px", opacity:0.3 }}>⬆</div>
                     <span style={{ fontSize:"14px", fontWeight:600, color:"rgba(255,255,255,0.45)" }}>Drop files or click to upload</span>
@@ -601,30 +682,22 @@ export default function ProjectDetailPage() {
                 )}
               </div>
 
-              {/* File list */}
-              {activeStageFiles.length > 0 && (
+              {activeStageFiles.length>0&&(
                 <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
-                  {activeStageFiles.map(file => (
+                  {activeStageFiles.map(file=>(
                     <div key={file.id} className="file-row">
-                      <div style={{
-                        width:"34px", height:"34px", borderRadius:"8px", flexShrink:0,
-                        background:"rgba(91,76,245,0.1)", border:"1px solid rgba(91,76,245,0.18)",
-                        display:"flex", alignItems:"center", justifyContent:"center", fontSize:"15px",
-                      }}>{fileIcon(file.name)}</div>
+                      <div style={{ width:"34px", height:"34px", borderRadius:"8px", flexShrink:0, background:"rgba(91,76,245,0.1)", border:"1px solid rgba(91,76,245,0.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"15px" }}>
+                        {fileIcon(file.name)}
+                      </div>
                       <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontSize:"13px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"rgba(255,255,255,0.88)" }}>
-                          {file.name}
-                        </div>
+                        <div style={{ fontSize:"13px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"rgba(255,255,255,0.88)" }}>{file.name}</div>
                         <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.25)", marginTop:"2px" }}>
-                          {file.file_size ? formatBytes(file.file_size) : ""} · {timeAgo(file.created_at)}
+                          {file.file_size?formatBytes(file.file_size):""} · {timeAgo(file.created_at)}
                         </div>
                       </div>
-                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{
-                        padding:"5px 10px", borderRadius:"7px",
-                        border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)",
-                        color:"rgba(255,255,255,0.5)", fontSize:"12px", fontWeight:600,
-                        textDecoration:"none", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif",
-                      }}>View →</a>
+                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{ padding:"5px 10px", borderRadius:"7px", border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)", color:"rgba(255,255,255,0.5)", fontSize:"12px", fontWeight:600, textDecoration:"none", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif" }}>
+                        View →
+                      </a>
                     </div>
                   ))}
                 </div>
@@ -634,12 +707,10 @@ export default function ProjectDetailPage() {
           </div>
         )}
 
-        {/* No stages */}
-        {stages.length === 0 && !loading && (
+        {stages.length===0&&!loading&&(
           <div className="fi fi3" style={{ background:"rgba(255,255,255,0.03)", border:"1px dashed rgba(255,255,255,0.09)", borderRadius:"16px", padding:"48px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>
             <div style={{ fontSize:"28px", marginBottom:"10px", opacity:0.4 }}>◷</div>
             <div style={{ fontSize:"15px", fontWeight:600, color:"rgba(255,255,255,0.45)", marginBottom:"4px" }}>No stages yet</div>
-            <div style={{ fontSize:"13px" }}>Create a new project to add stages.</div>
           </div>
         )}
 
