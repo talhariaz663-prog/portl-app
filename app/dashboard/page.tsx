@@ -33,10 +33,10 @@ const STATUS_CONFIG: Record<Status, { label: string; color: string; bg: string }
 };
 
 const ACTIVITY_CONFIG: Record<string, { label: string; color: string; icon: string }> = {
-  approved:            { label: "Client approved",          color: "#0BAB6C", icon: "✓" },
-  changes_requested:   { label: "Client requested changes", color: "#F5A623", icon: "✏" },
-  approval_requested:  { label: "Approval requested",       color: "#5B4CF5", icon: "→" },
-  file_uploaded:       { label: "File uploaded",            color: "rgba(255,255,255,0.4)", icon: "⬆" },
+  approved:           { label: "Client approved",          color: "#0BAB6C", icon: "✓" },
+  changes_requested:  { label: "Client requested changes", color: "#F5A623", icon: "!" },
+  approval_requested: { label: "Approval requested",       color: "#5B4CF5", icon: "→" },
+  file_uploaded:      { label: "File uploaded",            color: "rgba(255,255,255,0.4)", icon: "↑" },
 };
 
 const CARD_COLORS = ["#5B4CF5", "#0BAB6C", "#F5A623", "#E85D75", "#7B6CF9"];
@@ -55,28 +55,49 @@ function timeAgo(dateStr: string): string {
 
 const NOTIF_KEY = "portl_notif_last_seen";
 
+// Themed bell SVG icon — matches Portl design language
+const BellIcon = ({ hasUnread }: { hasUnread: boolean }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C8.13 2 5 5.13 5 9v4l-2 2v1h18v-1l-2-2V9c0-3.87-3.13-7-7-7z"
+      fill={hasUnread ? "#5B4CF5" : "rgba(255,255,255,0.5)"}
+      stroke={hasUnread ? "#7B6CF9" : "rgba(255,255,255,0.2)"}
+      strokeWidth="0.5" />
+    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"
+      fill={hasUnread ? "#5B4CF5" : "rgba(255,255,255,0.5)"} />
+  </svg>
+);
+
 export default function DashboardPage() {
   const router   = useRouter();
   const supabase = createClient();
   const bellRef  = useRef<HTMLDivElement>(null);
 
-  const [projects,      setProjects]      = useState<Project[]>([]);
-  const [activity,      setActivity]      = useState<ActivityItem[]>([]);
-  const [loading,       setLoading]       = useState(true);
-  const [error,         setError]         = useState<string | null>(null);
-  const [filter,        setFilter]        = useState<Status | "all">("all");
-  const [hovered,       setHovered]       = useState<string | null>(null);
-  const [userEmail,     setUserEmail]     = useState("");
-  const [menuOpen,      setMenuOpen]      = useState(false);
-  const [notifOpen,     setNotifOpen]     = useState(false);
-  const [unreadCount,   setUnreadCount]   = useState(0);
-  const [lastSeen,      setLastSeen]      = useState<Date>(() => {
+  const [projects,    setProjects]    = useState<Project[]>([]);
+  const [activity,    setActivity]    = useState<ActivityItem[]>([]);
+  const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState<string | null>(null);
+  const [filter,      setFilter]      = useState<Status | "all">("all");
+  const [hovered,     setHovered]     = useState<string | null>(null);
+  const [userEmail,   setUserEmail]   = useState("");
+  const [menuOpen,    setMenuOpen]    = useState(false);
+  const [notifOpen,   setNotifOpen]   = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isMobile,    setIsMobile]    = useState(false);
+  const [lastSeen,    setLastSeen]    = useState<Date>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(NOTIF_KEY);
       return stored ? new Date(stored) : new Date(0);
     }
     return new Date(0);
   });
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true); setError(null);
@@ -93,7 +114,6 @@ export default function DashboardPage() {
     const projs = (projData as Project[]) ?? [];
     setProjects(projs);
 
-    // Fetch recent activity for all projects
     if (projs.length > 0) {
       const projectIds = projs.map(p => p.id);
       const { data: actData } = await supabase
@@ -104,14 +124,12 @@ export default function DashboardPage() {
         .limit(30);
 
       const acts = (actData ?? []) as ActivityItem[];
-      // Attach project names
       const actsWithNames = acts.map(a => ({
         ...a,
         project_name: projs.find(p => p.id === a.project_id)?.name ?? "Unknown",
       }));
       setActivity(actsWithNames);
 
-      // Count unread (activity after lastSeen)
       const unread = actsWithNames.filter(a =>
         new Date(a.created_at) > lastSeen &&
         (a.type === "approved" || a.type === "changes_requested")
@@ -124,7 +142,7 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Close notif panel on outside click
+  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
@@ -145,6 +163,13 @@ export default function DashboardPage() {
     }
   };
 
+  const markAllRead = () => {
+    const now = new Date();
+    setLastSeen(now);
+    setUnreadCount(0);
+    localStorage.setItem(NOTIF_KEY, now.toISOString());
+  };
+
   const counts = {
     all:      projects.length,
     active:   projects.filter(p => p.status === "active").length,
@@ -153,98 +178,176 @@ export default function DashboardPage() {
     draft:    projects.filter(p => p.status === "draft").length,
   };
 
-  const filtered = filter === "all" ? projects : projects.filter(p => p.status === filter);
-  const initials = userEmail ? userEmail[0].toUpperCase() : "?";
+  const filtered     = filter === "all" ? projects : projects.filter(p => p.status === filter);
+  const initials     = userEmail ? userEmail[0].toUpperCase() : "?";
+  const notifItems   = activity.filter(a => a.type === "approved" || a.type === "changes_requested");
+  const hasUnread    = unreadCount > 0;
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.replace("/login");
   };
 
-  // Notification bell component
-  const NotifBell = ({ size = 20 }: { size?: number }) => (
+  // ── Notification panel content ──
+  const NotifPanel = () => (
+    <div style={{
+      background:"#0d0f1e",
+      border:"1px solid rgba(255,255,255,0.1)",
+      borderRadius:"16px", overflow:"hidden",
+      boxShadow:"0 24px 64px rgba(0,0,0,0.6)",
+    }}>
+      {/* Header */}
+      <div style={{
+        padding:"14px 18px 12px",
+        borderBottom:"1px solid rgba(255,255,255,0.07)",
+        display:"flex", alignItems:"center", justifyContent:"space-between",
+      }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+          <span style={{ fontSize:"14px", fontWeight:700, color:"#fff" }}>Notifications</span>
+          {notifItems.length > 0 && (
+            <span style={{
+              background:"rgba(91,76,245,0.2)", color:"#a093ff",
+              fontSize:"10px", fontWeight:700, borderRadius:"8px", padding:"2px 7px",
+            }}>{notifItems.length}</span>
+          )}
+        </div>
+        {unreadCount > 0 && (
+          <button onClick={markAllRead} style={{
+            background:"none", border:"none", cursor:"pointer",
+            fontSize:"11px", fontWeight:600, color:"rgba(91,76,245,0.8)",
+            fontFamily:"'Outfit',sans-serif", padding:0, transition:"color 0.15s",
+          }}>Mark all read</button>
+        )}
+      </div>
+
+      {/* Body */}
+      <div style={{ maxHeight:"400px", overflowY:"auto", position:"relative" }}>
+        {notifItems.length === 0 ? (
+          <div style={{ padding:"40px 18px", textAlign:"center" }}>
+            {/* Empty state */}
+            <div style={{
+              width:"48px", height:"48px", borderRadius:"50%", margin:"0 auto 14px",
+              background:"rgba(91,76,245,0.1)", border:"1px solid rgba(91,76,245,0.2)",
+              display:"flex", alignItems:"center", justifyContent:"center",
+            }}>
+              <BellIcon hasUnread={false} />
+            </div>
+            <div style={{ fontSize:"14px", fontWeight:600, color:"rgba(255,255,255,0.4)", marginBottom:"4px" }}>
+              All caught up
+            </div>
+            <div style={{ fontSize:"12px", color:"rgba(255,255,255,0.2)", lineHeight:1.5 }}>
+              Client approvals and feedback will appear here
+            </div>
+          </div>
+        ) : (
+          <>
+            {notifItems.slice(0, 15).map(a => {
+              const cfg   = ACTIVITY_CONFIG[a.type];
+              const isNew = new Date(a.created_at) > lastSeen;
+              return (
+                <div key={a.id}
+                  onClick={() => { router.push(`/dashboard/project/${a.project_id}`); setNotifOpen(false); }}
+                  style={{
+                    padding:"12px 18px", cursor:"pointer",
+                    background: isNew ? "rgba(91,76,245,0.05)" : "transparent",
+                    borderBottom:"1px solid rgba(255,255,255,0.05)",
+                    display:"flex", gap:"12px", alignItems:"flex-start",
+                    transition:"background 0.15s",
+                  }}>
+                  {/* Icon */}
+                  <div style={{
+                    width:"34px", height:"34px", borderRadius:"10px", flexShrink:0,
+                    background:`${cfg.color}18`, border:`1px solid ${cfg.color}35`,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:"14px", fontWeight:800, color:cfg.color,
+                  }}>{cfg.icon}</div>
+
+                  {/* Content */}
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"2px" }}>
+                      <span style={{ fontSize:"13px", fontWeight:600, color:"rgba(255,255,255,0.9)" }}>
+                        {a.project_name}
+                      </span>
+                      <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.25)", flexShrink:0, marginLeft:"8px" }}>
+                        {timeAgo(a.created_at)}
+                      </span>
+                    </div>
+                    <div style={{ fontSize:"12px", color:cfg.color, marginBottom: a.message ? "4px" : 0 }}>
+                      {cfg.label}
+                    </div>
+                    {a.message && (
+                      <div style={{
+                        fontSize:"12px", color:"rgba(255,255,255,0.35)", lineHeight:1.5,
+                        overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap",
+                      }}>
+                        "{a.message}"
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Unread dot */}
+                  {isNew && (
+                    <div style={{
+                      width:"7px", height:"7px", borderRadius:"50%",
+                      background:"#5B4CF5", flexShrink:0, marginTop:"5px",
+                    }} />
+                  )}
+                </div>
+              );
+            })}
+            {/* Fade hint at bottom if more items */}
+            {notifItems.length > 5 && (
+              <div style={{
+                position:"sticky", bottom:0, height:"40px",
+                background:"linear-gradient(transparent,#0d0f1e)",
+                pointerEvents:"none",
+              }} />
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  // ── Bell button ──
+  const NotifBell = () => (
     <div ref={bellRef} style={{ position:"relative" }}>
       <button onClick={openNotifications} style={{
         width:"36px", height:"36px", borderRadius:"10px",
-        background: notifOpen ? "rgba(91,76,245,0.2)" : "rgba(255,255,255,0.06)",
-        border:`1px solid ${notifOpen ? "rgba(91,76,245,0.4)" : "rgba(255,255,255,0.1)"}`,
+        background: notifOpen
+          ? "rgba(91,76,245,0.25)"
+          : hasUnread ? "rgba(91,76,245,0.12)" : "rgba(255,255,255,0.06)",
+        border:`1px solid ${notifOpen || hasUnread ? "rgba(91,76,245,0.4)" : "rgba(255,255,255,0.1)"}`,
         cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
-        color:"rgba(255,255,255,0.6)", fontSize:`${size}px`, transition:"all 0.15s",
-        position:"relative",
+        transition:"all 0.15s", position:"relative",
       }}>
-        🔔
+        <BellIcon hasUnread={hasUnread} />
         {unreadCount > 0 && (
           <div style={{
-            position:"absolute", top:"-4px", right:"-4px",
-            width:"18px", height:"18px", borderRadius:"50%",
+            position:"absolute", top:"-5px", right:"-5px",
+            minWidth:"18px", height:"18px", borderRadius:"9px",
             background:"#E85D75", border:"2px solid #080a18",
             display:"flex", alignItems:"center", justifyContent:"center",
-            fontSize:"10px", fontWeight:800, color:"#fff",
+            fontSize:"10px", fontWeight:800, color:"#fff", padding:"0 4px",
           }}>{unreadCount > 9 ? "9+" : unreadCount}</div>
         )}
       </button>
 
-      {/* Notification dropdown */}
-      {notifOpen && (
+      {/* Desktop dropdown — opens upward from sidebar */}
+      {notifOpen && !isMobile && (
         <div style={{
-          position:"absolute", top:"44px", right:0, width:"320px", zIndex:200,
-          background:"#0d0f1e", border:"1px solid rgba(255,255,255,0.1)",
-          borderRadius:"16px", overflow:"hidden",
-          boxShadow:"0 16px 48px rgba(0,0,0,0.5)",
+          position:"absolute", bottom:"44px", left:0, width:"320px", zIndex:300,
         }}>
-          <div style={{ padding:"16px 18px 12px", borderBottom:"1px solid rgba(255,255,255,0.07)", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-            <span style={{ fontSize:"14px", fontWeight:700, color:"#fff" }}>Notifications</span>
-            {activity.filter(a => a.type==="approved"||a.type==="changes_requested").length > 0 && (
-              <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.3)" }}>
-                {activity.filter(a => a.type==="approved"||a.type==="changes_requested").length} total
-              </span>
-            )}
-          </div>
-          <div style={{ maxHeight:"360px", overflowY:"auto" }}>
-            {activity.filter(a => a.type==="approved"||a.type==="changes_requested").length === 0 ? (
-              <div style={{ padding:"32px 18px", textAlign:"center", color:"rgba(255,255,255,0.3)", fontSize:"13px" }}>
-                No notifications yet
-              </div>
-            ) : (
-              activity
-                .filter(a => a.type==="approved"||a.type==="changes_requested")
-                .slice(0, 15)
-                .map(a => {
-                  const cfg = ACTIVITY_CONFIG[a.type];
-                  const isNew = new Date(a.created_at) > lastSeen;
-                  return (
-                    <div key={a.id}
-                      onClick={() => { router.push(`/dashboard/project/${a.project_id}`); setNotifOpen(false); }}
-                      style={{
-                        padding:"12px 18px", cursor:"pointer", transition:"background 0.15s",
-                        background: isNew ? "rgba(91,76,245,0.06)" : "transparent",
-                        borderBottom:"1px solid rgba(255,255,255,0.05)",
-                        display:"flex", gap:"12px", alignItems:"flex-start",
-                      }}>
-                      <div style={{
-                        width:"32px", height:"32px", borderRadius:"50%", flexShrink:0,
-                        background:`${cfg.color}20`, border:`1px solid ${cfg.color}40`,
-                        display:"flex", alignItems:"center", justifyContent:"center",
-                        fontSize:"13px", color:cfg.color,
-                      }}>{cfg.icon}</div>
-                      <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontSize:"13px", fontWeight:600, color:"rgba(255,255,255,0.9)", marginBottom:"2px" }}>
-                          {a.project_name}
-                        </div>
-                        <div style={{ fontSize:"12px", color:cfg.color, marginBottom:"4px" }}>{cfg.label}</div>
-                        {a.message && (
-                          <div style={{ fontSize:"12px", color:"rgba(255,255,255,0.4)", lineHeight:1.5, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
-                            "{a.message}"
-                          </div>
-                        )}
-                        <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.25)", marginTop:"4px" }}>{timeAgo(a.created_at)}</div>
-                      </div>
-                      {isNew && <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#5B4CF5", flexShrink:0, marginTop:"4px" }} />}
-                    </div>
-                  );
-                })
-            )}
-          </div>
+          <NotifPanel />
+        </div>
+      )}
+
+      {/* Mobile dropdown — fixed full width below topbar */}
+      {notifOpen && isMobile && (
+        <div style={{
+          position:"fixed", top:"68px", left:"8px", right:"8px", zIndex:300,
+        }}>
+          <NotifPanel />
         </div>
       )}
     </div>
@@ -343,7 +446,6 @@ export default function DashboardPage() {
           ))}
         </nav>
         <div style={{ borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:"16px" }}>
-          {/* Notification bell in sidebar */}
           <div style={{ marginBottom:"12px" }}>
             <NotifBell />
           </div>
@@ -364,7 +466,7 @@ export default function DashboardPage() {
           Portl<span style={{ color:"#5B4CF5", fontSize:"24px" }}>.</span>
         </span>
         <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
-          <NotifBell size={16} />
+          <NotifBell />
           <button className="new-btn" style={{ padding:"8px 14px", fontSize:"13px" }} onClick={() => router.push("/dashboard/new")}>+ New</button>
           <button onClick={() => setMenuOpen(!menuOpen)} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:"8px", width:"36px", height:"36px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:"rgba(255,255,255,0.7)", fontSize:"18px" }}>☰</button>
         </div>
@@ -461,8 +563,7 @@ export default function DashboardPage() {
               const st    = STATUS_CONFIG[project.status] ?? STATUS_CONFIG.draft;
               const color = CARD_COLORS[i % CARD_COLORS.length];
               const isHov = hovered === project.id;
-              // Show unread dot on card if there's new activity for this project
-              const hasUnread = activity.some(a =>
+              const hasUnreadCard = activity.some(a =>
                 a.project_id === project.id &&
                 new Date(a.created_at) > lastSeen &&
                 (a.type === "approved" || a.type === "changes_requested")
@@ -473,8 +574,7 @@ export default function DashboardPage() {
                   onMouseLeave={() => setHovered(null)}
                   onClick={() => router.push(`/dashboard/project/${project.id}`)}>
                   <div style={{ position:"absolute", top:0, left:0, right:0, height:"2px", background:`linear-gradient(90deg,${color},transparent)`, opacity:isHov?1:0, transition:"opacity 0.2s", borderRadius:"16px 16px 0 0" }} />
-                  {/* Unread dot */}
-                  {hasUnread && (
+                  {hasUnreadCard && (
                     <div style={{ position:"absolute", top:"12px", right:"12px", width:"8px", height:"8px", borderRadius:"50%", background:"#E85D75", boxShadow:"0 0 0 2px #080a18" }} />
                   )}
                   <div style={{ display:"inline-flex", alignItems:"center", gap:"6px", background:st.bg, color:st.color, padding:"4px 10px", borderRadius:"20px", fontSize:"11px", fontWeight:700, marginBottom:"16px", textTransform:"uppercase", letterSpacing:"0.05em" }}>
