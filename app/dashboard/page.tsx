@@ -409,9 +409,9 @@ export default function DashboardPage() {
 
         {/* Nav */}
         <nav className="sidebar-nav">
-          {navItems.map(({ icon: Icon, label, key, badge }) => (
-            <div key={key} className={`nav-item${activeNav===key?" active":""}`}
-              onClick={() => { setActiveNav(key); if(key==="Studio") router.push("/dashboard"); }}>
+        {navItems.map(({ icon: Icon, label, key, path, badge }) => (
+  <div key={key} className={`nav-item${activeNav===key?" active":""}`}
+    onClick={() => { setActiveNav(key); router.push(path); }}>
               <Icon />
               <span>{label}</span>
               {badge && badge > 0 && <span className="nav-badge">{badge}</span>}
@@ -544,8 +544,8 @@ export default function DashboardPage() {
       {menuOpen && (
         <div className="mobile-menu">
           <nav style={{ display:"flex", flexDirection:"column", gap:"4px", marginBottom:"12px" }}>
-            {navItems.map(({ icon: Icon, label, key }) => (
-              <div key={key} className={`nav-item${activeNav===key?" active":""}`} onClick={() => { setActiveNav(key); setMenuOpen(false); }}>
+          {navItems.map(({ icon: Icon, label, key, path }) => (
+  <div key={key} className={`nav-item${activeNav===key?" active":""}`} onClick={() => { setActiveNav(key); setMenuOpen(false); router.push(path); }}>
                 <Icon />{label}
               </div>
             ))}
