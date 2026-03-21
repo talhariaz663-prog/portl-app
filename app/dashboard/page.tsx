@@ -51,6 +51,7 @@ const NOTIF_KEY = "portl_notif_last_seen";
 // ── SVG Icons ──
 const Icons = {
   Studio:    () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.9"/><rect x="13" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/><rect x="3" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/><rect x="13" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/></svg>,
+  MyWork: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 7C3 5.9 3.9 5 5 5h4l2 2h8c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7z" fill="currentColor" opacity="0.8"/></svg>,
   Projects:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 7C3 5.9 3.9 5 5 5h4l2 2h8c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7z" fill="currentColor" opacity="0.8"/></svg>,
   Activity:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 12h3l3-8 4 16 3-8h7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   Approvals: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/><path d="M8 12l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
@@ -171,10 +172,10 @@ export default function DashboardPage() {
   const hasUnread     = unreadCount > 0;
 
   const navItems = [
-    { icon: Icons.Studio,    label: "Studio",    key: "Studio"    },
-    { icon: Icons.Projects,  label: "Projects",  key: "Projects"  },
-    { icon: Icons.Activity,  label: "Activity",  key: "Activity"  },
-    { icon: Icons.Approvals, label: "Approvals", key: "Approvals", badge: counts.review },
+    { icon: Icons.Studio,    label: "Studio",    key: "Studio",    path: "/dashboard"           },
+    { icon: Icons.MyWork,    label: "My Work",   key: "MyWork",    path: "/dashboard/projects"  },
+    { icon: Icons.Activity,  label: "Activity",  key: "Activity",  path: "/dashboard/activity"  },
+    { icon: Icons.Approvals, label: "Approvals", key: "Approvals", path: "/dashboard/approvals", badge: counts.review },
   ];
 
   const notifItems = activity.filter(a => a.type === "approved" || a.type === "changes_requested");
