@@ -106,7 +106,7 @@ export default function ActivityPage() {
 
   const navItems = [
     { icon: Icons.Studio,    label: "Studio",    path: "/dashboard"          },
-    { icon: Icons.Projects,  label: "Projects",  path: "/dashboard/projects" },
+    { icon: Icons.Projects,  label: "My Work",  path: "/dashboard/projects" },
     { icon: Icons.Activity,  label: "Activity",  path: "/dashboard/activity" },
     { icon: Icons.Approvals, label: "Approvals", path: "/dashboard/approvals", badge: reviewCount },
   ];
