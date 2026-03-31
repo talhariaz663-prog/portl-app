@@ -60,6 +60,8 @@ const Icons = {
   Arrow:     () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   Check:     () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   Warning:   () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  Payments:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" opacity="0.8"/><path d="M2 10h20" stroke="currentColor" strokeWidth="1.8" opacity="0.6"/></svg>,
+  Help:      () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2 2-2 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M12 17h.01" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/></svg>,
   Signout:   () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
 };
 
@@ -176,6 +178,8 @@ export default function DashboardPage() {
     { icon: Icons.MyWork,    label: "My Work",   key: "MyWork",    path: "/dashboard/projects"  },
     { icon: Icons.Activity,  label: "Activity",  key: "Activity",  path: "/dashboard/activity"  },
     { icon: Icons.Approvals, label: "Approvals", key: "Approvals", path: "/dashboard/approvals", badge: counts.review },
+    { icon: Icons.Payments,  label: "Payments",  key: "Payments",  path: "/dashboard/payments"  },
+    { icon: Icons.Help,      label: "Help",      key: "Help",      path: "/dashboard/help"      },
   ];
 
   const notifItems = activity.filter(a => a.type === "approved" || a.type === "changes_requested");

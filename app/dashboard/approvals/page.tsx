@@ -52,6 +52,8 @@ const Icons = {
   Warning:   () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
   Clock:     () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" opacity="0.6"/><path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>,
   Copy:      () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="1.8"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" strokeWidth="1.8"/></svg>,
+  Payments:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" opacity="0.8"/><path d="M2 10h20" stroke="currentColor" strokeWidth="1.8" opacity="0.6"/></svg>,
+  Help:      () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2 2-2 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M12 17h.01" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/></svg>,
 };
 
 export default function ApprovalsPage() {
@@ -143,9 +145,11 @@ export default function ApprovalsPage() {
 
   const navItems = [
     { icon: Icons.Studio,    label: "Studio",    path: "/dashboard"           },
-    { icon: Icons.Projects,  label: "My Work",  path: "/dashboard/projects"  },
+    { icon: Icons.Projects,  label: "My Work",   path: "/dashboard/projects"  },
     { icon: Icons.Activity,  label: "Activity",  path: "/dashboard/activity"  },
     { icon: Icons.Approvals, label: "Approvals", path: "/dashboard/approvals", badge: reviewCount },
+    { icon: Icons.Payments,  label: "Payments",  path: "/dashboard/payments"  },
+    { icon: Icons.Help,      label: "Help",       path: "/dashboard/help"      },
   ];
 
   const handleSignOut = async () => {

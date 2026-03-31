@@ -48,6 +48,8 @@ const Icons = {
   Search:    () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" opacity="0.6"/><path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.6"/></svg>,
   Copy:      () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="1.8"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" strokeWidth="1.8"/></svg>,
   Arrow:     () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  Payments:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" opacity="0.8"/><path d="M2 10h20" stroke="currentColor" strokeWidth="1.8" opacity="0.6"/></svg>,
+  Help:      () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2 2-2 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M12 17h.01" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/></svg>,
   Signout:   () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
 };
 
@@ -109,10 +111,12 @@ export default function ProjectsPage() {
   };
 
   const navItems = [
-    { icon: Icons.Studio,    label: "Studio",    path: "/dashboard"            },
-    { icon: Icons.Projects,  label: "My Work",  path: "/dashboard/projects"   },
-    { icon: Icons.Activity,  label: "Activity",  path: "/dashboard/activity"   },
+    { icon: Icons.Studio,    label: "Studio",    path: "/dashboard"           },
+    { icon: Icons.Projects,  label: "My Work",   path: "/dashboard/projects"  },
+    { icon: Icons.Activity,  label: "Activity",  path: "/dashboard/activity"  },
     { icon: Icons.Approvals, label: "Approvals", path: "/dashboard/approvals", badge: counts.review },
+    { icon: Icons.Payments,  label: "Payments",  path: "/dashboard/payments"  },
+    { icon: Icons.Help,      label: "Help",      path: "/dashboard/help"      },
   ];
 
   const handleSignOut = async () => {
