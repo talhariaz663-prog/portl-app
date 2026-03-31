@@ -64,7 +64,7 @@ export default function NewProjectPage() {
         name:         name.trim(),
         client_name:  clientName.trim(),
         client_email: clientEmail.trim(),
-        designer_id:  user.id,
+        user_id:      user.id,
       })
       .select()
       .single();
