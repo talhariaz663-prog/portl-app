@@ -56,6 +56,8 @@ export default function NewProjectPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setError("You must be logged in."); setLoading(false); return; }
 
+    console.log("User ID:", user.id);
+
     const { data, error: insertError } = await supabase
       .from("projects")
       .insert({
@@ -68,6 +70,7 @@ export default function NewProjectPage() {
       .single();
 
     if (insertError || !data) {
+      console.error("Insert error:", JSON.stringify(insertError));
       setError("Failed to create project. Please try again.");
       setLoading(false);
       return;
