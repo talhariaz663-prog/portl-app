@@ -100,12 +100,12 @@ export default function OnboardingPage() {
   }, [supabase, router]);
 
   const complete = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
       await supabase
         .from("profiles")
         .update({ onboarding_complete: true })
-        .eq("id", session.user.id);
+        .eq("id", user.id);
     }
     router.push("/dashboard");
   };
