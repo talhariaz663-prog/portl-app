@@ -158,7 +158,7 @@ export default function ApprovalsPage() {
   };
 
   return (
-    <div style={{ minHeight:"100vh", background:"#07090f", fontFamily:"'Outfit',sans-serif", color:"#fff", display:"flex" }}>
+    <div style={{ minHeight:"100vh", background:"#F5F6FA", fontFamily:"'Outfit',sans-serif", color:"#12111A", display:"flex" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
@@ -180,7 +180,7 @@ export default function ApprovalsPage() {
         .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F5A623,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
         .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
         .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
-        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(7,9,15,0.97);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
+        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;flex:1;}
 
         .action-card{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;border-radius:16px;background:rgba(245,166,35,0.04);border:1px solid rgba(245,166,35,0.18);cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;}
@@ -190,15 +190,15 @@ export default function ApprovalsPage() {
         .done-card{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:rgba(11,171,108,0.04);border:1px solid rgba(11,171,108,0.15);cursor:pointer;transition:all 0.18s;}
         .done-card:hover{background:rgba(11,171,108,0.07);border-color:rgba(11,171,108,0.25);}
 
-        .icon-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;cursor:pointer;color:rgba(255,255,255,0.4);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
-        .icon-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.8);}
+        .icon-btn{background:#F5F6FA;border:1px solid #E4E4E8;border-radius:8px;padding:6px 10px;cursor:pointer;color:#8A8A9A;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+        .icon-btn:hover{background:#EDEDF2;color:#12111A;border-color:#C8C8D4;}
         .icon-btn.copied{background:rgba(11,171,108,0.12);border-color:rgba(11,171,108,0.3);color:#0BAB6C;}
 
-        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(7,9,15,0.98);border-bottom:1px solid rgba(255,255,255,0.08);padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
+        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(255,255,255,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
         @media(max-width:768px){.sidebar{display:none!important;}.topbar{display:flex!important;}.main{margin-left:0!important;padding:76px 16px 40px!important;}.action-card-actions{display:none!important;}}
       `}</style>
 
-      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:`radial-gradient(ellipse 60% 40% at 100% 0%,rgba(91,76,245,0.06) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 0% 100%,rgba(11,171,108,0.05) 0%,transparent 60%),linear-gradient(rgba(91,76,245,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(91,76,245,0.02) 1px,transparent 1px)`,backgroundSize:"100% 100%,100% 100%,40px 40px,40px 40px"}} />
+      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:"radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)",backgroundSize:"40px 40px"}} />
 
       {/* Sidebar */}
       <aside className="sidebar">
@@ -231,8 +231,8 @@ export default function ApprovalsPage() {
 
       {/* Mobile topbar */}
       <header className="topbar">
-        <span style={{fontSize:"20px",fontWeight:900,letterSpacing:"-0.6px"}}>Portl<span style={{color:"#5B4CF5"}}>.</span></span>
-        <button onClick={() => setMenuOpen(!menuOpen)} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"8px",width:"36px",height:"36px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,0.7)",fontSize:"18px"}}>☰</button>
+        <span style={{fontSize:"20px",fontWeight:900,letterSpacing:"-0.6px",color:"#12111A"}}>Portl<span style={{color:"#5B4CF5"}}>.</span></span>
+        <button onClick={() => setMenuOpen(!menuOpen)} style={{background:"#F5F6FA",border:"1px solid #E4E4E8",borderRadius:"8px",width:"36px",height:"36px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#4A4A5A",fontSize:"18px"}}>☰</button>
       </header>
 
       {menuOpen && (
@@ -253,12 +253,12 @@ export default function ApprovalsPage() {
         {/* Header */}
         <div className="fi fi1" style={{marginBottom:"28px"}}>
           <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px"}}>Approvals</h1>
-          <p style={{fontSize:"13px",color:"rgba(255,255,255,0.35)"}}>Track client feedback and approvals across all your projects</p>
+          <p style={{fontSize:"13px",color:"#8A8A9A"}}>Track client feedback and approvals across all your projects</p>
         </div>
 
         {loading ? (
           <div style={{display:"flex",justifyContent:"center",paddingTop:"60px"}}>
-            <div style={{width:"28px",height:"28px",border:"2px solid rgba(255,255,255,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
+            <div style={{width:"28px",height:"28px",border:"2px solid rgba(0,0,0,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
           </div>
         ) : (
           <>
@@ -273,9 +273,9 @@ export default function ApprovalsPage() {
               </div>
 
               {needsAction.length === 0 ? (
-                <div style={{padding:"28px",textAlign:"center",border:"1px dashed rgba(255,255,255,0.07)",borderRadius:"16px",color:"rgba(255,255,255,0.25)"}}>
+                <div style={{padding:"28px",textAlign:"center",border:"1px dashed #E4E4E8",borderRadius:"16px",color:"#8A8A9A"}}>
                   <div style={{fontSize:"22px",marginBottom:"8px",opacity:0.4}}>✓</div>
-                  <div style={{fontSize:"13px",fontWeight:600,color:"rgba(255,255,255,0.35)"}}>All clear — no pending revisions</div>
+                  <div style={{fontSize:"13px",fontWeight:600,color:"#8A8A9A"}}>All clear — no pending revisions</div>
                 </div>
               ) : (
                 <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
@@ -290,14 +290,14 @@ export default function ApprovalsPage() {
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px",flexWrap:"wrap"}}>
                           <span style={{fontSize:"15px",fontWeight:700}}>{project.name}</span>
-                          <span style={{fontSize:"11px",color:"rgba(255,255,255,0.35)"}}>→</span>
-                          <span style={{fontSize:"13px",color:"rgba(255,255,255,0.55)",fontWeight:500}}>{stage.title}</span>
+                          <span style={{fontSize:"11px",color:"#8A8A9A"}}>→</span>
+                          <span style={{fontSize:"13px",color:"#8A8A9A",fontWeight:500}}>{stage.title}</span>
                         </div>
-                        <div style={{fontSize:"12px",color:"rgba(255,255,255,0.38)",marginBottom:lastActivity?.message?"8px":0}}>
+                        <div style={{fontSize:"12px",color:"#8A8A9A",marginBottom:lastActivity?.message?"8px":0}}>
                           {project.client_name} · {lastActivity ? timeAgo(lastActivity.created_at) : ""}
                         </div>
                         {lastActivity?.message && (
-                          <div style={{fontSize:"13px",color:"rgba(255,255,255,0.65)",background:"rgba(245,166,35,0.07)",border:"1px solid rgba(245,166,35,0.15)",borderRadius:"8px",padding:"8px 12px",lineHeight:1.5}}>
+                          <div style={{fontSize:"13px",color:"#4A4A5A",background:"rgba(245,166,35,0.07)",border:"1px solid rgba(245,166,35,0.15)",borderRadius:"8px",padding:"8px 12px",lineHeight:1.5}}>
                             <span style={{color:"#F5A623",marginRight:"6px"}}><Icons.Warning /></span>
                             "{lastActivity.message}"
                           </div>
@@ -330,8 +330,8 @@ export default function ApprovalsPage() {
               </div>
 
               {recentlyDone.length === 0 ? (
-                <div style={{padding:"28px",textAlign:"center",border:"1px dashed rgba(255,255,255,0.07)",borderRadius:"16px",color:"rgba(255,255,255,0.25)"}}>
-                  <div style={{fontSize:"13px",fontWeight:600,color:"rgba(255,255,255,0.3)"}}>No approvals in the last 2 weeks</div>
+                <div style={{padding:"28px",textAlign:"center",border:"1px dashed #E4E4E8",borderRadius:"16px",color:"#8A8A9A"}}>
+                  <div style={{fontSize:"13px",fontWeight:600,color:"#8A8A9A"}}>No approvals in the last 2 weeks</div>
                 </div>
               ) : (
                 <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
@@ -343,14 +343,14 @@ export default function ApprovalsPage() {
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{display:"flex",alignItems:"center",gap:"6px",marginBottom:"2px",flexWrap:"wrap"}}>
                           <span style={{fontSize:"14px",fontWeight:700}}>{project.name}</span>
-                          <span style={{fontSize:"11px",color:"rgba(255,255,255,0.3)"}}>→</span>
-                          <span style={{fontSize:"12px",color:"rgba(255,255,255,0.5)"}}>{stage.title}</span>
+                          <span style={{fontSize:"11px",color:"#8A8A9A"}}>→</span>
+                          <span style={{fontSize:"12px",color:"#8A8A9A"}}>{stage.title}</span>
                         </div>
-                        <div style={{fontSize:"12px",color:"rgba(255,255,255,0.35)"}}>
+                        <div style={{fontSize:"12px",color:"#8A8A9A"}}>
                           Approved by {project.client_name} · {lastActivity ? timeAgo(lastActivity.created_at) : ""}
                         </div>
                       </div>
-                      <div style={{color:"rgba(255,255,255,0.2)",flexShrink:0}}><Icons.Arrow /></div>
+                      <div style={{color:"#8A8A9A",flexShrink:0}}><Icons.Arrow /></div>
                     </div>
                   ))}
                 </div>

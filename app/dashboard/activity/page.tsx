@@ -129,7 +129,7 @@ export default function ActivityPage() {
   ];
 
   return (
-    <div style={{ minHeight:"100vh", background:"#07090f", fontFamily:"'Outfit',sans-serif", color:"#fff", display:"flex" }}>
+    <div style={{ minHeight:"100vh", background:"#F5F6FA", fontFamily:"'Outfit',sans-serif", color:"#12111A", display:"flex" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
@@ -150,20 +150,20 @@ export default function ActivityPage() {
         .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F5A623,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
         .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
         .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
-        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(7,9,15,0.97);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
+        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;flex:1;}
-        .filter-pill{padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,0.08);background:transparent;color:rgba(255,255,255,0.38);font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
-        .filter-pill:hover{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.18);}
-        .filter-pill.active{background:rgba(91,76,245,0.18);border-color:rgba(91,76,245,0.45);color:#fff;}
-        .activity-card{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:all 0.18s;}
-        .activity-card:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.12);}
-        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(7,9,15,0.98);border-bottom:1px solid rgba(255,255,255,0.08);padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
+        .filter-pill{padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;border:1px solid #E4E4E8;background:#FFFFFF;color:#8A8A9A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
+        .filter-pill:hover{color:#4A4A5A;border-color:#C8C8D4;}
+        .filter-pill.active{background:rgba(91,76,245,0.1);border-color:rgba(91,76,245,0.35);color:#5B4CF5;}
+        .activity-card{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-radius:14px;background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.18s;}
+        .activity-card:hover{background:#F9F9FB;border-color:#D0D0D8;}
+        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(255,255,255,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
         .new-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#5B4CF5,#0BAB6C);color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s;}
         .new-btn:hover{opacity:0.88;transform:translateY(-1px);}
         @media(max-width:768px){.sidebar{display:none!important;}.topbar{display:flex!important;}.main{margin-left:0!important;padding:76px 16px 40px!important;}}
       `}</style>
 
-      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:`radial-gradient(ellipse 60% 40% at 100% 0%,rgba(91,76,245,0.06) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 0% 100%,rgba(11,171,108,0.05) 0%,transparent 60%),linear-gradient(rgba(91,76,245,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(91,76,245,0.02) 1px,transparent 1px)`,backgroundSize:"100% 100%,100% 100%,40px 40px,40px 40px"}} />
+      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:"radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)",backgroundSize:"40px 40px"}} />
 
       {/* Sidebar */}
       <aside className="sidebar">
@@ -196,8 +196,8 @@ export default function ActivityPage() {
 
       {/* Mobile topbar */}
       <header className="topbar">
-        <span style={{fontSize:"20px",fontWeight:900,letterSpacing:"-0.6px"}}>Portl<span style={{color:"#5B4CF5"}}>.</span></span>
-        <button onClick={() => setMenuOpen(!menuOpen)} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"8px",width:"36px",height:"36px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,0.7)",fontSize:"18px"}}>☰</button>
+        <span style={{fontSize:"20px",fontWeight:900,letterSpacing:"-0.6px",color:"#12111A"}}>Portl<span style={{color:"#5B4CF5"}}>.</span></span>
+        <button onClick={() => setMenuOpen(!menuOpen)} style={{background:"#F5F6FA",border:"1px solid #E4E4E8",borderRadius:"8px",width:"36px",height:"36px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#4A4A5A",fontSize:"18px"}}>☰</button>
       </header>
 
       {menuOpen && (
@@ -216,7 +216,7 @@ export default function ActivityPage() {
       <main className="main" style={{position:"relative",zIndex:1}}>
         <div className="fi fi1" style={{marginBottom:"28px"}}>
           <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px"}}>Activity</h1>
-          <p style={{fontSize:"13px",color:"rgba(255,255,255,0.35)"}}>Everything that's happened across your projects</p>
+          <p style={{fontSize:"13px",color:"#8A8A9A"}}>Everything that's happened across your projects</p>
         </div>
 
         {/* Filters */}
@@ -230,17 +230,17 @@ export default function ActivityPage() {
 
         {loading ? (
           <div style={{display:"flex",justifyContent:"center",paddingTop:"60px"}}>
-            <div style={{width:"28px",height:"28px",border:"2px solid rgba(255,255,255,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
+            <div style={{width:"28px",height:"28px",border:"2px solid rgba(0,0,0,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
           </div>
         ) : activity.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"rgba(255,255,255,0.3)"}}>
+          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#8A8A9A"}}>
             <div style={{fontSize:"32px",marginBottom:"12px",opacity:0.4}}>◎</div>
-            <div style={{fontSize:"15px",fontWeight:600,color:"rgba(255,255,255,0.45)",marginBottom:"6px"}}>No activity yet</div>
+            <div style={{fontSize:"15px",fontWeight:600,color:"#4A4A5A",marginBottom:"6px"}}>No activity yet</div>
             <div style={{fontSize:"13px",lineHeight:1.6}}>Activity will appear here once clients start interacting with your portals.</div>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"rgba(255,255,255,0.3)"}}>
-            <div style={{fontSize:"15px",fontWeight:600,color:"rgba(255,255,255,0.45)"}}>No {filter.replace("_"," ")} activity</div>
+          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#8A8A9A"}}>
+            <div style={{fontSize:"15px",fontWeight:600,color:"#4A4A5A"}}>No {filter.replace("_"," ")} activity</div>
           </div>
         ) : (
           <div className="fi fi3" style={{display:"flex",flexDirection:"column",gap:"24px"}}>
@@ -248,8 +248,8 @@ export default function ActivityPage() {
               <div key={date}>
                 {/* Date header */}
                 <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px"}}>
-                  <span style={{fontSize:"11px",fontWeight:700,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.08em",whiteSpace:"nowrap"}}>{date}</span>
-                  <div style={{flex:1,height:"1px",background:"rgba(255,255,255,0.06)"}} />
+                  <span style={{fontSize:"11px",fontWeight:700,color:"#8A8A9A",textTransform:"uppercase",letterSpacing:"0.08em",whiteSpace:"nowrap"}}>{date}</span>
+                  <div style={{flex:1,height:"1px",background:"#E4E4E8"}} />
                 </div>
 
                 {/* Activity items */}
@@ -266,16 +266,16 @@ export default function ActivityPage() {
                         {/* Content */}
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"3px",flexWrap:"wrap"}}>
-                            <span style={{fontSize:"14px",fontWeight:700,color:"rgba(255,255,255,0.9)"}}>{a.project_name}</span>
+                            <span style={{fontSize:"14px",fontWeight:700,color:"#12111A"}}>{a.project_name}</span>
                             <span style={{fontSize:"11px",color:cfg.color,fontWeight:600}}>{cfg.label}</span>
                           </div>
                           {a.client_name && (
-                            <div style={{fontSize:"12px",color:"rgba(255,255,255,0.35)",marginBottom:a.message?"4px":0}}>
+                            <div style={{fontSize:"12px",color:"#8A8A9A",marginBottom:a.message?"4px":0}}>
                               by {a.client_name}
                             </div>
                           )}
                           {a.message && (
-                            <div style={{fontSize:"13px",color:"rgba(255,255,255,0.55)",lineHeight:1.5,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:"8px",padding:"8px 12px",marginTop:"6px"}}>
+                            <div style={{fontSize:"13px",color:"#4A4A5A",lineHeight:1.5,background:"#F9F9FB",border:"1px solid #E4E4E8",borderRadius:"8px",padding:"8px 12px",marginTop:"6px"}}>
                               "{a.message}"
                             </div>
                           )}
@@ -283,8 +283,8 @@ export default function ActivityPage() {
 
                         {/* Time + arrow */}
                         <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"8px",flexShrink:0}}>
-                          <span style={{fontSize:"11px",color:"rgba(255,255,255,0.2)"}}>{timeAgo(a.created_at)}</span>
-                          <div style={{color:"rgba(255,255,255,0.2)"}}><Icons.Arrow /></div>
+                          <span style={{fontSize:"11px",color:"#B0B0BC"}}>{timeAgo(a.created_at)}</span>
+                          <div style={{color:"#B0B0BC"}}><Icons.Arrow /></div>
                         </div>
                       </div>
                     );

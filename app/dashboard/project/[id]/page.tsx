@@ -254,14 +254,14 @@ export default function ProjectDetailPage() {
   };
 
   if (loading) return (
-    <div style={{ minHeight:"100vh", background:"#080a18", display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <div style={{ width:"32px", height:"32px", border:"2px solid rgba(255,255,255,0.1)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
+    <div style={{ minHeight:"100vh", background:"#F5F6FA", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ width:"32px", height:"32px", border:"2px solid rgba(0,0,0,0.08)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
   return (
-    <div style={{ minHeight:"100vh", background:"#080a18", fontFamily:"'Outfit',sans-serif", color:"#fff" }}>
+    <div style={{ minHeight:"100vh", background:"#F5F6FA", fontFamily:"'Outfit',sans-serif", color:"#12111A" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
@@ -276,8 +276,8 @@ export default function ProjectDetailPage() {
         .nav-item:not(.active){color:rgba(255,255,255,0.4);}
         .nav-item:not(.active):hover{color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.04);}
 
-        .stage-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.4);white-space:nowrap;transition:all 0.18s ease;}
-        .stage-tab:hover{color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);}
+        .stage-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;cursor:pointer;border:1px solid #E4E4E8;background:#FFFFFF;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:#8A8A9A;white-space:nowrap;transition:all 0.18s ease;}
+        .stage-tab:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F9F9FB;}
         .stage-tab.active{background:rgba(91,76,245,0.16);border-color:rgba(91,76,245,0.5);color:#fff;font-weight:700;}
 
         .status-pill{padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;transition:all 0.15s;border:1px solid transparent;white-space:nowrap;}
@@ -285,16 +285,16 @@ export default function ProjectDetailPage() {
         .upload-zone{border:1.5px dashed rgba(91,76,245,0.28);border-radius:12px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center;transition:all 0.2s ease;background:rgba(91,76,245,0.03);}
         .upload-zone:hover,.upload-zone.drag{border-color:rgba(91,76,245,0.6);background:rgba(91,76,245,0.08);}
 
-        .file-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);transition:all 0.15s;}
-        .file-row:hover{background:rgba(255,255,255,0.055);border-color:rgba(255,255,255,0.11);}
+        .file-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:#F9F9FB;border:1px solid #E4E4E8;transition:all 0.15s;}
+        .file-row:hover{background:#F0F0F5;border-color:#D0D0D8;}
 
         .share-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;border:1px solid rgba(91,76,245,0.3);background:rgba(91,76,245,0.1);color:#a093ff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
         .share-btn:hover{background:rgba(91,76,245,0.2);color:#fff;}
         .share-btn.copied{border-color:rgba(11,171,108,0.4);background:rgba(11,171,108,0.1);color:#0BAB6C;}
 
-        .note-area{width:100%;min-height:80px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s;}
-        .note-area::placeholder{color:rgba(255,255,255,0.2);}
-        .note-area:focus{border-color:rgba(91,76,245,0.45);background:rgba(91,76,245,0.04);}
+        .note-area{width:100%;min-height:80px;padding:12px 14px;background:#FFFFFF;border:1px solid #E4E4E8;border-radius:10px;color:#12111A;font-family:'Outfit',sans-serif;font-size:14px;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s;}
+        .note-area::placeholder{color:#B0B0BC;}
+        .note-area:focus{border-color:#5B4CF5;background:rgba(91,76,245,0.04);box-shadow:0 0 0 3px rgba(91,76,245,0.1);}
 
         .approval-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:10px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;background:linear-gradient(135deg,#5B4CF5,#0BAB6C);color:#fff;transition:opacity 0.2s,transform 0.15s;}
         .approval-btn:hover{opacity:0.88;transform:translateY(-1px);}
@@ -303,8 +303,8 @@ export default function ProjectDetailPage() {
         .delete-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:10px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;background:rgba(232,93,117,0.07);border:1px solid rgba(232,93,117,0.2);color:rgba(232,93,117,0.6);transition:all 0.15s;}
         .delete-btn:hover{background:rgba(232,93,117,0.12);border-color:rgba(232,93,117,0.4);color:#E85D75;}
 
-        .history-toggle{background:none;border:none;color:rgba(255,255,255,0.35);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
-        .history-toggle:hover{color:rgba(255,255,255,0.6);}
+        .history-toggle{background:none;border:none;color:#8A8A9A;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
+        .history-toggle:hover{color:#4A4A5A;}
 
         .sidebar{display:flex;}.topbar{display:none;}.main-content{margin-left:220px;padding:36px 40px;}
         .stage-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:20px;align-items:start;}
@@ -340,7 +340,7 @@ export default function ProjectDetailPage() {
       )}
 
       {/* BG */}
-      <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none", backgroundImage:`linear-gradient(rgba(91,76,245,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(91,76,245,0.04) 1px,transparent 1px),radial-gradient(ellipse 50% 40% at 95% 0%,rgba(91,76,245,0.07) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 5% 100%,rgba(11,171,108,0.05) 0%,transparent 70%)`, backgroundSize:"40px 40px,40px 40px,100% 100%,100% 100%" }} />
+      <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none", backgroundImage:"radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)", backgroundSize:"40px 40px" }} />
 
       {/* Sidebar */}
       <aside className="sidebar" style={{ position:"fixed", top:0, left:0, bottom:0, width:"220px", background:"rgba(8,10,24,0.97)", borderRight:"1px solid rgba(255,255,255,0.06)", backdropFilter:"blur(20px)", flexDirection:"column", padding:"28px 16px", zIndex:10 }}>
@@ -357,23 +357,23 @@ export default function ProjectDetailPage() {
       </aside>
 
       {/* Mobile topbar */}
-      <header className="topbar" style={{ position:"fixed", top:0, left:0, right:0, height:"60px", zIndex:40, background:"rgba(8,10,24,0.97)", borderBottom:"1px solid rgba(255,255,255,0.07)", backdropFilter:"blur(20px)", alignItems:"center", justifyContent:"space-between", padding:"0 16px" }}>
-        <button onClick={() => router.push("/dashboard")} style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:"8px", width:"36px", height:"36px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:"rgba(255,255,255,0.6)", fontSize:"16px" }}>←</button>
+      <header className="topbar" style={{ position:"fixed", top:0, left:0, right:0, height:"60px", zIndex:40, background:"rgba(255,255,255,0.97)", borderBottom:"1px solid #E4E4E8", backdropFilter:"blur(20px)", alignItems:"center", justifyContent:"space-between", padding:"0 16px" }}>
+        <button onClick={() => router.push("/dashboard")} style={{ background:"#F5F6FA", border:"1px solid #E4E4E8", borderRadius:"8px", width:"36px", height:"36px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:"#4A4A5A", fontSize:"16px" }}>←</button>
         <span style={{ fontSize:"18px", fontWeight:800, letterSpacing:"-0.5px" }}>Portl<span style={{ color:"#5B4CF5", fontSize:"22px" }}>.</span></span>
         <button className={`share-btn${copied?" copied":""}`} onClick={copyPortalLink} style={{ padding:"8px 12px", fontSize:"12px" }}>{copied?"✓ Copied":"⬡ Share"}</button>
       </header>
 
       <main className="main-content" style={{ position:"relative", zIndex:1 }}>
-        <button id="desktop-back" className="fi fi1" onClick={() => router.push("/dashboard")} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.3)", fontFamily:"'Outfit',sans-serif", fontSize:"13px", cursor:"pointer", display:"flex", alignItems:"center", gap:"6px", marginBottom:"20px", padding:0 }}>← Back to Studio</button>
+        <button id="desktop-back" className="fi fi1" onClick={() => router.push("/dashboard")} style={{ background:"none", border:"none", color:"#8A8A9A", fontFamily:"'Outfit',sans-serif", fontSize:"13px", cursor:"pointer", display:"flex", alignItems:"center", gap:"6px", marginBottom:"20px", padding:0 }}>← Back to Studio</button>
 
         {/* Header */}
-        <div className="fi fi1" style={{ background:"rgba(255,255,255,0.025)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"18px", padding:"22px 24px", marginBottom:"20px" }}>
+        <div className="fi fi1" style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"18px", padding:"22px 24px", marginBottom:"20px" }}>
           <div className="header-row" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"16px", marginBottom:"16px" }}>
             <div style={{ flex:1, minWidth:0 }}>
               <h1 style={{ fontSize:"clamp(18px,3.5vw,26px)", fontWeight:800, letterSpacing:"-0.5px", marginBottom:"5px", lineHeight:1.1 }}>{project?.name}</h1>
               <div style={{ display:"flex", alignItems:"center", gap:"10px", flexWrap:"wrap" }}>
-                <span style={{ fontSize:"14px", color:"rgba(255,255,255,0.5)", fontWeight:500 }}>{project?.client_name}</span>
-                {project?.client_email && <span style={{ fontSize:"13px", color:"rgba(255,255,255,0.22)" }}>{project.client_email}</span>}
+                <span style={{ fontSize:"14px", color:"#4A4A5A", fontWeight:500 }}>{project?.client_name}</span>
+                {project?.client_email && <span style={{ fontSize:"13px", color:"#8A8A9A" }}>{project.client_email}</span>}
               </div>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"10px", flexShrink:0 }}>
@@ -388,10 +388,10 @@ export default function ProjectDetailPage() {
           </div>
           <div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"7px" }}>
-              <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.35)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em" }}>Progress</span>
-              <span style={{ fontSize:"12px", fontWeight:700, color:progressPct===100?"#0BAB6C":"rgba(255,255,255,0.5)" }}>{completeCount} / {stages.length} stages</span>
+              <span style={{ fontSize:"11px", color:"#8A8A9A", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em" }}>Progress</span>
+              <span style={{ fontSize:"12px", fontWeight:700, color:progressPct===100?"#0BAB6C":"#4A4A5A" }}>{completeCount} / {stages.length} stages</span>
             </div>
-            <div style={{ height:"5px", background:"rgba(255,255,255,0.07)", borderRadius:"99px", overflow:"hidden" }}>
+            <div style={{ height:"5px", background:"rgba(0,0,0,0.08)", borderRadius:"99px", overflow:"hidden" }}>
               <div style={{ height:"100%", borderRadius:"99px", width:`${progressPct}%`, background:"linear-gradient(90deg,#5B4CF5,#0BAB6C)", transition:"width 0.6s ease" }} />
             </div>
           </div>
@@ -414,7 +414,7 @@ export default function ProjectDetailPage() {
               const hasNewFeedback = activity.some(a => a.stage_id === stage.id && a.type === "changes_requested");
               return (
                 <button key={stage.id} className={`stage-tab${isActive?" active":""}`} onClick={() => setActiveStageId(stage.id)} style={{ position:"relative" }}>
-                  <span style={{ width:"18px", height:"18px", borderRadius:"50%", flexShrink:0, background:stage.status==="complete"?"#0BAB6C":isActive?"#5B4CF5":"rgba(255,255,255,0.07)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"9px", fontWeight:700, color:stage.status==="complete"||isActive?"#fff":"rgba(255,255,255,0.35)" }}>{stage.status==="complete"?"✓":i+1}</span>
+                  <span style={{ width:"18px", height:"18px", borderRadius:"50%", flexShrink:0, background:stage.status==="complete"?"#0BAB6C":isActive?"#5B4CF5":"#E4E4E8", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"9px", fontWeight:700, color:stage.status==="complete"||isActive?"#fff":"#4A4A5A" }}>{stage.status==="complete"?"✓":i+1}</span>
                   {stage.title}
                   <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:st.color, flexShrink:0 }} />
                   {fc>0&&<span style={{ background:"rgba(91,76,245,0.2)", color:"#a093ff", fontSize:"10px", fontWeight:700, borderRadius:"8px", padding:"1px 5px" }}>{fc}</span>}
@@ -435,14 +435,14 @@ export default function ProjectDetailPage() {
             <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
 
               {/* Stage title + status */}
-              <div style={{ background:"rgba(255,255,255,0.022)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px", padding:"20px" }}>
+              <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
                 <h2 style={{ fontSize:"clamp(15px,2.5vw,18px)", fontWeight:800, letterSpacing:"-0.3px", marginBottom:"14px" }}>{activeStage.title}</h2>
-                <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.35)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"8px" }}>Stage status</div>
+                <div style={{ fontSize:"11px", color:"#8A8A9A", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"8px" }}>Stage status</div>
                 <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
                   {(["not_started","in_progress","complete"] as StageStatus[]).map(s => {
                     const cfg = STAGE_STATUS[s]; const isSel = activeStage.status===s;
                     return (
-                      <button key={s} className="status-pill" onClick={() => updateStageStatus(activeStage.id, s)} style={{ background:isSel?cfg.bg:"rgba(255,255,255,0.04)", border:`1px solid ${isSel?cfg.border:"rgba(255,255,255,0.07)"}`, color:isSel?cfg.color:"rgba(255,255,255,0.3)" }}>
+                      <button key={s} className="status-pill" onClick={() => updateStageStatus(activeStage.id, s)} style={{ background:isSel?cfg.bg:"#F5F6FA", border:`1px solid ${isSel?cfg.border:"#E4E4E8"}`, color:isSel?cfg.color:"#8A8A9A" }}>
                         {isSel&&<span style={{ marginRight:"4px" }}>●</span>}{cfg.label}
                       </button>
                     );
@@ -452,8 +452,8 @@ export default function ProjectDetailPage() {
 
               {/* Client feedback section */}
               {feedbackItems.length > 0 && (
-                <div style={{ background:"rgba(255,255,255,0.022)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px", padding:"20px" }}>
-                  <div style={{ fontSize:"12px", fontWeight:700, color:"rgba(255,255,255,0.5)", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>Client feedback</div>
+                <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
+                  <div style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>Client feedback</div>
 
                   {/* Latest */}
                   {latestFeedback && (
@@ -465,28 +465,28 @@ export default function ProjectDetailPage() {
                             {latestFeedback.type==="changes_requested"?"Changes requested":"Approved"}
                           </span>
                         </div>
-                        <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.3)" }}>{timeAgo(latestFeedback.created_at)}</span>
+                        <span style={{ fontSize:"11px", color:"#8A8A9A" }}>{timeAgo(latestFeedback.created_at)}</span>
                       </div>
                       {latestFeedback.message && (
-                        <p style={{ fontSize:"13px", color:"rgba(255,255,255,0.8)", lineHeight:1.6, margin:"0 0 10px" }}>"{latestFeedback.message}"</p>
+                        <p style={{ fontSize:"13px", color:"#4A4A5A", lineHeight:1.6, margin:"0 0 10px" }}>"{latestFeedback.message}"</p>
                       )}
                       {/* Files uploaded around this feedback */}
                       {filesForFeedback(latestFeedback).length > 0 && (
                         <div style={{ display:"flex", flexDirection:"column", gap:"6px" }}>
                           {filesForFeedback(latestFeedback).map(f => (
-                            <div key={f.id} style={{ display:"flex", alignItems:"center", gap:"8px", background:"rgba(255,255,255,0.05)", borderRadius:"8px", padding:"8px 10px" }}>
+                            <div key={f.id} style={{ display:"flex", alignItems:"center", gap:"8px", background:"#F5F6FA", borderRadius:"8px", padding:"8px 10px" }}>
                               {isImage(f.name) ? (
                                 <img src={f.file_url} alt={f.name} style={{ width:"36px", height:"36px", borderRadius:"6px", objectFit:"cover", flexShrink:0 }} />
                               ) : (
                                 <div style={{ width:"36px", height:"36px", borderRadius:"6px", background:"rgba(91,76,245,0.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"16px", flexShrink:0 }}>{fileIcon(f.name)}</div>
                               )}
-                              <span style={{ fontSize:"12px", color:"rgba(255,255,255,0.6)", flex:1, minWidth:0, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{f.name}</span>
+                              <span style={{ fontSize:"12px", color:"#4A4A5A", flex:1, minWidth:0, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{f.name}</span>
                               <a href={f.file_url} target="_blank" rel="noopener noreferrer" style={{ fontSize:"11px", color:"#a093ff", textDecoration:"none", whiteSpace:"nowrap" }}>View →</a>
                             </div>
                           ))}
                         </div>
                       )}
-                      <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.25)", marginTop:"8px" }}>— {project?.client_name}</div>
+                      <div style={{ fontSize:"11px", color:"#8A8A9A", marginTop:"8px" }}>— {project?.client_name}</div>
                     </div>
                   )}
 
@@ -498,7 +498,7 @@ export default function ProjectDetailPage() {
                         {historyExpanded ? "Hide" : `View ${prevFeedback.length} previous`} comment{prevFeedback.length!==1?"s":""}
                       </button>
                       {historyExpanded && (
-                        <div style={{ borderLeft:"2px solid rgba(255,255,255,0.07)", paddingLeft:"14px", display:"flex", flexDirection:"column", gap:"10px", marginTop:"8px" }}>
+                        <div style={{ borderLeft:"2px solid #E4E4E8", paddingLeft:"14px", display:"flex", flexDirection:"column", gap:"10px", marginTop:"8px" }}>
                           {prevFeedback.map(item => (
                             <div key={item.id}>
                               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"4px" }}>
@@ -508,15 +508,15 @@ export default function ProjectDetailPage() {
                                     {item.type==="changes_requested"?"Changes requested":"Approved"}
                                   </span>
                                 </div>
-                                <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.25)" }}>{timeAgo(item.created_at)}</span>
+                                <span style={{ fontSize:"11px", color:"#8A8A9A" }}>{timeAgo(item.created_at)}</span>
                               </div>
-                              {item.message && <p style={{ fontSize:"12px", color:"rgba(255,255,255,0.45)", lineHeight:1.5, margin:0 }}>"{item.message}"</p>}
+                              {item.message && <p style={{ fontSize:"12px", color:"#4A4A5A", lineHeight:1.5, margin:0 }}>"{item.message}"</p>}
                               {/* Files for this revision */}
                               {filesForFeedback(item).length > 0 && (
                                 <div style={{ display:"flex", gap:"6px", marginTop:"6px", flexWrap:"wrap" }}>
                                   {filesForFeedback(item).map(f => isImage(f.name) ? (
                                     <a key={f.id} href={f.file_url} target="_blank" rel="noopener noreferrer">
-                                      <img src={f.file_url} alt={f.name} style={{ width:"40px", height:"40px", borderRadius:"6px", objectFit:"cover", border:"1px solid rgba(255,255,255,0.1)" }} />
+                                      <img src={f.file_url} alt={f.name} style={{ width:"40px", height:"40px", borderRadius:"6px", objectFit:"cover", border:"1px solid #E4E4E8" }} />
                                     </a>
                                   ) : (
                                     <a key={f.id} href={f.file_url} target="_blank" rel="noopener noreferrer" style={{ fontSize:"11px", color:"#a093ff", background:"rgba(91,76,245,0.1)", padding:"3px 8px", borderRadius:"6px", textDecoration:"none" }}>{f.name}</a>
@@ -533,9 +533,9 @@ export default function ProjectDetailPage() {
               )}
 
               {/* Notes */}
-              <div style={{ background:"rgba(255,255,255,0.022)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px", padding:"20px" }}>
+              <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"10px" }}>
-                  <span style={{ fontSize:"12px", fontWeight:700, color:"rgba(255,255,255,0.5)", textTransform:"uppercase", letterSpacing:"0.07em" }}>Notes for client</span>
+                  <span style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.07em" }}>Notes for client</span>
                   <button onClick={saveNote} disabled={savingNote} style={{ padding:"5px 14px", borderRadius:"7px", border:"1px solid rgba(91,76,245,0.3)", background:noteSaved?"rgba(11,171,108,0.12)":"rgba(91,76,245,0.1)", color:noteSaved?"#0BAB6C":savingNote?"rgba(255,255,255,0.3)":"#a093ff", fontFamily:"'Outfit',sans-serif", fontSize:"12px", fontWeight:700, cursor:savingNote?"not-allowed":"pointer", transition:"all 0.25s", minWidth:"60px" }}>
                     {noteSaved?"✓ Saved":savingNote?"Saving…":"Save"}
                   </button>
@@ -543,7 +543,7 @@ export default function ProjectDetailPage() {
                 <textarea className="note-area" value={noteText} onChange={e => setNoteText(e.target.value)}
                   onKeyDown={e => { if (e.key==="s"&&(e.metaKey||e.ctrlKey)){ e.preventDefault(); saveNote(); } }}
                   placeholder="Add context for your client — what to review, what feedback you need…" />
-                <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.2)", marginTop:"6px" }}>⌘S / Ctrl+S to save</div>
+                <div style={{ fontSize:"11px", color:"#B0B0BC", marginTop:"6px" }}>⌘S / Ctrl+S to save</div>
               </div>
 
               <button className={`approval-btn${approvalSent?" sent":""}`} onClick={requestApproval}>
@@ -552,20 +552,20 @@ export default function ProjectDetailPage() {
 
               {/* Activity log */}
               {stageActivity.length > 0 && (
-                <div style={{ background:"rgba(255,255,255,0.022)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px", padding:"20px" }}>
-                  <div style={{ fontSize:"12px", fontWeight:700, color:"rgba(255,255,255,0.5)", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"12px" }}>Stage activity</div>
+                <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
+                  <div style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"12px" }}>Stage activity</div>
                   <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
                     {stageActivity.slice(0,8).map(a => {
-                      const colors: Record<string,string> = { approved:"#0BAB6C", changes_requested:"#F5A623", approval_requested:"#5B4CF5", file_uploaded:"rgba(255,255,255,0.3)" };
+                      const colors: Record<string,string> = { approved:"#0BAB6C", changes_requested:"#F5A623", approval_requested:"#5B4CF5", file_uploaded:"#B0B0BC" };
                       const labels: Record<string,string> = { approved:"Client approved", changes_requested:"Client requested changes", approval_requested:"Approval requested", file_uploaded:"File uploaded" };
                       return (
                         <div key={a.id} style={{ display:"flex", alignItems:"flex-start", gap:"10px" }}>
                           <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:colors[a.type]??"rgba(255,255,255,0.3)", flexShrink:0, marginTop:"5px" }} />
                           <div style={{ flex:1 }}>
-                            <span style={{ fontSize:"12px", color:"rgba(255,255,255,0.55)" }}>{labels[a.type]??a.type}</span>
-                            {a.message && a.type==="file_uploaded" && <span style={{ fontSize:"12px", color:"rgba(255,255,255,0.3)" }}> — {a.message}</span>}
+                            <span style={{ fontSize:"12px", color:"#4A4A5A" }}>{labels[a.type]??a.type}</span>
+                            {a.message && a.type==="file_uploaded" && <span style={{ fontSize:"12px", color:"#8A8A9A" }}> — {a.message}</span>}
                           </div>
-                          <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.25)", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
+                          <span style={{ fontSize:"11px", color:"#B0B0BC", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
                         </div>
                       );
                     })}
@@ -577,10 +577,10 @@ export default function ProjectDetailPage() {
             </div>
 
             {/* RIGHT: Files */}
-            <div style={{ background:"rgba(255,255,255,0.022)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px", padding:"20px" }}>
+            <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"14px" }}>
-                <span style={{ fontSize:"12px", fontWeight:700, color:"rgba(255,255,255,0.5)", textTransform:"uppercase", letterSpacing:"0.07em" }}>
-                  Files{activeStageFiles.length>0&&<span style={{ marginLeft:"6px", fontWeight:400, color:"rgba(255,255,255,0.25)", textTransform:"none", letterSpacing:0 }}>· {activeStageFiles.length}</span>}
+                <span style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.07em" }}>
+                  Files{activeStageFiles.length>0&&<span style={{ marginLeft:"6px", fontWeight:400, color:"#8A8A9A", textTransform:"none", letterSpacing:0 }}>· {activeStageFiles.length}</span>}
                 </span>
               </div>
 
@@ -594,7 +594,7 @@ export default function ProjectDetailPage() {
                 {uploading?(
                   <><div style={{ width:"22px", height:"22px", border:"2px solid rgba(91,76,245,0.3)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} /><span style={{ fontSize:"13px", color:"rgba(255,255,255,0.4)" }}>Uploading…</span></>
                 ):(
-                  <><div style={{ fontSize:"24px", opacity:0.3 }}>⬆</div><span style={{ fontSize:"14px", fontWeight:600, color:"rgba(255,255,255,0.45)" }}>Drop files or click to upload</span><span style={{ fontSize:"12px", color:"rgba(255,255,255,0.2)" }}>Images · PDFs · Figma · ZIPs</span></>
+                  <><div style={{ fontSize:"24px", opacity:0.3 }}>⬆</div><span style={{ fontSize:"14px", fontWeight:600, color:"#4A4A5A" }}>Drop files or click to upload</span><span style={{ fontSize:"12px", color:"#8A8A9A" }}>Images · PDFs · Figma · ZIPs</span></>
                 )}
               </div>
 
@@ -603,15 +603,15 @@ export default function ProjectDetailPage() {
                   {activeStageFiles.map(file=>(
                     <div key={file.id} className="file-row">
                       {isImage(file.name) ? (
-                        <img src={file.file_url} alt={file.name} style={{ width:"38px", height:"38px", borderRadius:"8px", objectFit:"cover", flexShrink:0, border:"1px solid rgba(255,255,255,0.1)" }} />
+                        <img src={file.file_url} alt={file.name} style={{ width:"38px", height:"38px", borderRadius:"8px", objectFit:"cover", flexShrink:0, border:"1px solid #E4E4E8" }} />
                       ) : (
                         <div style={{ width:"38px", height:"38px", borderRadius:"8px", flexShrink:0, background:"rgba(91,76,245,0.1)", border:"1px solid rgba(91,76,245,0.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"16px" }}>{fileIcon(file.name)}</div>
                       )}
                       <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontSize:"13px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"rgba(255,255,255,0.88)" }}>{file.name}</div>
-                        <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.25)", marginTop:"2px" }}>{file.file_size?formatBytes(file.file_size):""} · {timeAgo(file.created_at)}</div>
+                        <div style={{ fontSize:"13px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"#12111A" }}>{file.name}</div>
+                        <div style={{ fontSize:"11px", color:"#8A8A9A", marginTop:"2px" }}>{file.file_size?formatBytes(file.file_size):""} · {timeAgo(file.created_at)}</div>
                       </div>
-                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{ padding:"5px 10px", borderRadius:"7px", border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.04)", color:"rgba(255,255,255,0.5)", fontSize:"12px", fontWeight:600, textDecoration:"none", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif" }}>View →</a>
+                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{ padding:"5px 10px", borderRadius:"7px", border:"1px solid #E4E4E8", background:"#F5F6FA", color:"#8A8A9A", fontSize:"12px", fontWeight:600, textDecoration:"none", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif" }}>View →</a>
                     </div>
                   ))}
                 </div>
@@ -621,9 +621,9 @@ export default function ProjectDetailPage() {
         )}
 
         {stages.length===0&&!loading&&(
-          <div className="fi fi3" style={{ background:"rgba(255,255,255,0.03)", border:"1px dashed rgba(255,255,255,0.09)", borderRadius:"16px", padding:"48px", textAlign:"center", color:"rgba(255,255,255,0.3)" }}>
+          <div className="fi fi3" style={{ background:"#FFFFFF", border:"1px dashed #E4E4E8", borderRadius:"16px", padding:"48px", textAlign:"center", color:"#8A8A9A" }}>
             <div style={{ fontSize:"28px", marginBottom:"10px", opacity:0.4 }}>◷</div>
-            <div style={{ fontSize:"15px", fontWeight:600, color:"rgba(255,255,255,0.45)", marginBottom:"4px" }}>No stages yet</div>
+            <div style={{ fontSize:"15px", fontWeight:600, color:"#4A4A5A", marginBottom:"4px" }}>No stages yet</div>
           </div>
         )}
       </main>

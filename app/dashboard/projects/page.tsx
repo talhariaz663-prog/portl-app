@@ -125,7 +125,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div style={{ minHeight:"100vh", background:"#07090f", fontFamily:"'Outfit',sans-serif", color:"#fff", display:"flex" }}>
+    <div style={{ minHeight:"100vh", background:"#F5F6FA", fontFamily:"'Outfit',sans-serif", color:"#12111A", display:"flex" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
@@ -149,31 +149,31 @@ export default function ProjectsPage() {
         .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
         .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
 
-        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(7,9,15,0.97);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
+        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;position:relative;flex:1;}
 
         .new-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#5B4CF5,#0BAB6C);color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s;white-space:nowrap;}
         .new-btn:hover{opacity:0.88;transform:translateY(-1px);}
 
-        .search-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px 10px 40px;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
-        .search-input::placeholder{color:rgba(255,255,255,0.25);}
-        .search-input:focus{border-color:rgba(91,76,245,0.4);background:rgba(91,76,245,0.04);}
+        .search-input{width:100%;background:#FFFFFF;border:1px solid #E4E4E8;border-radius:12px;padding:10px 14px 10px 40px;color:#12111A;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
+        .search-input::placeholder{color:#B0B0BC;}
+        .search-input:focus{border-color:#5B4CF5;background:rgba(91,76,245,0.04);box-shadow:0 0 0 3px rgba(91,76,245,0.1);}
 
-        .filter-pill{padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,0.08);background:transparent;color:rgba(255,255,255,0.38);font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
-        .filter-pill:hover{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.18);}
-        .filter-pill.active{background:rgba(91,76,245,0.18);border-color:rgba(91,76,245,0.45);color:#fff;}
+        .filter-pill{padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;border:1px solid #E4E4E8;background:#FFFFFF;color:#8A8A9A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
+        .filter-pill:hover{color:#4A4A5A;border-color:#C8C8D4;}
+        .filter-pill.active{background:rgba(91,76,245,0.1);border-color:rgba(91,76,245,0.35);color:#5B4CF5;}
 
-        .sort-select{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:6px 12px;color:rgba(255,255,255,0.5);font-family:'Outfit',sans-serif;font-size:12px;outline:none;cursor:pointer;}
-        .sort-select option{background:#0c0e1a;}
+        .sort-select{background:#FFFFFF;border:1px solid #E4E4E8;border-radius:10px;padding:6px 12px;color:#4A4A5A;font-family:'Outfit',sans-serif;font-size:12px;outline:none;cursor:pointer;}
+        .sort-select option{background:#FFFFFF;}
 
-        .proj-row{display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:all 0.18s ease;position:relative;overflow:hidden;}
-        .proj-row:hover{background:rgba(255,255,255,0.045);border-color:rgba(255,255,255,0.12);transform:translateX(2px);}
+        .proj-row{display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:14px;background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.18s ease;position:relative;overflow:hidden;}
+        .proj-row:hover{background:#F9F9FB;border-color:#D0D0D8;transform:translateX(2px);}
 
-        .icon-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 10px;cursor:pointer;color:rgba(255,255,255,0.4);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;white-space:nowrap;}
-        .icon-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.18);}
+        .icon-btn{background:#F5F6FA;border:1px solid #E4E4E8;border-radius:8px;padding:6px 10px;cursor:pointer;color:#8A8A9A;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;white-space:nowrap;}
+        .icon-btn:hover{background:#EDEDF2;color:#12111A;border-color:#C8C8D4;}
         .icon-btn.copied{background:rgba(11,171,108,0.12);border-color:rgba(11,171,108,0.3);color:#0BAB6C;}
 
-        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(7,9,15,0.98);border-bottom:1px solid rgba(255,255,255,0.08);padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
+        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(255,255,255,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
 
         @media(max-width:768px){
           .sidebar{display:none!important;}
@@ -185,7 +185,7 @@ export default function ProjectsPage() {
       `}</style>
 
       {/* BG */}
-      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:`radial-gradient(ellipse 60% 40% at 100% 0%,rgba(91,76,245,0.06) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 0% 100%,rgba(11,171,108,0.05) 0%,transparent 60%),linear-gradient(rgba(91,76,245,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(91,76,245,0.02) 1px,transparent 1px)`,backgroundSize:"100% 100%,100% 100%,40px 40px,40px 40px"}} />
+      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:"radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)",backgroundSize:"40px 40px"}} />
 
       {/* Sidebar */}
       <aside className="sidebar">
@@ -218,10 +218,10 @@ export default function ProjectsPage() {
 
       {/* Mobile topbar */}
       <header className="topbar">
-        <span style={{fontSize:"20px",fontWeight:900,letterSpacing:"-0.6px"}}>Portl<span style={{color:"#5B4CF5"}}>.</span></span>
+        <span style={{fontSize:"20px",fontWeight:900,letterSpacing:"-0.6px",color:"#12111A"}}>Portl<span style={{color:"#5B4CF5"}}>.</span></span>
         <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
           <button className="new-btn" style={{padding:"8px 14px"}} onClick={() => router.push("/dashboard/new")}><Icons.Plus /> New</button>
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"8px",width:"36px",height:"36px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,0.7)",fontSize:"18px"}}>☰</button>
+          <button onClick={() => setMenuOpen(!menuOpen)} style={{background:"#F5F6FA",border:"1px solid #E4E4E8",borderRadius:"8px",width:"36px",height:"36px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#4A4A5A",fontSize:"18px"}}>☰</button>
         </div>
       </header>
 
@@ -234,9 +234,9 @@ export default function ProjectsPage() {
               </div>
             ))}
           </nav>
-          <div style={{borderTop:"1px solid rgba(255,255,255,0.06)",paddingTop:"12px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span style={{fontSize:"12px",color:"rgba(255,255,255,0.35)"}}>{userEmail}</span>
-            <button onClick={handleSignOut} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.35)",fontSize:"12px",fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",gap:"5px"}}><Icons.Signout /> Sign out</button>
+          <div style={{borderTop:"1px solid #E4E4E8",paddingTop:"12px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span style={{fontSize:"12px",color:"#8A8A9A"}}>{userEmail}</span>
+            <button onClick={handleSignOut} style={{background:"none",border:"none",cursor:"pointer",color:"#8A8A9A",fontSize:"12px",fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",gap:"5px"}}><Icons.Signout /> Sign out</button>
           </div>
         </div>
       )}
@@ -247,7 +247,7 @@ export default function ProjectsPage() {
         <div className="fi fi1" style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:"28px",gap:"16px"}}>
           <div>
             <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px"}}>Projects</h1>
-            <p style={{fontSize:"13px",color:"rgba(255,255,255,0.35)"}}>
+            <p style={{fontSize:"13px",color:"#8A8A9A"}}>
               {loading ? "Loading…" : `${projects.length} project${projects.length!==1?"s":""} total`}
             </p>
           </div>
@@ -261,7 +261,7 @@ export default function ProjectsPage() {
         <div className="fi fi2" style={{display:"flex",flexDirection:"column",gap:"12px",marginBottom:"20px"}}>
           {/* Search */}
           <div style={{position:"relative"}}>
-            <div style={{position:"absolute",left:"14px",top:"50%",transform:"translateY(-50%)",color:"rgba(255,255,255,0.3)",pointerEvents:"none"}}>
+            <div style={{position:"absolute",left:"14px",top:"50%",transform:"translateY(-50%)",color:"#B0B0BC",pointerEvents:"none"}}>
               <Icons.Search />
             </div>
             <input className="search-input" placeholder="Search projects or clients…" value={search} onChange={e => setSearch(e.target.value)} />
@@ -288,12 +288,12 @@ export default function ProjectsPage() {
         {/* List */}
         {loading ? (
           <div style={{display:"flex",justifyContent:"center",paddingTop:"60px"}}>
-            <div style={{width:"28px",height:"28px",border:"2px solid rgba(255,255,255,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
+            <div style={{width:"28px",height:"28px",border:"2px solid rgba(0,0,0,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"rgba(255,255,255,0.3)"}}>
+          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#8A8A9A"}}>
             <div style={{fontSize:"32px",marginBottom:"12px",opacity:0.4}}>⬡</div>
-            <div style={{fontSize:"15px",fontWeight:600,marginBottom:"6px",color:"rgba(255,255,255,0.45)"}}>
+            <div style={{fontSize:"15px",fontWeight:600,marginBottom:"6px",color:"#4A4A5A"}}>
               {search ? "No projects match your search" : "No projects yet"}
             </div>
             {!search && <button className="new-btn" style={{margin:"16px auto 0"}} onClick={() => router.push("/dashboard/new")}><Icons.Plus /> Create First Project</button>}
@@ -315,13 +315,13 @@ export default function ProjectsPage() {
 
                   {/* Name + client */}
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:"14px",fontWeight:700,marginBottom:"3px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{project.name}</div>
-                    <div style={{fontSize:"12px",color:"rgba(255,255,255,0.38)"}}>{project.client_name}{project.client_email&&<span style={{color:"rgba(255,255,255,0.22)",marginLeft:"8px"}}>{project.client_email}</span>}</div>
+                    <div style={{fontSize:"14px",fontWeight:700,marginBottom:"3px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:"#12111A"}}>{project.name}</div>
+                    <div style={{fontSize:"12px",color:"#8A8A9A"}}>{project.client_name}{project.client_email&&<span style={{color:"#B0B0BC",marginLeft:"8px"}}>{project.client_email}</span>}</div>
                   </div>
 
                   {/* Stage */}
                   {project.current_stage && (
-                    <div style={{fontSize:"12px",color:"rgba(255,255,255,0.28)",display:"flex",alignItems:"center",gap:"5px",flexShrink:0}}>
+                    <div style={{fontSize:"12px",color:"#8A8A9A",display:"flex",alignItems:"center",gap:"5px",flexShrink:0}}>
                       <span style={{color,fontSize:"8px"}}>◆</span>{project.current_stage}
                     </div>
                   )}
@@ -332,7 +332,7 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Time */}
-                  <div style={{fontSize:"11px",color:"rgba(255,255,255,0.2)",flexShrink:0,minWidth:"60px",textAlign:"right"}}>{timeAgo(project.updated_at)}</div>
+                  <div style={{fontSize:"11px",color:"#B0B0BC",flexShrink:0,minWidth:"60px",textAlign:"right"}}>{timeAgo(project.updated_at)}</div>
 
                   {/* Actions */}
                   <div className="proj-actions" style={{display:"flex",gap:"6px",flexShrink:0}} onClick={e => e.stopPropagation()}>
