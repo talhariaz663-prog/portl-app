@@ -102,6 +102,17 @@ export default function DashboardPage() {
     if (!session) { router.replace("/login"); return; }
     setUserEmail(session.user.email ?? "");
 
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_complete")
+      .eq("id", session.user.id)
+      .single();
+
+    if (!profile?.onboarding_complete) {
+      router.push("/onboarding");
+      return;
+    }
+
     const { data: projData, error: dbError } = await supabase
       .from("projects")
       .select("id, name, client_name, status, current_stage, updated_at")
