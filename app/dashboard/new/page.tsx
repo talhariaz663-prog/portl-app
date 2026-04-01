@@ -58,6 +58,8 @@ export default function NewProjectPage() {
 
     console.log("User ID:", user.id);
 
+    const portal_slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).slice(2, 8);
+
     const { data, error: insertError } = await supabase
       .from("projects")
       .insert({
@@ -65,6 +67,7 @@ export default function NewProjectPage() {
         client_name:  clientName.trim(),
         client_email: clientEmail.trim(),
         user_id:      user.id,
+        portal_slug,
       })
       .select()
       .single();
