@@ -1,307 +1,291 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+export const dynamic = "force-dynamic";
 
-export default function LoginPage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [email, setEmail] = useState("");
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
+function LoginForm() {
+  useSearchParams(); // consumed for dynamic rendering
+
+  const [email,   setEmail]   = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-
-  useEffect(() => {
-    let animId: number;
-    let renderer: import("three").WebGLRenderer;
-
-    async function init() {
-      const THREE = await import("three");
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.z = 5;
-
-      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-      const clock = new THREE.Clock();
-      const orbs: import("three").Mesh[] = [];
-
-      const orbData: { pos: [number, number, number]; color: number; size: number; speed: number }[] = [
-        { pos: [-3.5, 1.5, -1],   color: 0x5B4CF5, size: 0.9, speed: 0.4  },
-        { pos: [3.2, -1.2, -2],   color: 0x0BAB6C, size: 1.1, speed: 0.3  },
-        { pos: [-2, -2.5, -3],    color: 0x5B4CF5, size: 0.6, speed: 0.55 },
-        { pos: [2.5, 2.5, -2.5],  color: 0x0BAB6C, size: 0.7, speed: 0.45 },
-        { pos: [0, -3, -1.5],     color: 0x7B6CF9, size: 0.5, speed: 0.6  },
-      ];
-
-      orbData.forEach(({ pos, color, size, speed }) => {
-        const geo = new THREE.IcosahedronGeometry(size, 4);
-        const mat = new THREE.MeshStandardMaterial({
-          color, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.55,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(...pos);
-        mesh.userData = { originY: pos[1], speed, phase: Math.random() * Math.PI * 2 };
-        scene.add(mesh);
-        orbs.push(mesh);
-
-        const ringGeo = new THREE.TorusGeometry(size * 1.35, 0.02, 8, 64);
-        const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.25 });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.PI / 4;
-        mesh.add(ring);
-      });
-
-      scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-      const dirLight = new THREE.DirectionalLight(0x5B4CF5, 2);
-      dirLight.position.set(5, 5, 5);
-      scene.add(dirLight);
-      const greenLight = new THREE.PointLight(0x0BAB6C, 3, 10);
-      greenLight.position.set(-4, -3, 1);
-      scene.add(greenLight);
-
-      const pCount = 280;
-      const pGeo = new THREE.BufferGeometry();
-      const pPos = new Float32Array(pCount * 3);
-      for (let i = 0; i < pCount * 3; i++) pPos[i] = (Math.random() - 0.5) * 18;
-      pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
-      const particles = new THREE.Points(
-        pGeo,
-        new THREE.PointsMaterial({ color: 0x5B4CF5, size: 0.03, transparent: true, opacity: 0.5 })
-      );
-      scene.add(particles);
-
-      const gridHelper = new THREE.GridHelper(20, 30, 0x5B4CF5, 0x5B4CF5);
-      (gridHelper.material as import("three").Material).opacity = 0.04;
-      (gridHelper.material as import("three").Material).transparent = true;
-      gridHelper.position.y = -4;
-      scene.add(gridHelper);
-
-      const onMouse = (e: MouseEvent) => {
-        mouseRef.current = {
-          x:  (e.clientX / window.innerWidth  - 0.5) * 2,
-          y: -(e.clientY / window.innerHeight - 0.5) * 2,
-        };
-      };
-      window.addEventListener("mousemove", onMouse);
-
-      const onResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      };
-      window.addEventListener("resize", onResize);
-
-      const animate = () => {
-        animId = requestAnimationFrame(animate);
-        const t = clock.getElapsedTime();
-
-        orbs.forEach((orb) => {
-          const { originY, speed, phase } = orb.userData as { originY: number; speed: number; phase: number };
-          orb.position.y = originY + Math.sin(t * speed + phase) * 0.4;
-          orb.rotation.x += 0.003;
-          orb.rotation.y += 0.005;
-        });
-
-        particles.rotation.y = t * 0.02;
-        camera.position.x += (mouseRef.current.x * 0.6 - camera.position.x) * 0.04;
-        camera.position.y += (mouseRef.current.y * 0.4 - camera.position.y) * 0.04;
-        camera.lookAt(0, 0, 0);
-        renderer.render(scene, camera);
-      };
-      animate();
-
-      return () => {
-        window.removeEventListener("mousemove", onMouse);
-        window.removeEventListener("resize", onResize);
-        cancelAnimationFrame(animId);
-        renderer.dispose();
-      };
-    }
-
-    let cleanup: (() => void) | undefined;
-    init().then((fn) => { cleanup = fn; });
-    return () => { cleanup?.(); cancelAnimationFrame(animId); };
-  }, []);
+  const [sent,    setSent]    = useState(false);
+  const [error,   setError]   = useState("");
 
   const handleSubmit = async () => {
-    if (!email || loading) return;
+    if (!email.trim() || loading) return;
     setLoading(true);
+    setError("");
 
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
       options: {
-        emailRedirectTo: window.location.origin + "/dashboard",
+        emailRedirectTo: window.location.origin + "/auth/callback",
       },
     });
 
     setLoading(false);
 
-    if (error) {
-      alert("Something went wrong: " + error.message);
+    if (otpError) {
+      setError(otpError.message);
     } else {
       setSent(true);
     }
   };
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", overflow: "hidden", background: "#080a18", fontFamily: "'Outfit', sans-serif" }}>
-
+    <div style={{
+      position: "relative", minHeight: "100vh", overflow: "hidden",
+      background: "#0D0B1A", fontFamily: "'Outfit', sans-serif",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "20px 16px",
+    }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(24px); }
+          from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes pulse-ring {
-          0%   { transform: scale(1);   opacity: 0.6; }
-          100% { transform: scale(1.8); opacity: 0; }
-        }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .fade-1 { animation: fadeUp 0.7s 0.00s ease forwards; opacity: 0; }
-        .fade-2 { animation: fadeUp 0.7s 0.15s ease forwards; opacity: 0; }
-        .fade-3 { animation: fadeUp 0.7s 0.30s ease forwards; opacity: 0; }
-        .fade-4 { animation: fadeUp 0.7s 0.45s ease forwards; opacity: 0; }
-        .magic-btn {
-          width: 100%; padding: 14px; border: none; border-radius: 10px;
-          background: linear-gradient(135deg, #5B4CF5 0%, #0BAB6C 100%);
-          color: #fff; font-family: 'Outfit', sans-serif; font-size: 15px;
-          font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+
+        @keyframes drift1 {
+          0%   { transform: translate(0px, 0px) rotate(0deg); }
+          100% { transform: translate(18px, -22px) rotate(8deg); }
+        }
+        @keyframes drift2 {
+          0%   { transform: translate(0px, 0px) rotate(0deg); }
+          100% { transform: translate(-14px, 16px) rotate(-6deg); }
+        }
+        @keyframes drift3 {
+          0%   { transform: translate(0px, 0px) rotate(45deg); }
+          100% { transform: translate(12px, 20px) rotate(55deg); }
+        }
+        @keyframes drift4 {
+          0%   { transform: translate(0px, 0px) rotate(0deg); }
+          100% { transform: translate(-20px, -12px) rotate(10deg); }
+        }
+        @keyframes drift5 {
+          0%   { transform: translate(0px, 0px) rotate(30deg); }
+          100% { transform: translate(16px, -18px) rotate(20deg); }
+        }
+        @keyframes drift6 {
+          0%   { transform: translate(0px, 0px) rotate(0deg); }
+          100% { transform: translate(-10px, 14px) rotate(-8deg); }
+        }
+        @keyframes drift7 {
+          0%   { transform: translate(0px, 0px) rotate(15deg); }
+          100% { transform: translate(22px, 10px) rotate(5deg); }
+        }
+        @keyframes drift8 {
+          0%   { transform: translate(0px, 0px) rotate(0deg); }
+          100% { transform: translate(-16px, -20px) rotate(12deg); }
+        }
+
+        .shape { position: absolute; pointer-events: none; }
+        .s1 { top: 8%;  left: 6%;  animation: drift1 18s ease-in-out infinite alternate; }
+        .s2 { top: 15%; right: 8%; animation: drift2 22s ease-in-out infinite alternate; }
+        .s3 { top: 55%; left: 3%;  animation: drift3 20s ease-in-out infinite alternate; }
+        .s4 { top: 70%; right: 5%; animation: drift4 17s ease-in-out infinite alternate; }
+        .s5 { top: 35%; left: 45%; animation: drift5 25s ease-in-out infinite alternate; }
+        .s6 { bottom: 12%; left: 18%; animation: drift6 19s ease-in-out infinite alternate; }
+        .s7 { bottom: 20%; right: 15%; animation: drift7 23s ease-in-out infinite alternate; }
+        .s8 { top: 42%; right: 22%; animation: drift8 16s ease-in-out infinite alternate; }
+
+        .fade-1 { animation: fadeUp 0.6s 0.05s ease forwards; opacity: 0; }
+        .fade-2 { animation: fadeUp 0.6s 0.15s ease forwards; opacity: 0; }
+        .fade-3 { animation: fadeUp 0.6s 0.25s ease forwards; opacity: 0; }
+        .fade-4 { animation: fadeUp 0.6s 0.35s ease forwards; opacity: 0; }
+        .fade-5 { animation: fadeUp 0.6s 0.45s ease forwards; opacity: 0; }
+
+        .glass-card {
+          width: 100%;
+          max-width: 420px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 20px;
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          padding: 48px 44px;
+          position: relative;
+          z-index: 10;
+          box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .email-input {
+          width: 100%;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          padding: 13px 16px;
+          color: #fff;
+          font-family: 'Outfit', sans-serif;
+          font-size: 14px;
+          outline: none;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .email-input::placeholder { color: rgba(255,255,255,0.22); }
+        .email-input:focus {
+          border-color: #5B4CF5;
+          background: rgba(91,76,245,0.07);
+        }
+
+        .submit-btn {
+          width: 100%;
+          padding: 13px;
+          border: none;
+          border-radius: 10px;
+          background: #5B4CF5;
+          color: #fff;
+          font-family: 'Outfit', sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
           letter-spacing: 0.01em;
         }
-        .magic-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
-        .magic-btn:active:not(:disabled) { transform: translateY(0); }
-        .magic-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .email-input {
-          width: 100%; padding: 13px 16px;
-          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 10px; color: #fff; font-family: 'Outfit', sans-serif;
-          font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s;
-          margin-bottom: 16px;
+        .submit-btn:hover:not(:disabled) {
+          background: #7B6EF8;
+          transform: translateY(-1px);
+          box-shadow: 0 8px 24px rgba(91,76,245,0.35);
         }
-        .email-input::placeholder { color: rgba(255,255,255,0.25); }
-        .email-input:focus { border-color: rgba(91,76,245,0.6); background: rgba(91,76,245,0.08); }
-        .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+        .submit-btn:active:not(:disabled) { transform: translateY(0); }
+        .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        @media (max-width: 480px) {
+          .glass-card { padding: 36px 24px; }
+        }
       `}</style>
 
-      {/* 3D Canvas */}
-      <canvas ref={canvasRef} style={{
-        position: "fixed", top: 0, left: 0,
-        width: "100%", height: "100%",
-        pointerEvents: "none", zIndex: 0,
+      {/* Grid dot overlay */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
       }} />
 
-      {/* Vignette */}
+      {/* Ambient glow */}
       <div style={{
-        position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none",
-        background: "radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, rgba(8,10,24,0.75) 100%)",
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse 55% 45% at 20% 50%, rgba(91,76,245,0.07) 0%, transparent 65%), radial-gradient(ellipse 40% 40% at 80% 60%, rgba(91,76,245,0.05) 0%, transparent 60%)",
       }} />
 
-      {/* Content */}
-      <div style={{
-        position: "relative", zIndex: 2, minHeight: "100vh",
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        padding: "40px 20px", textAlign: "center",
-      }}>
+      {/* Geometric shapes */}
+      {/* Triangle */}
+      <svg className="shape s1" width="70" height="70" viewBox="0 0 70 70" fill="none">
+        <polygon points="35,6 66,62 4,62" stroke="rgba(255,255,255,0.055)" strokeWidth="1" fill="none"/>
+      </svg>
+      {/* Hexagon */}
+      <svg className="shape s2" width="90" height="90" viewBox="0 0 90 90" fill="none">
+        <polygon points="45,5 80,25 80,65 45,85 10,65 10,25" stroke="rgba(255,255,255,0.045)" strokeWidth="1" fill="none"/>
+      </svg>
+      {/* Square rotated */}
+      <svg className="shape s3" width="60" height="60" viewBox="0 0 60 60" fill="none">
+        <rect x="8" y="8" width="44" height="44" stroke="rgba(255,255,255,0.05)" strokeWidth="1" fill="none" transform="rotate(45 30 30)"/>
+      </svg>
+      {/* Triangle small */}
+      <svg className="shape s4" width="50" height="50" viewBox="0 0 50 50" fill="none">
+        <polygon points="25,4 48,44 2,44" stroke="rgba(255,255,255,0.06)" strokeWidth="1" fill="none"/>
+      </svg>
+      {/* Hexagon small */}
+      <svg className="shape s5" width="55" height="55" viewBox="0 0 55 55" fill="none">
+        <polygon points="27.5,3 52,16 52,39 27.5,52 3,39 3,16" stroke="rgba(255,255,255,0.04)" strokeWidth="1" fill="none"/>
+      </svg>
+      {/* Square */}
+      <svg className="shape s6" width="80" height="80" viewBox="0 0 80 80" fill="none">
+        <rect x="6" y="6" width="68" height="68" stroke="rgba(255,255,255,0.045)" strokeWidth="1" fill="none"/>
+      </svg>
+      {/* Triangle large */}
+      <svg className="shape s7" width="110" height="110" viewBox="0 0 110 110" fill="none">
+        <polygon points="55,8 104,98 6,98" stroke="rgba(255,255,255,0.035)" strokeWidth="1" fill="none"/>
+      </svg>
+      {/* Square rotated small */}
+      <svg className="shape s8" width="45" height="45" viewBox="0 0 45 45" fill="none">
+        <rect x="6" y="6" width="33" height="33" stroke="rgba(255,255,255,0.055)" strokeWidth="1" fill="none" transform="rotate(45 22.5 22.5)"/>
+      </svg>
 
-        {/* Logo */}
-        <div className="fade-1" style={{ marginBottom: "36px" }}>
-          <span style={{ fontSize: "30px", fontWeight: 800, color: "#fff", letterSpacing: "-0.5px" }}>
-            Portl<span style={{ color: "#5B4CF5", fontSize: "36px", lineHeight: "0" }}>.</span>
+      {/* Glass card */}
+      <div className="glass-card">
+
+        {/* Wordmark */}
+        <div className="fade-1" style={{ marginBottom: "32px", textAlign: "center" }}>
+          <span style={{ fontSize: "26px", fontWeight: 700, color: "#fff", letterSpacing: "-0.5px" }}>
+            Portl<span style={{ color: "#5B4CF5" }}>.</span>
           </span>
         </div>
 
-        {/* Headline */}
-        <div className="fade-2" style={{ marginBottom: "36px", maxWidth: "440px" }}>
-          <h1 style={{
-            fontSize: "clamp(36px, 6vw, 56px)", fontWeight: 800,
-            lineHeight: 1.08, color: "#fff", letterSpacing: "-1.5px", marginBottom: "16px",
-          }}>
-            Your studio.<br />
-            <span style={{
-              background: "linear-gradient(90deg, #7B6CF9 0%, #0BAB6C 100%)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>
-              Your clients.
-            </span>
-            <br />One portal.
-          </h1>
-          <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.45)", lineHeight: 1.65 }}>
-            Send clients a link. They see your work, leave feedback,
-            and approve — without the back-and-forth.
-          </p>
-        </div>
-
-        {/* Card */}
-        <div className="fade-3" style={{
-          width: "100%", maxWidth: "380px",
-          background: "rgba(255,255,255,0.035)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "20px", padding: "32px 28px",
-          backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
-          boxShadow: "0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
-          marginBottom: "32px",
-        }}>
-          {sent ? (
-            <div style={{ padding: "12px 0", textAlign: "center" }}>
-              <div style={{ position: "relative", width: "56px", height: "56px", margin: "0 auto 20px" }}>
-                <div style={{
-                  position: "absolute", inset: 0, borderRadius: "50%",
-                  background: "rgba(11,171,108,0.2)",
-                  animation: "pulse-ring 1.4s ease-out infinite",
-                }} />
-                <div style={{
-                  width: "56px", height: "56px", borderRadius: "50%",
-                  background: "linear-gradient(135deg, #0BAB6C, #5B4CF5)",
-                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px",
-                }}>✉️</div>
-              </div>
-              <h2 style={{ color: "#fff", fontSize: "19px", fontWeight: 700, marginBottom: "8px" }}>
-                Check your inbox
-              </h2>
-              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "14px", lineHeight: 1.6 }}>
-                Magic link sent to <span style={{ color: "#fff", fontWeight: 600 }}>{email}</span>
+        {sent ? (
+          /* Sent state */
+          <div className="fade-2" style={{ textAlign: "center", padding: "8px 0" }}>
+            <div style={{ fontSize: "44px", marginBottom: "16px", lineHeight: 1 }}>📬</div>
+            <h2 style={{ color: "#fff", fontSize: "20px", fontWeight: 700, marginBottom: "8px" }}>
+              Check your inbox
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13.5px", lineHeight: 1.6 }}>
+              Magic link sent to{" "}
+              <span style={{ color: "#7B6EF8", fontWeight: 600 }}>{email}</span>
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Heading */}
+            <div className="fade-2" style={{ marginBottom: "28px" }}>
+              <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#fff", marginBottom: "8px", letterSpacing: "-0.3px" }}>
+                Welcome back
+              </h1>
+              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)", lineHeight: 1.55 }}>
+                Enter your email to receive a magic link
               </p>
             </div>
-          ) : (
-            <>
-              <h2 style={{ color: "#fff", fontSize: "20px", fontWeight: 700, marginBottom: "6px" }}>
-                Sign in to Portl
-              </h2>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginBottom: "24px", lineHeight: 1.55 }}>
-                Enter your email — we&apos;ll send a magic link. No password needed.
-              </p>
 
+            {/* Input */}
+            <div className="fade-3" style={{ marginBottom: "12px" }}>
               <label style={{
-                display: "block", fontSize: "10px", fontWeight: 700,
-                letterSpacing: "0.1em", color: "rgba(255,255,255,0.35)",
-                textTransform: "uppercase", marginBottom: "8px",
+                display: "block", fontSize: "11px", fontWeight: 600,
+                color: "rgba(255,255,255,0.35)", textTransform: "uppercase",
+                letterSpacing: "0.07em", marginBottom: "8px",
               }}>
                 Email Address
               </label>
-
               <input
                 className="email-input"
                 type="email"
                 placeholder="you@studio.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSubmit()}
+                autoComplete="email"
               />
+            </div>
 
-              <button className="magic-btn" onClick={handleSubmit} disabled={loading || !email}>
+            {/* Error */}
+            {error && (
+              <div className="fade-3" style={{
+                marginBottom: "12px",
+                background: "rgba(232,93,117,0.1)", border: "1px solid rgba(232,93,117,0.25)",
+                borderRadius: "8px", padding: "9px 14px",
+                fontSize: "13px", color: "#E85D75",
+              }}>
+                {error}
+              </div>
+            )}
+
+            {/* Button */}
+            <div className="fade-4" style={{ marginBottom: "20px" }}>
+              <button
+                className="submit-btn"
+                onClick={handleSubmit}
+                disabled={loading || !email.trim()}
+              >
                 {loading ? (
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                     <span style={{
-                      width: "16px", height: "16px",
+                      width: "14px", height: "14px", flexShrink: 0,
                       border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff",
                       borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block",
                     }} />
@@ -309,33 +293,25 @@ export default function LoginPage() {
                   </span>
                 ) : "Send Magic Link →"}
               </button>
-
-              <p style={{ marginTop: "16px", color: "rgba(255,255,255,0.2)", fontSize: "12px" }}>
-                By signing in you agree to our terms of service. No spam, ever.
-              </p>
-            </>
-          )}
-        </div>
-
-        {/* Bullets */}
-        <div className="fade-4" style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-          {[
-            { color: "#5B4CF5", text: "Project timelines your clients actually understand" },
-            { color: "#0BAB6C", text: "File delivery with one-click approvals" },
-            { color: "#5B4CF5", text: "No client account needed — just a link" },
-            { color: "#0BAB6C", text: "Built for freelance designers" },
-          ].map(({ color, text }) => (
-            <div key={text} style={{
-              display: "flex", alignItems: "flex-start", gap: "10px",
-              color: "rgba(255,255,255,0.5)", fontSize: "13.5px",
-            }}>
-              <span className="dot" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
-              {text}
             </div>
-          ))}
-        </div>
 
+            {/* Footer note */}
+            <div className="fade-5" style={{ textAlign: "center" }}>
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.18)" }}>
+                No password needed. No spam, ever.
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
