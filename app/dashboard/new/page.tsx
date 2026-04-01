@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+const DEFAULT_STAGES = ["Discovery & Brief", "Moodboard", "Design", "Final Delivery"];
+
 const Icons = {
   Studio:    () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.9"/><rect x="13" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/><rect x="3" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/><rect x="13" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/></svg>,
   Projects:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 7C3 5.9 3.9 5 5 5h4l2 2h8c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7z" fill="currentColor" opacity="0.8"/></svg>,
@@ -22,6 +24,7 @@ export default function NewProjectPage() {
   const [name,        setName]        = useState("");
   const [clientName,  setClientName]  = useState("");
   const [clientEmail, setClientEmail] = useState("");
+  const [stages,      setStages]      = useState<string[]>(DEFAULT_STAGES);
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState("");
   const [userEmail,   setUserEmail]   = useState("");
@@ -48,6 +51,18 @@ export default function NewProjectPage() {
     router.replace("/login");
   };
 
+  const updateStage = (index: number, value: string) => {
+    setStages(prev => prev.map((s, i) => i === index ? value : s));
+  };
+
+  const removeStage = (index: number) => {
+    setStages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const addStage = () => {
+    setStages(prev => [...prev, ""]);
+  };
+
   const handleSubmit = async () => {
     if (!name.trim()) { setError("Project name is required."); return; }
     setLoading(true);
@@ -56,9 +71,7 @@ export default function NewProjectPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setError("You must be logged in."); setLoading(false); return; }
 
-    console.log("User ID:", user.id);
-
-    const portal_slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).slice(2, 8);
+    const portal_slug = Math.random().toString(36).slice(2, 10);
 
     const { data, error: insertError } = await supabase
       .from("projects")
@@ -79,7 +92,27 @@ export default function NewProjectPage() {
       return;
     }
 
-    router.push(`/dashboard/project/${data.id}`);
+    const validStages = stages.map(s => s.trim()).filter(Boolean);
+    if (validStages.length > 0) {
+      const { error: stagesError } = await supabase
+        .from("stages")
+        .insert(
+          validStages.map((title, position) => ({
+            project_id: data.id,
+            title,
+            position,
+            status: "not_started",
+          }))
+        );
+      if (stagesError) {
+        console.error("Stages insert error:", JSON.stringify(stagesError));
+        setError("Project created but stages failed to save.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    router.push("/dashboard");
   };
 
   const currentPath = "/dashboard/projects";
@@ -100,6 +133,7 @@ export default function NewProjectPage() {
         * { box-sizing:border-box; margin:0; padding:0; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes spin { to{transform:rotate(360deg)} }
 
         .fi { animation:fadeUp 0.4s ease forwards; opacity:0; }
         .fi1 { animation-delay:0.04s; }
@@ -124,9 +158,20 @@ export default function NewProjectPage() {
         .form-input::placeholder{color:rgba(255,255,255,0.2);}
         .form-input:focus{border-color:rgba(91,76,245,0.4);background:rgba(91,76,245,0.04);}
 
-        .new-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#5B4CF5,#0BAB6C);color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s;white-space:nowrap;}
-        .new-btn:hover:not(:disabled){opacity:0.88;transform:translateY(-1px);}
-        .new-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .stage-row{display:flex;align-items:center;gap:8px;}
+        .stage-num{width:22px;height:22px;border-radius:50%;background:rgba(91,76,245,0.15);border:1px solid rgba(91,76,245,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:rgba(91,76,245,0.9);flex-shrink:0;}
+        .remove-btn{flex-shrink:0;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.2);font-size:16px;line-height:1;padding:4px;border-radius:6px;transition:color 0.15s;}
+        .remove-btn:hover{color:rgba(232,93,117,0.7);}
+
+        .add-stage-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed rgba(91,76,245,0.3);border-radius:10px;padding:9px 14px;color:rgba(91,76,245,0.7);font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;width:100%;transition:all 0.18s;}
+        .add-stage-btn:hover{border-color:rgba(91,76,245,0.6);color:rgba(91,76,245,1);background:rgba(91,76,245,0.05);}
+
+        .create-btn{width:100%;padding:13px;border:none;border-radius:12px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+        .create-btn:hover:not(:disabled){opacity:0.88;transform:translateY(-1px);}
+        .create-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+        .cancel-btn{flex:1;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.4);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;}
+        .cancel-btn:hover{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2);}
 
         .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(7,9,15,0.98);border-bottom:1px solid rgba(255,255,255,0.08);padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
 
@@ -193,7 +238,7 @@ export default function NewProjectPage() {
 
       {/* Main */}
       <main className="main">
-        <div className="fi fi1" style={{width:"100%",maxWidth:"480px",paddingTop:"40px"}}>
+        <div className="fi fi1" style={{width:"100%",maxWidth:"520px",paddingTop:"40px",paddingBottom:"60px"}}>
           {/* Header */}
           <div style={{marginBottom:"28px"}}>
             <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px"}}>New Project</h1>
@@ -202,7 +247,7 @@ export default function NewProjectPage() {
 
           {/* Card */}
           <div style={{background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:"18px",padding:"28px"}}>
-            <div style={{display:"flex",flexDirection:"column",gap:"18px"}}>
+            <div style={{display:"flex",flexDirection:"column",gap:"20px"}}>
 
               {/* Project name */}
               <div>
@@ -212,7 +257,6 @@ export default function NewProjectPage() {
                   placeholder="e.g. Brand Refresh — Marble & Co."
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleSubmit()}
                 />
               </div>
 
@@ -239,6 +283,43 @@ export default function NewProjectPage() {
                 />
               </div>
 
+              {/* Divider */}
+              <div style={{borderTop:"1px solid rgba(255,255,255,0.06)"}} />
+
+              {/* Stages */}
+              <div>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"12px"}}>
+                  <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"rgba(255,255,255,0.4)",textTransform:"uppercase",letterSpacing:"0.06em"}}>Project Stages</label>
+                  <span style={{fontSize:"11px",color:"rgba(255,255,255,0.2)"}}>{stages.filter(s => s.trim()).length} stage{stages.filter(s => s.trim()).length !== 1 ? "s" : ""}</span>
+                </div>
+
+                <div style={{display:"flex",flexDirection:"column",gap:"8px",marginBottom:"10px"}}>
+                  {stages.map((stage, i) => (
+                    <div key={i} className="stage-row">
+                      <span className="stage-num">{i + 1}</span>
+                      <input
+                        className="form-input"
+                        placeholder="Stage name"
+                        value={stage}
+                        onChange={e => updateStage(i, e.target.value)}
+                        style={{flex:1}}
+                      />
+                      <button
+                        className="remove-btn"
+                        onClick={() => removeStage(i)}
+                        title="Remove stage"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <button className="add-stage-btn" onClick={addStage}>
+                  <Icons.Plus /> Add Stage
+                </button>
+              </div>
+
               {/* Error */}
               {error && (
                 <div style={{fontSize:"13px",color:"#E85D75",background:"rgba(232,93,117,0.08)",border:"1px solid rgba(232,93,117,0.2)",borderRadius:"10px",padding:"10px 14px"}}>
@@ -248,25 +329,20 @@ export default function NewProjectPage() {
 
               {/* Actions */}
               <div style={{display:"flex",gap:"10px",paddingTop:"4px"}}>
-                <button
-                  onClick={() => router.back()}
-                  style={{flex:1,padding:"11px",background:"transparent",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"12px",color:"rgba(255,255,255,0.4)",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:500,cursor:"pointer",transition:"all 0.18s"}}
-                  onMouseOver={e => { (e.target as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)"; (e.target as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.2)"; }}
-                  onMouseOut={e  => { (e.target as HTMLButtonElement).style.color = "rgba(255,255,255,0.4)"; (e.target as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
-                >
+                <button className="cancel-btn" onClick={() => router.back()}>
                   Cancel
                 </button>
                 <button
-                  className="new-btn"
+                  className="create-btn"
                   onClick={handleSubmit}
                   disabled={loading}
-                  style={{flex:2,justifyContent:"center",padding:"11px"}}
+                  style={{flex:2}}
                 >
                   {loading ? (
-                    <span style={{display:"flex",alignItems:"center",gap:"8px"}}>
-                      <span style={{width:"13px",height:"13px",border:"2px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin 0.7s linear infinite",display:"inline-block"}} />
+                    <>
+                      <span style={{width:"13px",height:"13px",border:"2px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin 0.7s linear infinite",display:"inline-block",flexShrink:0}} />
                       Creating…
-                    </span>
+                    </>
                   ) : (
                     <><Icons.Plus /> Create Project</>
                   )}
@@ -276,7 +352,6 @@ export default function NewProjectPage() {
             </div>
           </div>
         </div>
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </main>
     </div>
   );
