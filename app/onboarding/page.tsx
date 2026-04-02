@@ -102,14 +102,18 @@ export default function OnboardingPage() {
   const complete = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      console.log("User:", user?.id);
       if (user) {
-        await supabase
+        const { data, error } = await supabase
           .from("profiles")
           .update({ onboarding_complete: true })
-          .eq("id", user.id);
+          .eq("id", user.id)
+          .select()
+          .single();
+        console.log("Update result:", data, "Error:", error);
       }
     } catch (e) {
-      console.error("Onboarding update failed:", e);
+      console.error("Failed:", e);
     } finally {
       router.replace("/dashboard");
     }

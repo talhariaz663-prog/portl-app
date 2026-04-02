@@ -40,7 +40,12 @@ export async function GET(request: NextRequest) {
         .single()
 
       // First-time user or onboarding not complete → show onboarding
-      if (!profile || !profile.onboarding_complete) {
+      if (!profile?.onboarding_complete) {
+        // Try to upsert onboarding_complete as false so the row exists
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          onboarding_complete: false
+        }, { onConflict: 'id', ignoreDuplicates: true });
         return NextResponse.redirect(new URL('/onboarding', request.url))
       }
     }
