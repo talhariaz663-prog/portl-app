@@ -100,14 +100,19 @@ export default function OnboardingPage() {
   }, [supabase, router]);
 
   const complete = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({ onboarding_complete: true })
-        .eq("id", user.id);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ onboarding_complete: true })
+          .eq("id", user.id);
+      }
+    } catch (e) {
+      console.error("Onboarding update failed:", e);
+    } finally {
+      router.replace("/dashboard");
     }
-    router.push("/dashboard");
   };
 
   const goNext = () => {
