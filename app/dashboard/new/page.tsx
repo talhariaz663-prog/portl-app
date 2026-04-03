@@ -121,7 +121,7 @@ export default function NewProjectPage() {
   ];
 
   return (
-    <div style={{ minHeight:"100vh", background:"#07090f", fontFamily:"'Outfit',sans-serif", color:"#fff", display:"flex" }}>
+    <div style={{ minHeight:"100vh", background:"#F5F6FA", fontFamily:"'Outfit',sans-serif", color:"#12111A", display:"flex" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
@@ -136,38 +136,38 @@ export default function NewProjectPage() {
         .sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.05);}
         .sidebar-nav{padding:16px 12px;flex:1;display:flex;flex-direction:column;gap:2px;}
 
-        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.38);position:relative;}
-        .nav-item:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.04);}
-        .nav-item.active{color:#fff;font-weight:600;background:rgba(91,76,245,0.14);border-color:rgba(91,76,245,0.28);}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.6);position:relative;}
+        .nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06);}
+        .nav-item.active{color:#fff;font-weight:600;background:rgba(91,76,245,0.2);border-color:rgba(91,76,245,0.35);}
         .nav-item.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:linear-gradient(180deg,#5B4CF5,#7B6CF9);border-radius:0 4px 4px 0;}
         .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F5A623,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
 
         .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
         .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
 
-        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(7,9,15,0.97);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
+        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(245,246,250,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;position:relative;flex:1;display:flex;align-items:flex-start;justify-content:center;}
 
-        .form-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:11px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:13.5px;outline:none;transition:border-color 0.2s;}
-        .form-input::placeholder{color:rgba(255,255,255,0.2);}
-        .form-input:focus{border-color:rgba(91,76,245,0.4);background:rgba(91,76,245,0.04);}
+        .form-input{width:100%;background:#ffffff;border:1px solid #E4E4E8;border-radius:12px;padding:11px 14px;color:#12111A;font-family:'Outfit',sans-serif;font-size:13.5px;outline:none;transition:border-color 0.2s;}
+        .form-input::placeholder{color:#B0B0BC;}
+        .form-input:focus{border-color:#5B4CF5;box-shadow:0 0 0 3px rgba(91,76,245,0.1);}
 
         .stage-row{display:flex;align-items:center;gap:8px;}
-        .stage-num{width:22px;height:22px;border-radius:50%;background:rgba(91,76,245,0.15);border:1px solid rgba(91,76,245,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:rgba(91,76,245,0.9);flex-shrink:0;}
-        .remove-btn{flex-shrink:0;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.2);font-size:16px;line-height:1;padding:4px;border-radius:6px;transition:color 0.15s;}
-        .remove-btn:hover{color:rgba(232,93,117,0.7);}
+        .stage-num{width:22px;height:22px;border-radius:50%;background:rgba(91,76,245,0.1);border:1px solid rgba(91,76,245,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#5B4CF5;flex-shrink:0;}
+        .remove-btn{flex-shrink:0;background:none;border:none;cursor:pointer;color:#C0C0CC;font-size:16px;line-height:1;padding:4px;border-radius:6px;transition:color 0.15s;}
+        .remove-btn:hover{color:#E85D75;}
 
-        .add-stage-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed rgba(91,76,245,0.3);border-radius:10px;padding:9px 14px;color:rgba(91,76,245,0.7);font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;width:100%;transition:all 0.18s;}
-        .add-stage-btn:hover{border-color:rgba(91,76,245,0.6);color:rgba(91,76,245,1);background:rgba(91,76,245,0.05);}
+        .add-stage-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed rgba(91,76,245,0.35);border-radius:10px;padding:9px 14px;color:#5B4CF5;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;width:100%;transition:all 0.18s;}
+        .add-stage-btn:hover{border-color:#5B4CF5;background:rgba(91,76,245,0.05);}
 
         .create-btn{width:100%;padding:13px;border:none;border-radius:12px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
         .create-btn:hover:not(:disabled){opacity:0.88;transform:translateY(-1px);}
         .create-btn:disabled{opacity:0.5;cursor:not-allowed;}
 
-        .cancel-btn{flex:1;padding:11px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.4);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;}
-        .cancel-btn:hover{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2);}
+        .cancel-btn{flex:1;padding:11px;background:#ffffff;border:1px solid #E4E4E8;border-radius:12px;color:#4A4A5A;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;}
+        .cancel-btn:hover{color:#12111A;border-color:#C0C0CC;}
 
-        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(7,9,15,0.98);border-bottom:1px solid rgba(255,255,255,0.08);padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
+        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(245,246,250,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
 
         @media(max-width:768px){
           .sidebar{display:none!important;}
@@ -236,16 +236,16 @@ export default function NewProjectPage() {
           {/* Header */}
           <div style={{marginBottom:"28px"}}>
             <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px"}}>New Project</h1>
-            <p style={{fontSize:"13px",color:"rgba(255,255,255,0.35)"}}>Fill in the details to get started.</p>
+            <p style={{fontSize:"13px",color:"#8A8A9A"}}>Fill in the details to get started.</p>
           </div>
 
           {/* Card */}
-          <div style={{background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:"18px",padding:"28px"}}>
+          <div style={{background:"#ffffff",border:"1px solid #E4E4E8",borderRadius:"18px",padding:"28px"}}>
             <div style={{display:"flex",flexDirection:"column",gap:"20px"}}>
 
               {/* Project name */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"rgba(255,255,255,0.4)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Project Name *</label>
+                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#4A4A5A",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Project Name *</label>
                 <input
                   className="form-input"
                   placeholder="e.g. Brand Refresh — Marble & Co."
@@ -256,7 +256,7 @@ export default function NewProjectPage() {
 
               {/* Client name */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"rgba(255,255,255,0.4)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Client Name</label>
+                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#4A4A5A",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Client Name</label>
                 <input
                   className="form-input"
                   placeholder="e.g. Sarah"
@@ -267,7 +267,7 @@ export default function NewProjectPage() {
 
               {/* Client email */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"rgba(255,255,255,0.4)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Client Email</label>
+                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#4A4A5A",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Client Email</label>
                 <input
                   className="form-input"
                   type="email"
@@ -278,13 +278,13 @@ export default function NewProjectPage() {
               </div>
 
               {/* Divider */}
-              <div style={{borderTop:"1px solid rgba(255,255,255,0.06)"}} />
+              <div style={{borderTop:"1px solid #E4E4E8"}} />
 
               {/* Stages */}
               <div>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"12px"}}>
-                  <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"rgba(255,255,255,0.4)",textTransform:"uppercase",letterSpacing:"0.06em"}}>Project Stages</label>
-                  <span style={{fontSize:"11px",color:"rgba(255,255,255,0.2)"}}>{stages.filter(s => s.trim()).length} stage{stages.filter(s => s.trim()).length !== 1 ? "s" : ""}</span>
+                  <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#4A4A5A",textTransform:"uppercase",letterSpacing:"0.06em"}}>Project Stages</label>
+                  <span style={{fontSize:"11px",color:"#8A8A9A"}}>{stages.filter(s => s.trim()).length} stage{stages.filter(s => s.trim()).length !== 1 ? "s" : ""}</span>
                 </div>
 
                 <div style={{display:"flex",flexDirection:"column",gap:"8px",marginBottom:"10px"}}>

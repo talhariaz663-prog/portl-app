@@ -271,10 +271,9 @@ export default function ProjectDetailPage() {
         .fi{animation:fadeUp 0.35s ease forwards;opacity:0}
         .fi1{animation-delay:0.04s}.fi2{animation-delay:0.10s}.fi3{animation-delay:0.16s}.fi4{animation-delay:0.22s}
 
-        .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;transition:all 0.15s;border:1px solid transparent;}
-        .nav-item.active{background:rgba(91,76,245,0.15);border-color:rgba(91,76,245,0.3);color:#fff;font-weight:600;}
-        .nav-item:not(.active){color:rgba(255,255,255,0.4);}
-        .nav-item:not(.active):hover{color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.04);}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;transition:all 0.15s;border:1px solid transparent;color:rgba(255,255,255,0.6);}
+        .nav-item.active{background:rgba(91,76,245,0.2);border-color:rgba(91,76,245,0.35);color:#ffffff;font-weight:600;}
+        .nav-item:not(.active):hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06);}
 
         .stage-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;cursor:pointer;border:1px solid #E4E4E8;background:#FFFFFF;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:#8A8A9A;white-space:nowrap;transition:all 0.18s ease;}
         .stage-tab:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F9F9FB;}
@@ -343,9 +342,9 @@ export default function ProjectDetailPage() {
       <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none", backgroundImage:"radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)", backgroundSize:"40px 40px" }} />
 
       {/* Sidebar */}
-      <aside className="sidebar" style={{ position:"fixed", top:0, left:0, bottom:0, width:"220px", background:"rgba(8,10,24,0.97)", borderRight:"1px solid rgba(255,255,255,0.06)", backdropFilter:"blur(20px)", flexDirection:"column", padding:"28px 16px", zIndex:10 }}>
+      <aside className="sidebar" style={{ position:"fixed", top:0, left:0, bottom:0, width:"220px", background:"#0c0e1a", borderRight:"1px solid rgba(255,255,255,0.06)", flexDirection:"column", padding:"28px 16px", zIndex:10 }}>
         <div style={{ marginBottom:"40px", paddingLeft:"8px" }}>
-          <span style={{ fontSize:"22px", fontWeight:800, letterSpacing:"-0.5px" }}>Portl<span style={{ color:"#5B4CF5", fontSize:"26px" }}>.</span></span>
+          <span style={{ fontSize:"22px", fontWeight:800, letterSpacing:"-0.5px", color:"#ffffff" }}>Portl<span style={{ color:"#5B4CF5", fontSize:"26px" }}>.</span></span>
         </div>
         <nav style={{ display:"flex", flexDirection:"column", gap:"4px", flex:1 }}>
           {[{ icon:"⬡", label:"Studio", active:false, path:"/dashboard" },{ icon:"◷", label:"Timeline", active:true, path:"" },{ icon:"⬚", label:"Files", active:false, path:"" },{ icon:"✓", label:"Approvals", active:false, path:"" }].map(({ icon, label, active, path }) => (
