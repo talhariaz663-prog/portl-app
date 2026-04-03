@@ -71,48 +71,42 @@ export default function NewProjectPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setError("You must be logged in."); setLoading(false); return; }
 
-    const portal_slug = Math.random().toString(36).slice(2, 10);
+    const portal_slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).slice(2, 8);
 
     const { data, error: insertError } = await supabase
       .from("projects")
       .insert({
         name:         name.trim(),
-        client_name:  clientName.trim(),
-        client_email: clientEmail.trim(),
-        user_id:      user.id,
+        client_name:  clientName.trim() || null,
+        client_email: clientEmail.trim() || null,
         portal_slug,
+        status:       "active",
+        user_id:      user.id,
+        designer_id:  user.id,
       })
       .select()
       .single();
 
+    console.error("Insert error:", JSON.stringify(insertError));
+    console.log("Inserted project:", data);
+
     if (insertError || !data) {
-      console.error("Insert error:", JSON.stringify(insertError));
       setError("Failed to create project. Please try again.");
       setLoading(false);
       return;
     }
 
-    const validStages = stages.map(s => s.trim()).filter(Boolean);
-    if (validStages.length > 0) {
-      const { error: stagesError } = await supabase
-        .from("stages")
-        .insert(
-          validStages.map((title, position) => ({
-            project_id: data.id,
-            title,
-            position,
-            status: "not_started",
-          }))
-        );
-      if (stagesError) {
-        console.error("Stages insert error:", JSON.stringify(stagesError));
-        setError("Project created but stages failed to save.");
-        setLoading(false);
-        return;
-      }
+    for (let i = 0; i < stages.length; i++) {
+      if (!stages[i].trim()) continue;
+      await supabase.from("stages").insert({
+        project_id: data.id,
+        title:      stages[i],
+        position:   i,
+        status:     "not_started",
+      });
     }
 
-    router.push("/dashboard");
+    router.push(`/dashboard/project/${data.id}`);
   };
 
   const currentPath = "/dashboard/projects";
