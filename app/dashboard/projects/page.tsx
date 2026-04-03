@@ -19,12 +19,12 @@ interface Project {
 
 const STATUS_CONFIG: Record<Status, { label: string; color: string; bg: string; border: string }> = {
   active:   { label: "Active",    color: "#0BAB6C", bg: "rgba(11,171,108,0.12)",  border: "rgba(11,171,108,0.25)"  },
-  review:   { label: "In Review", color: "#F5A623", bg: "rgba(245,166,35,0.12)",  border: "rgba(245,166,35,0.25)"  },
+  review:   { label: "In Review", color: "#F59E0B", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)"  },
   approved: { label: "Approved",  color: "#5B4CF5", bg: "rgba(91,76,245,0.12)",   border: "rgba(91,76,245,0.25)"   },
   draft:    { label: "Draft",     color: "#6b7280", bg: "rgba(107,114,128,0.08)", border: "rgba(107,114,128,0.2)"  },
 };
 
-const CARD_COLORS = ["#5B4CF5", "#0BAB6C", "#F5A623", "#E85D75", "#7B6CF9"];
+const CARD_COLORS = ["#5B4CF5", "#0BAB6C", "#F59E0B", "#EF4444", "#7B6CF9"];
 
 function timeAgo(dateStr: string): string {
   const diff  = Date.now() - new Date(dateStr).getTime();
@@ -140,11 +140,11 @@ export default function ProjectsPage() {
         .sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.05);}
         .sidebar-nav{padding:16px 12px;flex:1;display:flex;flex-direction:column;gap:2px;}
 
-        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.38);position:relative;}
-        .nav-item:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.04);}
-        .nav-item.active{color:#fff;font-weight:600;background:rgba(91,76,245,0.14);border-color:rgba(91,76,245,0.28);}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.58);position:relative;}
+        .nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+        .nav-item.active{color:#fff;font-weight:600;background:rgba(91,76,245,0.18);border-left:3px solid #5B4CF5;}
         .nav-item.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:linear-gradient(180deg,#5B4CF5,#7B6CF9);border-radius:0 4px 4px 0;}
-        .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F5A623,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
+        .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
 
         .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
         .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
@@ -152,25 +152,29 @@ export default function ProjectsPage() {
         .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;position:relative;flex:1;}
 
-        .new-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#5B4CF5,#0BAB6C);color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s;white-space:nowrap;}
-        .new-btn:hover{opacity:0.88;transform:translateY(-1px);}
+        .new-btn{display:flex;align-items:center;gap:8px;padding:8px 18px;border:none;border-radius:10px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s,transform 0.15s;white-space:nowrap;}
+        .new-btn:hover{background:#4A3DE0;transform:translateY(-1px);}
+        .new-btn:active{background:#3D32C4;transform:translateY(0);}
+        .new-btn:disabled{opacity:0.45;cursor:not-allowed;}
+        .new-btn:focus-visible{box-shadow:0 0 0 3px rgba(91,76,245,0.25);outline:none;}
 
-        .search-input{width:100%;background:#FFFFFF;border:1px solid #E4E4E8;border-radius:12px;padding:10px 14px 10px 40px;color:#12111A;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
-        .search-input::placeholder{color:#B0B0BC;}
-        .search-input:focus{border-color:#5B4CF5;background:rgba(91,76,245,0.04);box-shadow:0 0 0 3px rgba(91,76,245,0.1);}
+        .search-input{width:100%;background:#FFFFFF;border:1px solid #E4E4E8;border-radius:12px;padding:10px 14px 10px 40px;color:#12111A;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
+        .search-input::placeholder{color:#9A9AAA;}
+        .search-input:focus{border-color:#5B4CF5;box-shadow:0 0 0 3px rgba(91,76,245,0.15);outline:none;}
+        button:focus-visible{box-shadow:0 0 0 3px rgba(91,76,245,0.25);outline:none;}
 
-        .filter-pill{padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;border:1px solid #E4E4E8;background:#FFFFFF;color:#8A8A9A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
-        .filter-pill:hover{color:#4A4A5A;border-color:#C8C8D4;}
+        .filter-pill{padding:4px 10px;border-radius:999px;cursor:pointer;font-size:11px;font-weight:700;border:1px solid #E4E4E8;background:#FFFFFF;color:#6B6B7A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
+        .filter-pill:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F0F0F5;}
         .filter-pill.active{background:rgba(91,76,245,0.1);border-color:rgba(91,76,245,0.35);color:#5B4CF5;}
 
         .sort-select{background:#FFFFFF;border:1px solid #E4E4E8;border-radius:10px;padding:6px 12px;color:#4A4A5A;font-family:'Outfit',sans-serif;font-size:12px;outline:none;cursor:pointer;}
         .sort-select option{background:#FFFFFF;}
 
-        .proj-row{display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:14px;background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.18s ease;position:relative;overflow:hidden;}
+        .proj-row{display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:12px;background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.18s ease;position:relative;overflow:hidden;}
         .proj-row:hover{background:#F9F9FB;border-color:#D0D0D8;transform:translateX(2px);}
 
-        .icon-btn{background:#F5F6FA;border:1px solid #E4E4E8;border-radius:8px;padding:6px 10px;cursor:pointer;color:#8A8A9A;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;white-space:nowrap;}
-        .icon-btn:hover{background:#EDEDF2;color:#12111A;border-color:#C8C8D4;}
+        .icon-btn{background:transparent;border:1px solid #E4E4E8;border-radius:8px;padding:6px 10px;cursor:pointer;color:#6B6B7A;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;white-space:nowrap;}
+        .icon-btn:hover{background:#F0F0F5;color:#12111A;border-color:#D0D0D8;}
         .icon-btn.copied{background:rgba(11,171,108,0.12);border-color:rgba(11,171,108,0.3);color:#0BAB6C;}
 
         .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(255,255,255,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
@@ -235,8 +239,8 @@ export default function ProjectsPage() {
             ))}
           </nav>
           <div style={{borderTop:"1px solid #E4E4E8",paddingTop:"12px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span style={{fontSize:"12px",color:"#8A8A9A"}}>{userEmail}</span>
-            <button onClick={handleSignOut} style={{background:"none",border:"none",cursor:"pointer",color:"#8A8A9A",fontSize:"12px",fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",gap:"5px"}}><Icons.Signout /> Sign out</button>
+            <span style={{fontSize:"12px",color:"#6B6B7A"}}>{userEmail}</span>
+            <button onClick={handleSignOut} style={{background:"none",border:"none",cursor:"pointer",color:"#6B6B7A",fontSize:"12px",fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",gap:"5px"}}><Icons.Signout /> Sign out</button>
           </div>
         </div>
       )}
@@ -244,10 +248,10 @@ export default function ProjectsPage() {
       {/* Main */}
       <main className="main">
         {/* Header */}
-        <div className="fi fi1" style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:"28px",gap:"16px"}}>
+        <div className="fi fi1" style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:"32px",gap:"16px"}}>
           <div>
-            <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px"}}>Projects</h1>
-            <p style={{fontSize:"13px",color:"#8A8A9A"}}>
+            <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px",color:"#12111A"}}>Projects</h1>
+            <p style={{fontSize:"13px",color:"#6B6B7A"}}>
               {loading ? "Loading…" : `${projects.length} project${projects.length!==1?"s":""} total`}
             </p>
           </div>
@@ -291,9 +295,9 @@ export default function ProjectsPage() {
             <div style={{width:"28px",height:"28px",border:"2px solid rgba(0,0,0,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#8A8A9A"}}>
+          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#6B6B7A"}}>
             <div style={{fontSize:"32px",marginBottom:"12px",opacity:0.4}}>⬡</div>
-            <div style={{fontSize:"15px",fontWeight:600,marginBottom:"6px",color:"#4A4A5A"}}>
+            <div style={{fontSize:"14px",fontWeight:600,marginBottom:"6px",color:"#4A4A5A"}}>
               {search ? "No projects match your search" : "No projects yet"}
             </div>
             {!search && <button className="new-btn" style={{margin:"16px auto 0"}} onClick={() => router.push("/dashboard/new")}><Icons.Plus /> Create First Project</button>}
@@ -316,18 +320,18 @@ export default function ProjectsPage() {
                   {/* Name + client */}
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:"14px",fontWeight:700,marginBottom:"3px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:"#12111A"}}>{project.name}</div>
-                    <div style={{fontSize:"12px",color:"#8A8A9A"}}>{project.client_name}{project.client_email&&<span style={{color:"#B0B0BC",marginLeft:"8px"}}>{project.client_email}</span>}</div>
+                    <div style={{fontSize:"12px",color:"#6B6B7A"}}>{project.client_name}{project.client_email&&<span style={{color:"#B0B0BC",marginLeft:"8px"}}>{project.client_email}</span>}</div>
                   </div>
 
                   {/* Stage */}
                   {project.current_stage && (
-                    <div style={{fontSize:"12px",color:"#8A8A9A",display:"flex",alignItems:"center",gap:"5px",flexShrink:0}}>
+                    <div style={{fontSize:"12px",color:"#6B6B7A",display:"flex",alignItems:"center",gap:"5px",flexShrink:0}}>
                       <span style={{color,fontSize:"8px"}}>◆</span>{project.current_stage}
                     </div>
                   )}
 
                   {/* Status */}
-                  <div style={{display:"inline-flex",alignItems:"center",gap:"5px",background:st.bg,color:st.color,padding:"4px 10px",borderRadius:"20px",fontSize:"10px",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",border:`1px solid ${st.border}`,flexShrink:0}}>
+                  <div style={{display:"inline-flex",alignItems:"center",gap:"5px",background:st.bg,color:st.color,padding:"4px 10px",borderRadius:"999px",fontSize:"11px",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",border:`1px solid ${st.border}`,flexShrink:0}}>
                     <span style={{width:"4px",height:"4px",borderRadius:"50%",background:st.color}} />{st.label}
                   </div>
 

@@ -27,12 +27,12 @@ interface ActivityItem {
 
 const STATUS_CONFIG: Record<Status, { label: string; color: string; bg: string; border: string }> = {
   active:   { label: "Active",    color: "#0BAB6C", bg: "rgba(11,171,108,0.12)",  border: "rgba(11,171,108,0.25)"  },
-  review:   { label: "In Review", color: "#F5A623", bg: "rgba(245,166,35,0.12)",  border: "rgba(245,166,35,0.25)"  },
+  review:   { label: "In Review", color: "#F59E0B", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)"  },
   approved: { label: "Approved",  color: "#5B4CF5", bg: "rgba(91,76,245,0.12)",   border: "rgba(91,76,245,0.25)"   },
   draft:    { label: "Draft",     color: "#6b7280", bg: "rgba(107,114,128,0.08)", border: "rgba(107,114,128,0.2)"  },
 };
 
-const CARD_COLORS = ["#5B4CF5", "#0BAB6C", "#F5A623", "#E85D75", "#7B6CF9"];
+const CARD_COLORS = ["#5B4CF5", "#0BAB6C", "#F59E0B", "#EF4444", "#7B6CF9"];
 
 function timeAgo(dateStr: string): string {
   const diff  = Date.now() - new Date(dateStr).getTime();
@@ -233,14 +233,14 @@ export default function DashboardPage() {
           padding:10px 14px; border-radius:12px;
           font-size:13.5px; font-weight:500; cursor:pointer;
           transition:all 0.18s ease; border:1px solid transparent;
-          color:rgba(255,255,255,0.38); position:relative;
+          color:rgba(255,255,255,0.58); position:relative;
           text-decoration:none;
         }
-        .nav-item:hover { color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.04); }
+        .nav-item:hover { color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.05); }
         .nav-item.active {
           color:#fff; font-weight:600;
-          background:rgba(91,76,245,0.14);
-          border-color:rgba(91,76,245,0.28);
+          background:rgba(91,76,245,0.18);
+          border-left:3px solid #5B4CF5;
         }
         .nav-item.active::before {
           content:''; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
@@ -250,7 +250,7 @@ export default function DashboardPage() {
 
         .nav-badge {
           margin-left:auto; min-width:20px; height:20px; border-radius:10px;
-          background:linear-gradient(135deg,#F5A623,#E8971A);
+          background:linear-gradient(135deg,#F59E0B,#E8971A);
           display:flex; align-items:center; justify-content:center;
           font-size:10px; font-weight:800; color:#fff; padding:0 6px;
         }
@@ -299,8 +299,8 @@ export default function DashboardPage() {
         .card {
           background:#FFFFFF;
           border:1px solid #E4E4E8;
-          box-shadow:0 1px 4px rgba(0,0,0,0.06);
-          border-radius:18px; padding:22px 24px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.06);
+          border-radius:12px; padding:24px;
           transition:border-color 0.2s, transform 0.2s;
           position:relative; overflow:hidden;
         }
@@ -315,8 +315,8 @@ export default function DashboardPage() {
         .proj-card {
           background:#FFFFFF;
           border:1px solid #E4E4E8;
-          box-shadow:0 1px 4px rgba(0,0,0,0.06);
-          border-radius:16px; padding:20px 22px; cursor:pointer;
+          box-shadow:0 1px 3px rgba(0,0,0,0.06);
+          border-radius:12px; padding:20px 22px; cursor:pointer;
           position:relative; overflow:hidden;
           transition:all 0.2s ease;
         }
@@ -324,24 +324,28 @@ export default function DashboardPage() {
 
         /* Filter pills */
         .filter-pill {
-          padding:5px 14px; border-radius:20px; cursor:pointer;
-          font-size:12px; font-weight:600; border:1px solid #E4E4E8;
-          background:#FFFFFF; color:#8A8A9A;
+          padding:4px 10px; border-radius:999px; cursor:pointer;
+          font-size:11px; font-weight:700; border:1px solid #E4E4E8;
+          background:#FFFFFF; color:#6B6B7A;
           font-family:'Outfit',sans-serif; transition:all 0.15s; white-space:nowrap;
         }
-        .filter-pill:hover { color:#4A4A5A; border-color:#C8C8D4; }
+        .filter-pill:hover { color:#4A4A5A; border-color:#D0D0D8; background:#F0F0F5; }
         .filter-pill.active { background:rgba(91,76,245,0.1); border-color:rgba(91,76,245,0.35); color:#5B4CF5; }
 
         /* New project btn */
         .new-btn {
-          display:flex; align-items:center; gap:7px;
-          padding:9px 18px; border:none; border-radius:10px;
-          background:linear-gradient(135deg,#5B4CF5,#0BAB6C);
+          display:flex; align-items:center; gap:8px;
+          padding:8px 18px; border:none; border-radius:10px;
+          background:#5B4CF5;
           color:#fff; font-family:'Outfit',sans-serif;
           font-size:13px; font-weight:700; cursor:pointer;
-          transition:opacity 0.2s, transform 0.15s; white-space:nowrap;
+          transition:background 0.15s, transform 0.15s; white-space:nowrap;
         }
-        .new-btn:hover { opacity:0.88; transform:translateY(-1px); }
+        .new-btn:hover { background:#4A3DE0; transform:translateY(-1px); }
+        .new-btn:active { background:#3D32C4; transform:translateY(0); }
+        .new-btn:disabled { opacity:0.45; cursor:not-allowed; }
+        .new-btn:focus-visible { box-shadow:0 0 0 3px rgba(91,76,245,0.25); outline:none; }
+        button:focus-visible { box-shadow:0 0 0 3px rgba(91,76,245,0.25); outline:none; }
 
         /* Activity item */
         .activity-row {
@@ -441,7 +445,7 @@ export default function DashboardPage() {
               {unreadCount > 0 && (
                 <span style={{
                   marginLeft:"auto", minWidth:"20px", height:"20px", borderRadius:"10px",
-                  background:"#E85D75", display:"flex", alignItems:"center",
+                  background:"#EF4444", display:"flex", alignItems:"center",
                   justifyContent:"center", fontSize:"10px", fontWeight:800, color:"#fff", padding:"0 5px",
                 }}>{unreadCount > 9 ? "9+" : unreadCount}</span>
               )}
@@ -470,12 +474,12 @@ export default function DashboardPage() {
                     return (
                       <div key={a.id} onClick={() => { router.push(`/dashboard/project/${a.project_id}`); setNotifOpen(false); }}
                         style={{ padding:"11px 18px", cursor:"pointer", background:isNew?"rgba(91,76,245,0.05)":"transparent", borderBottom:"1px solid rgba(255,255,255,0.05)", display:"flex", gap:"11px", alignItems:"flex-start", transition:"background 0.15s" }}>
-                        <div style={{ width:"32px", height:"32px", borderRadius:"9px", flexShrink:0, background:isApproved?"rgba(11,171,108,0.15)":"rgba(245,166,35,0.15)", border:`1px solid ${isApproved?"rgba(11,171,108,0.3)":"rgba(245,166,35,0.3)"}`, display:"flex", alignItems:"center", justifyContent:"center", color:isApproved?"#0BAB6C":"#F5A623" }}>
+                        <div style={{ width:"32px", height:"32px", borderRadius:"9px", flexShrink:0, background:isApproved?"rgba(11,171,108,0.15)":"rgba(245,158,11,0.15)", border:`1px solid ${isApproved?"rgba(11,171,108,0.3)":"rgba(245,158,11,0.3)"}`, display:"flex", alignItems:"center", justifyContent:"center", color:isApproved?"#0BAB6C":"#F59E0B" }}>
                           {isApproved ? <Icons.Check /> : <Icons.Warning />}
                         </div>
                         <div style={{ flex:1, minWidth:0 }}>
                           <div style={{ fontSize:"12px", fontWeight:600, color:"rgba(255,255,255,0.85)", marginBottom:"2px" }}>{a.project_name}</div>
-                          <div style={{ fontSize:"11px", color:isApproved?"#0BAB6C":"#F5A623", marginBottom:a.message?"3px":0 }}>{isApproved?"Client approved":"Changes requested"}</div>
+                          <div style={{ fontSize:"11px", color:isApproved?"#0BAB6C":"#F59E0B", marginBottom:a.message?"3px":0 }}>{isApproved?"Client approved":"Changes requested"}</div>
                           {a.message && <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.3)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>"{a.message}"</div>}
                         </div>
                         <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"4px" }}>
@@ -514,7 +518,7 @@ export default function DashboardPage() {
           <div ref={bellRef} style={{ position:"relative" }}>
             <button onClick={openNotifications} style={{ width:"36px", height:"36px", borderRadius:"10px", background:hasUnread?"rgba(91,76,245,0.15)":"rgba(255,255,255,0.06)", border:`1px solid ${hasUnread?"rgba(91,76,245,0.35)":"rgba(255,255,255,0.1)"}`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", position:"relative", transition:"all 0.15s" }}>
               <Icons.Bell active={hasUnread} />
-              {unreadCount > 0 && <div style={{ position:"absolute", top:"-4px", right:"-4px", width:"16px", height:"16px", borderRadius:"50%", background:"#E85D75", border:"2px solid #F5F6FA", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"9px", fontWeight:800, color:"#fff" }}>{unreadCount}</div>}
+              {unreadCount > 0 && <div style={{ position:"absolute", top:"-4px", right:"-4px", width:"16px", height:"16px", borderRadius:"50%", background:"#EF4444", border:"2px solid #F5F6FA", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"9px", fontWeight:800, color:"#fff" }}>{unreadCount}</div>}
             </button>
             {notifOpen && isMobile && (
               <div className="notif-panel" style={{ position:"fixed", top:"68px", left:"8px", right:"8px", width:"auto" }}>
@@ -531,12 +535,12 @@ export default function DashboardPage() {
                     return (
                       <div key={a.id} onClick={() => { router.push(`/dashboard/project/${a.project_id}`); setNotifOpen(false); }}
                         style={{ padding:"11px 18px", cursor:"pointer", background:isNew?"rgba(91,76,245,0.05)":"transparent", borderBottom:"1px solid rgba(255,255,255,0.05)", display:"flex", gap:"11px", alignItems:"center" }}>
-                        <div style={{ width:"28px", height:"28px", borderRadius:"8px", flexShrink:0, background:isApproved?"rgba(11,171,108,0.15)":"rgba(245,166,35,0.15)", display:"flex", alignItems:"center", justifyContent:"center", color:isApproved?"#0BAB6C":"#F5A623" }}>
+                        <div style={{ width:"28px", height:"28px", borderRadius:"8px", flexShrink:0, background:isApproved?"rgba(11,171,108,0.15)":"rgba(245,158,11,0.15)", display:"flex", alignItems:"center", justifyContent:"center", color:isApproved?"#0BAB6C":"#F59E0B" }}>
                           {isApproved ? <Icons.Check /> : <Icons.Warning />}
                         </div>
                         <div style={{ flex:1, minWidth:0 }}>
                           <div style={{ fontSize:"12px", fontWeight:600, color:"rgba(255,255,255,0.85)" }}>{a.project_name}</div>
-                          <div style={{ fontSize:"11px", color:isApproved?"#0BAB6C":"#F5A623" }}>{isApproved?"Approved":"Changes requested"}</div>
+                          <div style={{ fontSize:"11px", color:isApproved?"#0BAB6C":"#F59E0B" }}>{isApproved?"Approved":"Changes requested"}</div>
                         </div>
                         <span style={{ fontSize:"10px", color:"rgba(255,255,255,0.2)", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
                       </div>
@@ -563,8 +567,8 @@ export default function DashboardPage() {
             ))}
           </nav>
           <div style={{ borderTop:"1px solid #E4E4E8", paddingTop:"12px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-            <span style={{ fontSize:"12px", color:"#8A8A9A" }}>{userEmail}</span>
-            <button onClick={handleSignOut} style={{ background:"none", border:"none", cursor:"pointer", color:"#8A8A9A", fontSize:"12px", fontFamily:"'Outfit',sans-serif", display:"flex", alignItems:"center", gap:"5px" }}>
+            <span style={{ fontSize:"12px", color:"#6B6B7A" }}>{userEmail}</span>
+            <button onClick={handleSignOut} style={{ background:"none", border:"none", cursor:"pointer", color:"#6B6B7A", fontSize:"12px", fontFamily:"'Outfit',sans-serif", display:"flex", alignItems:"center", gap:"5px" }}>
               <Icons.Signout /> Sign out
             </button>
           </div>
@@ -575,16 +579,17 @@ export default function DashboardPage() {
       <main className="main" style={{ flex:1, position:"relative", zIndex:1 }}>
 
         {/* Page header */}
-        <div className="fi fi1" style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"28px", gap:"16px" }}>
+        <div className="fi fi1" style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"32px", gap:"16px" }}>
           <div>
             <h1 style={{ fontSize:"clamp(22px,3vw,28px)", fontWeight:800, letterSpacing:"-0.6px", marginBottom:"5px" }}>
               The Studio
             </h1>
             <div style={{ display:"flex", alignItems:"center", gap:"7px" }}>
               <div className="pulse-dot" />
-              <span style={{ fontSize:"13px", color:"#8A8A9A" }}>
+              <span style={{ fontSize:"13px", color:"#6B6B7A" }}>
                 {loading ? "Loading…" : `${counts.active} active · ${counts.review} in review`}
               </span>
+
             </div>
           </div>
           <button className="new-btn" onClick={() => router.push("/dashboard/new")} id="desktop-new-btn" style={{ display:"none" }}>
@@ -594,7 +599,7 @@ export default function DashboardPage() {
         </div>
 
         {error && (
-          <div style={{ background:"rgba(232,93,117,0.1)", border:"1px solid rgba(232,93,117,0.3)", borderRadius:"10px", padding:"12px 16px", marginBottom:"20px", fontSize:"13px", color:"#E85D75", display:"flex", justifyContent:"space-between" }}>
+          <div style={{ background:"rgba(239,68,68,0.07)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:"10px", padding:"12px 16px", marginBottom:"20px", fontSize:"13px", color:"#EF4444", display:"flex", justifyContent:"space-between" }}>
             ⚠️ {error}
             <span style={{ cursor:"pointer", textDecoration:"underline" }} onClick={fetchData}>retry</span>
           </div>
@@ -611,23 +616,23 @@ export default function DashboardPage() {
 
               {/* Total */}
               <div className="card stat-card">
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Total</div>
+                <div style={{ fontSize:"11px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px" }}>Total</div>
                 <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#12111A", lineHeight:1 }}>{counts.all}</div>
-                <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>projects</div>
+                <div style={{ fontSize:"12px", color:"#6B6B7A", marginTop:"6px" }}>projects</div>
               </div>
 
               {/* In Review */}
-              <div className="card stat-card" style={{ background:"rgba(245,166,35,0.06)", borderColor:"rgba(245,166,35,0.18)", cursor: counts.review > 0 ? "pointer" : "default" }}
+              <div className="card stat-card" style={{ background:"rgba(245,158,11,0.06)", borderColor:"rgba(245,158,11,0.18)", cursor: counts.review > 0 ? "pointer" : "default" }}
                 onClick={() => counts.review > 0 && setFilter("review")}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#F5A623", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px", opacity:0.8 }}>In Review</div>
-                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#F5A623", lineHeight:1 }}>{counts.review}</div>
-                <div style={{ fontSize:"12px", color:"rgba(245,166,35,0.5)", marginTop:"6px" }}>awaiting client</div>
+                <div style={{ fontSize:"11px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>In Review</div>
+                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#F59E0B", lineHeight:1 }}>{counts.review}</div>
+                <div style={{ fontSize:"12px", color:"rgba(245,158,11,0.5)", marginTop:"6px" }}>awaiting client</div>
               </div>
 
               {/* Active */}
               <div className="card stat-card" style={{ background:"rgba(11,171,108,0.06)", borderColor:"rgba(11,171,108,0.18)", cursor:"pointer" }}
                 onClick={() => setFilter("active")}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#0BAB6C", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px", opacity:0.8 }}>Active</div>
+                <div style={{ fontSize:"11px", fontWeight:700, color:"#0BAB6C", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>Active</div>
                 <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#0BAB6C", lineHeight:1 }}>{counts.active}</div>
                 <div style={{ fontSize:"12px", color:"rgba(11,171,108,0.5)", marginTop:"6px" }}>in progress</div>
               </div>
@@ -635,7 +640,7 @@ export default function DashboardPage() {
               {/* Approved */}
               <div className="card stat-card" style={{ background:"rgba(91,76,245,0.06)", borderColor:"rgba(91,76,245,0.18)", cursor:"pointer" }}
                 onClick={() => setFilter("approved")}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#7B6CF9", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px", opacity:0.8 }}>Approved</div>
+                <div style={{ fontSize:"11px", fontWeight:700, color:"#7B6CF9", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>Approved</div>
                 <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#7B6CF9", lineHeight:1 }}>{counts.approved}</div>
                 <div style={{ fontSize:"12px", color:"rgba(91,76,245,0.5)", marginTop:"6px" }}>completed</div>
               </div>
@@ -647,13 +652,13 @@ export default function DashboardPage() {
 
                 {/* In Review Spotlight */}
                 {reviewProjs.length > 0 && (
-                  <div className="card" style={{ background:"rgba(245,166,35,0.04)", borderColor:"rgba(245,166,35,0.15)" }}>
+                  <div className="card" style={{ background:"rgba(245,158,11,0.04)", borderColor:"rgba(245,158,11,0.15)" }}>
                     <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"18px" }}>
                       <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-                        <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:"#F5A623", animation:"pulse 2s ease-in-out infinite" }} />
-                        <span style={{ fontSize:"12px", fontWeight:700, color:"#F5A623", textTransform:"uppercase", letterSpacing:"0.08em" }}>Awaiting Client</span>
+                        <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:"#F59E0B", animation:"pulse 2s ease-in-out infinite" }} />
+                        <span style={{ fontSize:"12px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.07em" }}>Awaiting Client</span>
                       </div>
-                      <span style={{ fontSize:"11px", color:"#8A8A9A" }}>{reviewProjs.length} project{reviewProjs.length!==1?"s":""}</span>
+                      <span style={{ fontSize:"11px", color:"#6B6B7A" }}>{reviewProjs.length} project{reviewProjs.length!==1?"s":""}</span>
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
                       {reviewProjs.slice(0,3).map((p, i) => (
@@ -664,10 +669,10 @@ export default function DashboardPage() {
                           </div>
                           <div style={{ flex:1, minWidth:0 }}>
                             <div style={{ fontSize:"14px", fontWeight:700, marginBottom:"2px", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.name}</div>
-                            <div style={{ fontSize:"12px", color:"#8A8A9A" }}>{p.client_name}</div>
+                            <div style={{ fontSize:"12px", color:"#6B6B7A" }}>{p.client_name}</div>
                           </div>
                           <div style={{ display:"flex", alignItems:"center", gap:"6px", flexShrink:0 }}>
-                            <span style={{ fontSize:"11px", color:"#8A8A9A" }}>{timeAgo(p.updated_at)}</span>
+                            <span style={{ fontSize:"11px", color:"#6B6B7A" }}>{timeAgo(p.updated_at)}</span>
                             <Icons.Arrow />
                           </div>
                         </div>
@@ -679,19 +684,19 @@ export default function DashboardPage() {
                 {/* Recent Activity */}
                 {recentActivity.length > 0 && (
                   <div className="card">
-                    <div style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"16px" }}>Recent Activity</div>
+                    <div style={{ fontSize:"12px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"16px" }}>Recent Activity</div>
                     <div>
                       {recentActivity.map(a => {
                         const isApproved = a.type === "approved";
                         return (
                           <div key={a.id} className="activity-row" onClick={() => router.push(`/dashboard/project/${a.project_id}`)}>
-                            <div style={{ width:"30px", height:"30px", borderRadius:"8px", flexShrink:0, background:isApproved?"rgba(11,171,108,0.12)":"rgba(245,166,35,0.12)", border:`1px solid ${isApproved?"rgba(11,171,108,0.25)":"rgba(245,166,35,0.25)"}`, display:"flex", alignItems:"center", justifyContent:"center", color:isApproved?"#0BAB6C":"#F5A623" }}>
+                            <div style={{ width:"30px", height:"30px", borderRadius:"8px", flexShrink:0, background:isApproved?"rgba(11,171,108,0.12)":"rgba(245,158,11,0.12)", border:`1px solid ${isApproved?"rgba(11,171,108,0.25)":"rgba(245,158,11,0.25)"}`, display:"flex", alignItems:"center", justifyContent:"center", color:isApproved?"#0BAB6C":"#F59E0B" }}>
                               {isApproved ? <Icons.Check /> : <Icons.Warning />}
                             </div>
                             <div style={{ flex:1, minWidth:0 }}>
                               <div style={{ fontSize:"13px", fontWeight:600, color:"#12111A", marginBottom:"1px", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.project_name}</div>
-                              <div style={{ fontSize:"11px", color:isApproved?"#0BAB6C":"#F5A623" }}>{isApproved?"Approved":"Changes requested"}</div>
-                              {a.message && <div style={{ fontSize:"11px", color:"#8A8A9A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:"2px" }}>"{a.message}"</div>}
+                              <div style={{ fontSize:"11px", color:isApproved?"#0BAB6C":"#F59E0B" }}>{isApproved?"Approved":"Changes requested"}</div>
+                              {a.message && <div style={{ fontSize:"11px", color:"#6B6B7A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:"2px" }}>"{a.message}"</div>}
                             </div>
                             <span style={{ fontSize:"11px", color:"#B0B0BC", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
                           </div>
@@ -725,8 +730,8 @@ export default function DashboardPage() {
                   <div style={{ width:"64px", height:"64px", borderRadius:"18px", background:"rgba(91,76,245,0.1)", border:"1px solid rgba(91,76,245,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                     <Icons.Projects />
                   </div>
-                  <div style={{ fontSize:"18px", fontWeight:700, color:"#12111A" }}>Your studio is empty</div>
-                  <div style={{ fontSize:"13px", color:"#8A8A9A", maxWidth:"280px", lineHeight:1.6 }}>Create your first project and start delivering work to clients.</div>
+                  <div style={{ fontSize:"16px", fontWeight:700, color:"#12111A" }}>Your studio is empty</div>
+                  <div style={{ fontSize:"13px", color:"#6B6B7A", maxWidth:"280px", lineHeight:1.6 }}>Create your first project and start delivering work to clients.</div>
                   <button className="new-btn" style={{ marginTop:"8px" }} onClick={() => router.push("/dashboard/new")}>
                     <Icons.Plus /> Create First Project
                   </button>
@@ -751,7 +756,7 @@ export default function DashboardPage() {
 
                         {/* Unread dot */}
                         {hasUnreadCard && (
-                          <div style={{ position:"absolute", top:"14px", right:"14px", width:"7px", height:"7px", borderRadius:"50%", background:"#E85D75", boxShadow:`0 0 0 2px #F5F6FA` }} />
+                          <div style={{ position:"absolute", top:"14px", right:"14px", width:"7px", height:"7px", borderRadius:"50%", background:"#EF4444", boxShadow:`0 0 0 2px #F5F6FA` }} />
                         )}
 
                         {/* Header */}
@@ -759,7 +764,7 @@ export default function DashboardPage() {
                           <div style={{ width:"40px", height:"40px", borderRadius:"11px", background:`${color}18`, border:`1px solid ${color}30`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"13px", fontWeight:800, color, flexShrink:0 }}>
                             {project.name.slice(0,2).toUpperCase()}
                           </div>
-                          <div style={{ display:"inline-flex", alignItems:"center", gap:"5px", background:st.bg, color:st.color, padding:"3px 9px", borderRadius:"20px", fontSize:"10px", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em", border:`1px solid ${st.border}` }}>
+                          <div style={{ display:"inline-flex", alignItems:"center", gap:"5px", background:st.bg, color:st.color, padding:"4px 10px", borderRadius:"999px", fontSize:"11px", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em", border:`1px solid ${st.border}` }}>
                             <span style={{ width:"4px", height:"4px", borderRadius:"50%", background:st.color }} />
                             {st.label}
                           </div>
@@ -767,13 +772,13 @@ export default function DashboardPage() {
 
                         {/* Name + client */}
                         <div style={{ marginBottom:"14px" }}>
-                          <h3 style={{ fontSize:"15px", fontWeight:700, marginBottom:"3px", lineHeight:1.3 }}>{project.name}</h3>
-                          <div style={{ fontSize:"12px", color:"#8A8A9A" }}>{project.client_name}</div>
+                          <h3 style={{ fontSize:"14px", fontWeight:700, marginBottom:"3px", lineHeight:1.3 }}>{project.name}</h3>
+                          <div style={{ fontSize:"12px", color:"#6B6B7A" }}>{project.client_name}</div>
                         </div>
 
                         {/* Current stage */}
                         {project.current_stage && (
-                          <div style={{ fontSize:"11px", color:"#8A8A9A", marginBottom:"14px", display:"flex", alignItems:"center", gap:"5px" }}>
+                          <div style={{ fontSize:"11px", color:"#6B6B7A", marginBottom:"14px", display:"flex", alignItems:"center", gap:"5px" }}>
                             <span style={{ color, fontSize:"8px" }}>◆</span>{project.current_stage}
                           </div>
                         )}
@@ -796,7 +801,7 @@ export default function DashboardPage() {
                       <div style={{ width:"40px", height:"40px", borderRadius:"11px", background:"rgba(91,76,245,0.12)", border:"1px solid rgba(91,76,245,0.25)", display:"flex", alignItems:"center", justifyContent:"center", color:"#5B4CF5" }}>
                         <Icons.Plus />
                       </div>
-                      <span style={{ fontSize:"13px", fontWeight:600, color:"#8A8A9A" }}>New Project</span>
+                      <span style={{ fontSize:"13px", fontWeight:600, color:"#6B6B7A" }}>New Project</span>
                     </div>
                   )}
                 </div>

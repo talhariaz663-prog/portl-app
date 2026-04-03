@@ -45,14 +45,14 @@ interface ActivityItem {
 
 const STAGE_STATUS: Record<StageStatus, { label: string; color: string; bg: string; border: string }> = {
   not_started: { label: "Not Started", color: "#6b7280", bg: "rgba(107,114,128,0.15)", border: "rgba(107,114,128,0.3)" },
-  in_progress: { label: "In Progress", color: "#F5A623", bg: "rgba(245,166,35,0.15)",  border: "rgba(245,166,35,0.4)"  },
+  in_progress: { label: "In Progress", color: "#F59E0B", bg: "rgba(245,158,11,0.15)",  border: "rgba(245,158,11,0.4)"  },
   complete:    { label: "Complete",    color: "#0BAB6C", bg: "rgba(11,171,108,0.15)",  border: "rgba(11,171,108,0.4)"  },
 };
 
 const PROJECT_STATUS: Record<ProjectStatus, { label: string; color: string; bg: string; next: ProjectStatus }> = {
   draft:    { label: "Draft",     color: "#6b7280", bg: "rgba(107,114,128,0.12)", next: "active"   },
   active:   { label: "Active",    color: "#0BAB6C", bg: "rgba(11,171,108,0.12)",  next: "review"   },
-  review:   { label: "In Review", color: "#F5A623", bg: "rgba(245,166,35,0.12)",  next: "approved" },
+  review:   { label: "In Review", color: "#F59E0B", bg: "rgba(245,158,11,0.12)",  next: "approved" },
   approved: { label: "Approved",  color: "#5B4CF5", bg: "rgba(91,76,245,0.12)",   next: "draft"    },
 };
 
@@ -271,15 +271,15 @@ export default function ProjectDetailPage() {
         .fi{animation:fadeUp 0.35s ease forwards;opacity:0}
         .fi1{animation-delay:0.04s}.fi2{animation-delay:0.10s}.fi3{animation-delay:0.16s}.fi4{animation-delay:0.22s}
 
-        .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;transition:all 0.15s;border:1px solid transparent;color:rgba(255,255,255,0.6);}
-        .nav-item.active{background:rgba(91,76,245,0.2);border-color:rgba(91,76,245,0.35);color:#ffffff;font-weight:600;}
-        .nav-item:not(.active):hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06);}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;transition:all 0.15s;border:1px solid transparent;color:rgba(255,255,255,0.58);}
+        .nav-item.active{background:rgba(91,76,245,0.18);border-left:3px solid #5B4CF5;color:#ffffff;font-weight:600;}
+        .nav-item:not(.active):hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
 
-        .stage-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;cursor:pointer;border:1px solid #E4E4E8;background:#FFFFFF;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:#8A8A9A;white-space:nowrap;transition:all 0.18s ease;}
+        .stage-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;cursor:pointer;border:1px solid #E4E4E8;background:#FFFFFF;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:#6B6B7A;white-space:nowrap;transition:all 0.18s ease;}
         .stage-tab:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F9F9FB;}
         .stage-tab.active{background:rgba(91,76,245,0.16);border-color:rgba(91,76,245,0.5);color:#fff;font-weight:700;}
 
-        .status-pill{padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;transition:all 0.15s;border:1px solid transparent;white-space:nowrap;}
+        .status-pill{padding:4px 10px;border-radius:999px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;transition:all 0.15s;border:1px solid transparent;white-space:nowrap;}
 
         .upload-zone{border:1.5px dashed rgba(91,76,245,0.28);border-radius:12px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center;transition:all 0.2s ease;background:rgba(91,76,245,0.03);}
         .upload-zone:hover,.upload-zone.drag{border-color:rgba(91,76,245,0.6);background:rgba(91,76,245,0.08);}
@@ -291,18 +291,20 @@ export default function ProjectDetailPage() {
         .share-btn:hover{background:rgba(91,76,245,0.2);color:#fff;}
         .share-btn.copied{border-color:rgba(11,171,108,0.4);background:rgba(11,171,108,0.1);color:#0BAB6C;}
 
-        .note-area{width:100%;min-height:80px;padding:12px 14px;background:#FFFFFF;border:1px solid #E4E4E8;border-radius:10px;color:#12111A;font-family:'Outfit',sans-serif;font-size:14px;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s;}
-        .note-area::placeholder{color:#B0B0BC;}
-        .note-area:focus{border-color:#5B4CF5;background:rgba(91,76,245,0.04);box-shadow:0 0 0 3px rgba(91,76,245,0.1);}
+        .note-area{width:100%;min-height:80px;padding:10px 14px;background:#FFFFFF;border:1px solid #E4E4E8;border-radius:10px;color:#12111A;font-family:'Outfit',sans-serif;font-size:14px;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s;}
+        .note-area::placeholder{color:#9A9AAA;}
+        .note-area:focus{border-color:#5B4CF5;box-shadow:0 0 0 3px rgba(91,76,245,0.15);outline:none;}
+        button:focus-visible{box-shadow:0 0 0 3px rgba(91,76,245,0.25);outline:none;}
 
-        .approval-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:10px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;background:linear-gradient(135deg,#5B4CF5,#0BAB6C);color:#fff;transition:opacity 0.2s,transform 0.15s;}
-        .approval-btn:hover{opacity:0.88;transform:translateY(-1px);}
+        .approval-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;background:#5B4CF5;color:#fff;transition:background 0.15s,transform 0.15s;}
+        .approval-btn:hover{background:#4A3DE0;transform:translateY(-1px);}
+        .approval-btn:active{background:#3D32C4;transform:translateY(0);}
         .approval-btn.sent{background:rgba(11,171,108,0.15);border:1px solid rgba(11,171,108,0.35);color:#0BAB6C;transform:none;}
 
-        .delete-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:10px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;background:rgba(232,93,117,0.07);border:1px solid rgba(232,93,117,0.2);color:rgba(232,93,117,0.6);transition:all 0.15s;}
-        .delete-btn:hover{background:rgba(232,93,117,0.12);border-color:rgba(232,93,117,0.4);color:#E85D75;}
+        .delete-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:10px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);color:#EF4444;transition:all 0.15s;}
+        .delete-btn:hover{background:rgba(239,68,68,0.14);border-color:rgba(239,68,68,0.4);}
 
-        .history-toggle{background:none;border:none;color:#8A8A9A;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
+        .history-toggle{background:none;border:none;color:#6B6B7A;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
         .history-toggle:hover{color:#4A4A5A;}
 
         .sidebar{display:flex;}.topbar{display:none;}.main-content{margin-left:220px;padding:36px 40px;}
@@ -322,7 +324,7 @@ export default function ProjectDetailPage() {
       {/* Delete modal */}
       {showDeleteConfirm && (
         <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
-          <div onClick={e => e.stopPropagation()} style={{ background:"#0d0f1e", border:"1px solid rgba(232,93,117,0.3)", borderRadius:"20px", padding:"32px", maxWidth:"380px", width:"100%", boxShadow:"0 24px 64px rgba(0,0,0,0.5)" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background:"#0d0f1e", border:"1px solid rgba(239,68,68,0.3)", borderRadius:"20px", padding:"32px", maxWidth:"380px", width:"100%", boxShadow:"0 24px 64px rgba(0,0,0,0.5)" }}>
             <div style={{ fontSize:"32px", marginBottom:"16px" }}>🗑️</div>
             <h2 style={{ fontSize:"20px", fontWeight:800, marginBottom:"8px" }}>Delete project?</h2>
             <p style={{ fontSize:"14px", color:"rgba(255,255,255,0.45)", lineHeight:1.6, marginBottom:"24px" }}>
@@ -330,7 +332,7 @@ export default function ProjectDetailPage() {
             </p>
             <div style={{ display:"flex", gap:"10px" }}>
               <button onClick={() => setShowDeleteConfirm(false)} style={{ flex:1, padding:"12px", borderRadius:"10px", border:"1px solid rgba(255,255,255,0.1)", background:"rgba(255,255,255,0.05)", color:"rgba(255,255,255,0.6)", fontFamily:"'Outfit',sans-serif", fontSize:"14px", fontWeight:600, cursor:"pointer" }}>Cancel</button>
-              <button onClick={deleteProject} disabled={deleting} style={{ flex:1, padding:"12px", borderRadius:"10px", border:"none", background:"linear-gradient(135deg,#E85D75,#c0392b)", color:"#fff", fontFamily:"'Outfit',sans-serif", fontSize:"14px", fontWeight:700, cursor:deleting?"not-allowed":"pointer", opacity:deleting?0.6:1 }}>
+              <button onClick={deleteProject} disabled={deleting} style={{ flex:1, padding:"12px", borderRadius:"10px", border:"1px solid rgba(239,68,68,0.4)", background:"rgba(239,68,68,0.07)", color:"#EF4444", fontFamily:"'Outfit',sans-serif", fontSize:"14px", fontWeight:700, cursor:deleting?"not-allowed":"pointer", opacity:deleting?0.6:1 }}>
                 {deleting ? "Deleting…" : "Yes, delete"}
               </button>
             </div>
@@ -363,16 +365,16 @@ export default function ProjectDetailPage() {
       </header>
 
       <main className="main-content" style={{ position:"relative", zIndex:1 }}>
-        <button id="desktop-back" className="fi fi1" onClick={() => router.push("/dashboard")} style={{ background:"none", border:"none", color:"#8A8A9A", fontFamily:"'Outfit',sans-serif", fontSize:"13px", cursor:"pointer", display:"flex", alignItems:"center", gap:"6px", marginBottom:"20px", padding:0 }}>← Back to Studio</button>
+        <button id="desktop-back" className="fi fi1" onClick={() => router.push("/dashboard")} style={{ background:"none", border:"none", color:"#6B6B7A", fontFamily:"'Outfit',sans-serif", fontSize:"13px", cursor:"pointer", display:"flex", alignItems:"center", gap:"6px", marginBottom:"20px", padding:0 }}>← Back to Studio</button>
 
         {/* Header */}
-        <div className="fi fi1" style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"18px", padding:"22px 24px", marginBottom:"20px" }}>
+        <div className="fi fi1" style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"12px", boxShadow:"0 1px 3px rgba(0,0,0,0.06)", padding:"24px", marginBottom:"20px" }}>
           <div className="header-row" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"16px", marginBottom:"16px" }}>
             <div style={{ flex:1, minWidth:0 }}>
               <h1 style={{ fontSize:"clamp(18px,3.5vw,26px)", fontWeight:800, letterSpacing:"-0.5px", marginBottom:"5px", lineHeight:1.1 }}>{project?.name}</h1>
               <div style={{ display:"flex", alignItems:"center", gap:"10px", flexWrap:"wrap" }}>
                 <span style={{ fontSize:"14px", color:"#4A4A5A", fontWeight:500 }}>{project?.client_name}</span>
-                {project?.client_email && <span style={{ fontSize:"13px", color:"#8A8A9A" }}>{project.client_email}</span>}
+                {project?.client_email && <span style={{ fontSize:"13px", color:"#6B6B7A" }}>{project.client_email}</span>}
               </div>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"10px", flexShrink:0 }}>
@@ -386,8 +388,8 @@ export default function ProjectDetailPage() {
             </div>
           </div>
           <div>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"7px" }}>
-              <span style={{ fontSize:"11px", color:"#8A8A9A", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.06em" }}>Progress</span>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"8px" }}>
+              <span style={{ fontSize:"11px", color:"#6B6B7A", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.07em" }}>Progress</span>
               <span style={{ fontSize:"12px", fontWeight:700, color:progressPct===100?"#0BAB6C":"#4A4A5A" }}>{completeCount} / {stages.length} stages</span>
             </div>
             <div style={{ height:"5px", background:"rgba(0,0,0,0.08)", borderRadius:"99px", overflow:"hidden" }}>
@@ -397,9 +399,9 @@ export default function ProjectDetailPage() {
         </div>
 
         {error && (
-          <div style={{ background:"rgba(232,93,117,0.1)", border:"1px solid rgba(232,93,117,0.3)", borderRadius:"10px", padding:"12px 16px", marginBottom:"16px", fontSize:"13px", color:"#E85D75", display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"12px" }}>
+          <div style={{ background:"rgba(239,68,68,0.07)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:"10px", padding:"12px 16px", marginBottom:"16px", fontSize:"13px", color:"#EF4444", display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"12px" }}>
             <span>⚠️ {error}</span>
-            <button onClick={() => setError(null)} style={{ background:"none", border:"none", color:"#E85D75", cursor:"pointer", fontSize:"16px", flexShrink:0 }}>✕</button>
+            <button onClick={() => setError(null)} style={{ background:"none", border:"none", color:"#EF4444", cursor:"pointer", fontSize:"16px", flexShrink:0 }}>✕</button>
           </div>
         )}
 
@@ -418,7 +420,7 @@ export default function ProjectDetailPage() {
                   <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:st.color, flexShrink:0 }} />
                   {fc>0&&<span style={{ background:"rgba(91,76,245,0.2)", color:"#a093ff", fontSize:"10px", fontWeight:700, borderRadius:"8px", padding:"1px 5px" }}>{fc}</span>}
                   {hasNewFeedback && stage.status==="in_progress" && (
-                    <span style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#F5A623", flexShrink:0 }} />
+                    <span style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#F59E0B", flexShrink:0 }} />
                   )}
                 </button>
               );
@@ -436,12 +438,12 @@ export default function ProjectDetailPage() {
               {/* Stage title + status */}
               <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
                 <h2 style={{ fontSize:"clamp(15px,2.5vw,18px)", fontWeight:800, letterSpacing:"-0.3px", marginBottom:"14px" }}>{activeStage.title}</h2>
-                <div style={{ fontSize:"11px", color:"#8A8A9A", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"8px" }}>Stage status</div>
+                <div style={{ fontSize:"11px", color:"#6B6B7A", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"8px" }}>Stage status</div>
                 <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
                   {(["not_started","in_progress","complete"] as StageStatus[]).map(s => {
                     const cfg = STAGE_STATUS[s]; const isSel = activeStage.status===s;
                     return (
-                      <button key={s} className="status-pill" onClick={() => updateStageStatus(activeStage.id, s)} style={{ background:isSel?cfg.bg:"#F5F6FA", border:`1px solid ${isSel?cfg.border:"#E4E4E8"}`, color:isSel?cfg.color:"#8A8A9A" }}>
+                      <button key={s} className="status-pill" onClick={() => updateStageStatus(activeStage.id, s)} style={{ background:isSel?cfg.bg:"#F5F6FA", border:`1px solid ${isSel?cfg.border:"#E4E4E8"}`, color:isSel?cfg.color:"#6B6B7A" }}>
                         {isSel&&<span style={{ marginRight:"4px" }}>●</span>}{cfg.label}
                       </button>
                     );
@@ -452,19 +454,19 @@ export default function ProjectDetailPage() {
               {/* Client feedback section */}
               {feedbackItems.length > 0 && (
                 <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
-                  <div style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>Client feedback</div>
+                  <div style={{ fontSize:"12px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"14px" }}>Client feedback</div>
 
                   {/* Latest */}
                   {latestFeedback && (
-                    <div style={{ background:latestFeedback.type==="changes_requested"?"rgba(245,166,35,0.07)":"rgba(11,171,108,0.07)", border:`1px solid ${latestFeedback.type==="changes_requested"?"rgba(245,166,35,0.2)":"rgba(11,171,108,0.2)"}`, borderRadius:"12px", padding:"14px", marginBottom:"10px" }}>
+                    <div style={{ background:latestFeedback.type==="changes_requested"?"rgba(245,158,11,0.07)":"rgba(11,171,108,0.07)", border:`1px solid ${latestFeedback.type==="changes_requested"?"rgba(245,158,11,0.2)":"rgba(11,171,108,0.2)"}`, borderRadius:"12px", padding:"14px", marginBottom:"10px" }}>
                       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"8px" }}>
                         <div style={{ display:"flex", alignItems:"center", gap:"7px" }}>
-                          <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:latestFeedback.type==="changes_requested"?"#F5A623":"#0BAB6C" }} />
-                          <span style={{ fontSize:"12px", fontWeight:700, color:latestFeedback.type==="changes_requested"?"#F5A623":"#0BAB6C" }}>
+                          <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:latestFeedback.type==="changes_requested"?"#F59E0B":"#0BAB6C" }} />
+                          <span style={{ fontSize:"12px", fontWeight:700, color:latestFeedback.type==="changes_requested"?"#F59E0B":"#0BAB6C" }}>
                             {latestFeedback.type==="changes_requested"?"Changes requested":"Approved"}
                           </span>
                         </div>
-                        <span style={{ fontSize:"11px", color:"#8A8A9A" }}>{timeAgo(latestFeedback.created_at)}</span>
+                        <span style={{ fontSize:"11px", color:"#6B6B7A" }}>{timeAgo(latestFeedback.created_at)}</span>
                       </div>
                       {latestFeedback.message && (
                         <p style={{ fontSize:"13px", color:"#4A4A5A", lineHeight:1.6, margin:"0 0 10px" }}>"{latestFeedback.message}"</p>
@@ -485,7 +487,7 @@ export default function ProjectDetailPage() {
                           ))}
                         </div>
                       )}
-                      <div style={{ fontSize:"11px", color:"#8A8A9A", marginTop:"8px" }}>— {project?.client_name}</div>
+                      <div style={{ fontSize:"11px", color:"#6B6B7A", marginTop:"8px" }}>— {project?.client_name}</div>
                     </div>
                   )}
 
@@ -502,12 +504,12 @@ export default function ProjectDetailPage() {
                             <div key={item.id}>
                               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"4px" }}>
                                 <div style={{ display:"flex", alignItems:"center", gap:"6px" }}>
-                                  <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:item.type==="changes_requested"?"#F5A623":"#0BAB6C" }} />
-                                  <span style={{ fontSize:"11px", fontWeight:700, color:item.type==="changes_requested"?"#F5A623":"#0BAB6C" }}>
+                                  <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:item.type==="changes_requested"?"#F59E0B":"#0BAB6C" }} />
+                                  <span style={{ fontSize:"11px", fontWeight:700, color:item.type==="changes_requested"?"#F59E0B":"#0BAB6C" }}>
                                     {item.type==="changes_requested"?"Changes requested":"Approved"}
                                   </span>
                                 </div>
-                                <span style={{ fontSize:"11px", color:"#8A8A9A" }}>{timeAgo(item.created_at)}</span>
+                                <span style={{ fontSize:"11px", color:"#6B6B7A" }}>{timeAgo(item.created_at)}</span>
                               </div>
                               {item.message && <p style={{ fontSize:"12px", color:"#4A4A5A", lineHeight:1.5, margin:0 }}>"{item.message}"</p>}
                               {/* Files for this revision */}
@@ -534,7 +536,7 @@ export default function ProjectDetailPage() {
               {/* Notes */}
               <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"10px" }}>
-                  <span style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.07em" }}>Notes for client</span>
+                  <span style={{ fontSize:"12px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em" }}>Notes for client</span>
                   <button onClick={saveNote} disabled={savingNote} style={{ padding:"5px 14px", borderRadius:"7px", border:"1px solid rgba(91,76,245,0.3)", background:noteSaved?"rgba(11,171,108,0.12)":"rgba(91,76,245,0.1)", color:noteSaved?"#0BAB6C":savingNote?"rgba(255,255,255,0.3)":"#a093ff", fontFamily:"'Outfit',sans-serif", fontSize:"12px", fontWeight:700, cursor:savingNote?"not-allowed":"pointer", transition:"all 0.25s", minWidth:"60px" }}>
                     {noteSaved?"✓ Saved":savingNote?"Saving…":"Save"}
                   </button>
@@ -552,17 +554,17 @@ export default function ProjectDetailPage() {
               {/* Activity log */}
               {stageActivity.length > 0 && (
                 <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
-                  <div style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"12px" }}>Stage activity</div>
+                  <div style={{ fontSize:"12px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"12px" }}>Stage activity</div>
                   <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
                     {stageActivity.slice(0,8).map(a => {
-                      const colors: Record<string,string> = { approved:"#0BAB6C", changes_requested:"#F5A623", approval_requested:"#5B4CF5", file_uploaded:"#B0B0BC" };
+                      const colors: Record<string,string> = { approved:"#0BAB6C", changes_requested:"#F59E0B", approval_requested:"#5B4CF5", file_uploaded:"#B0B0BC" };
                       const labels: Record<string,string> = { approved:"Client approved", changes_requested:"Client requested changes", approval_requested:"Approval requested", file_uploaded:"File uploaded" };
                       return (
                         <div key={a.id} style={{ display:"flex", alignItems:"flex-start", gap:"10px" }}>
                           <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:colors[a.type]??"rgba(255,255,255,0.3)", flexShrink:0, marginTop:"5px" }} />
                           <div style={{ flex:1 }}>
                             <span style={{ fontSize:"12px", color:"#4A4A5A" }}>{labels[a.type]??a.type}</span>
-                            {a.message && a.type==="file_uploaded" && <span style={{ fontSize:"12px", color:"#8A8A9A" }}> — {a.message}</span>}
+                            {a.message && a.type==="file_uploaded" && <span style={{ fontSize:"12px", color:"#6B6B7A" }}> — {a.message}</span>}
                           </div>
                           <span style={{ fontSize:"11px", color:"#B0B0BC", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
                         </div>
@@ -578,8 +580,8 @@ export default function ProjectDetailPage() {
             {/* RIGHT: Files */}
             <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"14px" }}>
-                <span style={{ fontSize:"12px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.07em" }}>
-                  Files{activeStageFiles.length>0&&<span style={{ marginLeft:"6px", fontWeight:400, color:"#8A8A9A", textTransform:"none", letterSpacing:0 }}>· {activeStageFiles.length}</span>}
+                <span style={{ fontSize:"12px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em" }}>
+                  Files{activeStageFiles.length>0&&<span style={{ marginLeft:"6px", fontWeight:400, color:"#6B6B7A", textTransform:"none", letterSpacing:0 }}>· {activeStageFiles.length}</span>}
                 </span>
               </div>
 
@@ -593,7 +595,7 @@ export default function ProjectDetailPage() {
                 {uploading?(
                   <><div style={{ width:"22px", height:"22px", border:"2px solid rgba(91,76,245,0.3)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} /><span style={{ fontSize:"13px", color:"rgba(255,255,255,0.4)" }}>Uploading…</span></>
                 ):(
-                  <><div style={{ fontSize:"24px", opacity:0.3 }}>⬆</div><span style={{ fontSize:"14px", fontWeight:600, color:"#4A4A5A" }}>Drop files or click to upload</span><span style={{ fontSize:"12px", color:"#8A8A9A" }}>Images · PDFs · Figma · ZIPs</span></>
+                  <><div style={{ fontSize:"24px", opacity:0.3 }}>⬆</div><span style={{ fontSize:"14px", fontWeight:600, color:"#4A4A5A" }}>Drop files or click to upload</span><span style={{ fontSize:"12px", color:"#6B6B7A" }}>Images · PDFs · Figma · ZIPs</span></>
                 )}
               </div>
 
@@ -608,9 +610,9 @@ export default function ProjectDetailPage() {
                       )}
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ fontSize:"13px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"#12111A" }}>{file.name}</div>
-                        <div style={{ fontSize:"11px", color:"#8A8A9A", marginTop:"2px" }}>{file.file_size?formatBytes(file.file_size):""} · {timeAgo(file.created_at)}</div>
+                        <div style={{ fontSize:"11px", color:"#6B6B7A", marginTop:"2px" }}>{file.file_size?formatBytes(file.file_size):""} · {timeAgo(file.created_at)}</div>
                       </div>
-                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{ padding:"5px 10px", borderRadius:"7px", border:"1px solid #E4E4E8", background:"#F5F6FA", color:"#8A8A9A", fontSize:"12px", fontWeight:600, textDecoration:"none", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif" }}>View →</a>
+                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{ padding:"5px 10px", borderRadius:"7px", border:"1px solid #E4E4E8", background:"#F5F6FA", color:"#6B6B7A", fontSize:"12px", fontWeight:600, textDecoration:"none", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif" }}>View →</a>
                     </div>
                   ))}
                 </div>
@@ -620,7 +622,7 @@ export default function ProjectDetailPage() {
         )}
 
         {stages.length===0&&!loading&&(
-          <div className="fi fi3" style={{ background:"#FFFFFF", border:"1px dashed #E4E4E8", borderRadius:"16px", padding:"48px", textAlign:"center", color:"#8A8A9A" }}>
+          <div className="fi fi3" style={{ background:"#FFFFFF", border:"1px dashed #E4E4E8", borderRadius:"16px", padding:"48px", textAlign:"center", color:"#6B6B7A" }}>
             <div style={{ fontSize:"28px", marginBottom:"10px", opacity:0.4 }}>◷</div>
             <div style={{ fontSize:"15px", fontWeight:600, color:"#4A4A5A", marginBottom:"4px" }}>No stages yet</div>
           </div>

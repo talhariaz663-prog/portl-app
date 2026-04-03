@@ -19,7 +19,7 @@ interface Project { id: string; name: string; client_name: string; status: strin
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: string }> = {
   approved:           { label: "Client approved",          color: "#0BAB6C", bg: "rgba(11,171,108,0.1)",  border: "rgba(11,171,108,0.25)",  icon: "✓" },
-  changes_requested:  { label: "Client requested changes", color: "#F5A623", bg: "rgba(245,166,35,0.1)",  border: "rgba(245,166,35,0.25)",  icon: "!" },
+  changes_requested:  { label: "Client requested changes", color: "#F59E0B", bg: "rgba(245,158,11,0.1)",  border: "rgba(245,158,11,0.25)",  icon: "!" },
   approval_requested: { label: "Approval requested",       color: "#5B4CF5", bg: "rgba(91,76,245,0.1)",   border: "rgba(91,76,245,0.25)",   icon: "→" },
   file_uploaded:      { label: "File uploaded",            color: "#7B6CF9", bg: "rgba(123,108,249,0.1)", border: "rgba(123,108,249,0.25)", icon: "↑" },
 };
@@ -143,23 +143,25 @@ export default function ActivityPage() {
         .sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:linear-gradient(180deg,#0c0e1a 0%,#080a15 100%);border-right:1px solid rgba(255,255,255,0.055);display:flex;flex-direction:column;z-index:20;}
         .sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.05);}
         .sidebar-nav{padding:16px 12px;flex:1;display:flex;flex-direction:column;gap:2px;}
-        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.38);position:relative;}
-        .nav-item:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.04);}
-        .nav-item.active{color:#fff;font-weight:600;background:rgba(91,76,245,0.14);border-color:rgba(91,76,245,0.28);}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.58);position:relative;}
+        .nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+        .nav-item.active{color:#fff;font-weight:600;background:rgba(91,76,245,0.18);border-left:3px solid #5B4CF5;}
         .nav-item.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:linear-gradient(180deg,#5B4CF5,#7B6CF9);border-radius:0 4px 4px 0;}
-        .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F5A623,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
+        .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
         .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
         .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
         .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;flex:1;}
-        .filter-pill{padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;border:1px solid #E4E4E8;background:#FFFFFF;color:#8A8A9A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
-        .filter-pill:hover{color:#4A4A5A;border-color:#C8C8D4;}
+        .filter-pill{padding:4px 10px;border-radius:999px;cursor:pointer;font-size:11px;font-weight:700;border:1px solid #E4E4E8;background:#FFFFFF;color:#6B6B7A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
+        .filter-pill:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F0F0F5;}
         .filter-pill.active{background:rgba(91,76,245,0.1);border-color:rgba(91,76,245,0.35);color:#5B4CF5;}
-        .activity-card{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-radius:14px;background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.18s;}
+        .activity-card{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-radius:12px;background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.18s;}
         .activity-card:hover{background:#F9F9FB;border-color:#D0D0D8;}
+        button:focus-visible{box-shadow:0 0 0 3px rgba(91,76,245,0.25);outline:none;}
         .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(255,255,255,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
-        .new-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#5B4CF5,#0BAB6C);color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s;}
-        .new-btn:hover{opacity:0.88;transform:translateY(-1px);}
+        .new-btn{display:flex;align-items:center;gap:8px;padding:8px 18px;border:none;border-radius:10px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s,transform 0.15s;}
+        .new-btn:hover{background:#4A3DE0;transform:translateY(-1px);}
+        .new-btn:active{background:#3D32C4;transform:translateY(0);}
         @media(max-width:768px){.sidebar{display:none!important;}.topbar{display:flex!important;}.main{margin-left:0!important;padding:76px 16px 40px!important;}}
       `}</style>
 
@@ -215,8 +217,8 @@ export default function ActivityPage() {
       {/* Main */}
       <main className="main" style={{position:"relative",zIndex:1}}>
         <div className="fi fi1" style={{marginBottom:"28px"}}>
-          <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px"}}>Activity</h1>
-          <p style={{fontSize:"13px",color:"#8A8A9A"}}>Everything that's happened across your projects</p>
+          <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px",color:"#12111A"}}>Activity</h1>
+          <p style={{fontSize:"13px",color:"#6B6B7A"}}>Everything that's happened across your projects</p>
         </div>
 
         {/* Filters */}
@@ -233,14 +235,14 @@ export default function ActivityPage() {
             <div style={{width:"28px",height:"28px",border:"2px solid rgba(0,0,0,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
           </div>
         ) : activity.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#8A8A9A"}}>
+          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#6B6B7A"}}>
             <div style={{fontSize:"32px",marginBottom:"12px",opacity:0.4}}>◎</div>
-            <div style={{fontSize:"15px",fontWeight:600,color:"#4A4A5A",marginBottom:"6px"}}>No activity yet</div>
+            <div style={{fontSize:"14px",fontWeight:600,color:"#4A4A5A",marginBottom:"6px"}}>No activity yet</div>
             <div style={{fontSize:"13px",lineHeight:1.6}}>Activity will appear here once clients start interacting with your portals.</div>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#8A8A9A"}}>
-            <div style={{fontSize:"15px",fontWeight:600,color:"#4A4A5A"}}>No {filter.replace("_"," ")} activity</div>
+          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#6B6B7A"}}>
+            <div style={{fontSize:"14px",fontWeight:600,color:"#4A4A5A"}}>No {filter.replace("_"," ")} activity</div>
           </div>
         ) : (
           <div className="fi fi3" style={{display:"flex",flexDirection:"column",gap:"24px"}}>
@@ -248,7 +250,7 @@ export default function ActivityPage() {
               <div key={date}>
                 {/* Date header */}
                 <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px"}}>
-                  <span style={{fontSize:"11px",fontWeight:700,color:"#8A8A9A",textTransform:"uppercase",letterSpacing:"0.08em",whiteSpace:"nowrap"}}>{date}</span>
+                  <span style={{fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",whiteSpace:"nowrap"}}>{date}</span>
                   <div style={{flex:1,height:"1px",background:"#E4E4E8"}} />
                 </div>
 
@@ -270,7 +272,7 @@ export default function ActivityPage() {
                             <span style={{fontSize:"11px",color:cfg.color,fontWeight:600}}>{cfg.label}</span>
                           </div>
                           {a.client_name && (
-                            <div style={{fontSize:"12px",color:"#8A8A9A",marginBottom:a.message?"4px":0}}>
+                            <div style={{fontSize:"12px",color:"#6B6B7A",marginBottom:a.message?"4px":0}}>
                               by {a.client_name}
                             </div>
                           )}

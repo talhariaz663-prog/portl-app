@@ -136,11 +136,11 @@ export default function NewProjectPage() {
         .sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.05);}
         .sidebar-nav{padding:16px 12px;flex:1;display:flex;flex-direction:column;gap:2px;}
 
-        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.6);position:relative;}
-        .nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06);}
-        .nav-item.active{color:#fff;font-weight:600;background:rgba(91,76,245,0.2);border-color:rgba(91,76,245,0.35);}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.58);position:relative;}
+        .nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+        .nav-item.active{color:#fff;font-weight:600;background:rgba(91,76,245,0.18);border-left:3px solid #5B4CF5;}
         .nav-item.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:linear-gradient(180deg,#5B4CF5,#7B6CF9);border-radius:0 4px 4px 0;}
-        .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F5A623,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
+        .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
 
         .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
         .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
@@ -148,24 +148,27 @@ export default function NewProjectPage() {
         .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(245,246,250,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;position:relative;flex:1;display:flex;align-items:flex-start;justify-content:center;}
 
-        .form-input{width:100%;background:#ffffff;border:1px solid #E4E4E8;border-radius:12px;padding:11px 14px;color:#12111A;font-family:'Outfit',sans-serif;font-size:13.5px;outline:none;transition:border-color 0.2s;}
-        .form-input::placeholder{color:#B0B0BC;}
-        .form-input:focus{border-color:#5B4CF5;box-shadow:0 0 0 3px rgba(91,76,245,0.1);}
+        .form-input{width:100%;background:#ffffff;border:1px solid #E4E4E8;border-radius:10px;padding:10px 14px;color:#12111A;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
+        .form-input::placeholder{color:#9A9AAA;}
+        .form-input:focus{border-color:#5B4CF5;box-shadow:0 0 0 3px rgba(91,76,245,0.15);outline:none;}
+        button:focus-visible{box-shadow:0 0 0 3px rgba(91,76,245,0.25);outline:none;}
 
         .stage-row{display:flex;align-items:center;gap:8px;}
-        .stage-num{width:22px;height:22px;border-radius:50%;background:rgba(91,76,245,0.1);border:1px solid rgba(91,76,245,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#5B4CF5;flex-shrink:0;}
+        .stage-num{width:22px;height:22px;border-radius:50%;background:rgba(91,76,245,0.1);border:1px solid rgba(91,76,245,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5B4CF5;flex-shrink:0;}
         .remove-btn{flex-shrink:0;background:none;border:none;cursor:pointer;color:#C0C0CC;font-size:16px;line-height:1;padding:4px;border-radius:6px;transition:color 0.15s;}
-        .remove-btn:hover{color:#E85D75;}
+        .remove-btn:hover{color:#EF4444;}
 
-        .add-stage-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed rgba(91,76,245,0.35);border-radius:10px;padding:9px 14px;color:#5B4CF5;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;width:100%;transition:all 0.18s;}
+        .add-stage-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed rgba(91,76,245,0.35);border-radius:10px;padding:8px 14px;color:#5B4CF5;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:all 0.18s;}
         .add-stage-btn:hover{border-color:#5B4CF5;background:rgba(91,76,245,0.05);}
 
-        .create-btn{width:100%;padding:13px;border:none;border-radius:12px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
-        .create-btn:hover:not(:disabled){opacity:0.88;transform:translateY(-1px);}
-        .create-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .create-btn{width:100%;padding:12px;border:none;border-radius:12px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+        .create-btn:hover:not(:disabled){background:#4A3DE0;transform:translateY(-1px);}
+        .create-btn:active:not(:disabled){background:#3D32C4;transform:translateY(0);}
+        .create-btn:disabled{opacity:0.45;cursor:not-allowed;}
 
-        .cancel-btn{flex:1;padding:11px;background:#ffffff;border:1px solid #E4E4E8;border-radius:12px;color:#4A4A5A;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;}
-        .cancel-btn:hover{color:#12111A;border-color:#C0C0CC;}
+        .cancel-btn{flex:1;padding:12px;background:transparent;border:1px solid #E4E4E8;border-radius:12px;color:#4A4A5A;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;}
+        .cancel-btn:hover{color:#12111A;background:#F0F0F5;border-color:#D0D0D8;}
+        .cancel-btn:disabled{opacity:0.45;cursor:not-allowed;}
 
         .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(245,246,250,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
 
@@ -234,18 +237,18 @@ export default function NewProjectPage() {
       <main className="main">
         <div className="fi fi1" style={{width:"100%",maxWidth:"520px",paddingTop:"40px",paddingBottom:"60px"}}>
           {/* Header */}
-          <div style={{marginBottom:"28px"}}>
-            <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px"}}>New Project</h1>
-            <p style={{fontSize:"13px",color:"#8A8A9A"}}>Fill in the details to get started.</p>
+          <div style={{marginBottom:"32px"}}>
+            <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px",color:"#12111A"}}>New Project</h1>
+            <p style={{fontSize:"13px",color:"#6B6B7A"}}>Fill in the details to get started.</p>
           </div>
 
           {/* Card */}
-          <div style={{background:"#ffffff",border:"1px solid #E4E4E8",borderRadius:"18px",padding:"28px"}}>
+          <div style={{background:"#ffffff",border:"1px solid #E4E4E8",borderRadius:"12px",boxShadow:"0 1px 3px rgba(0,0,0,0.06)",padding:"32px"}}>
             <div style={{display:"flex",flexDirection:"column",gap:"20px"}}>
 
               {/* Project name */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#4A4A5A",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Project Name *</label>
+                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Project Name *</label>
                 <input
                   className="form-input"
                   placeholder="e.g. Brand Refresh — Marble & Co."
@@ -256,7 +259,7 @@ export default function NewProjectPage() {
 
               {/* Client name */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#4A4A5A",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Client Name</label>
+                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Client Name</label>
                 <input
                   className="form-input"
                   placeholder="e.g. Sarah"
@@ -267,7 +270,7 @@ export default function NewProjectPage() {
 
               {/* Client email */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#4A4A5A",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"7px"}}>Client Email</label>
+                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Client Email</label>
                 <input
                   className="form-input"
                   type="email"
@@ -283,8 +286,8 @@ export default function NewProjectPage() {
               {/* Stages */}
               <div>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"12px"}}>
-                  <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#4A4A5A",textTransform:"uppercase",letterSpacing:"0.06em"}}>Project Stages</label>
-                  <span style={{fontSize:"11px",color:"#8A8A9A"}}>{stages.filter(s => s.trim()).length} stage{stages.filter(s => s.trim()).length !== 1 ? "s" : ""}</span>
+                  <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em"}}>Project Stages</label>
+                  <span style={{fontSize:"11px",color:"#6B6B7A"}}>{stages.filter(s => s.trim()).length} stage{stages.filter(s => s.trim()).length !== 1 ? "s" : ""}</span>
                 </div>
 
                 <div style={{display:"flex",flexDirection:"column",gap:"8px",marginBottom:"10px"}}>
@@ -316,7 +319,7 @@ export default function NewProjectPage() {
 
               {/* Error */}
               {error && (
-                <div style={{fontSize:"13px",color:"#E85D75",background:"rgba(232,93,117,0.08)",border:"1px solid rgba(232,93,117,0.2)",borderRadius:"10px",padding:"10px 14px"}}>
+                <div style={{fontSize:"13px",color:"#EF4444",background:"rgba(239,68,68,0.07)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"10px",padding:"10px 14px"}}>
                   {error}
                 </div>
               )}
