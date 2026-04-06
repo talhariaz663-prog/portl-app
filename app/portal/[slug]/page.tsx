@@ -114,12 +114,18 @@ export default function ClientPortalPage() {
     : null;
 
   if (loading) return (
-    <div style={{ minHeight:"100vh", background:"#f8f7ff", display:"flex", alignItems:"center", justifyContent:"center" }}>
+    <div style={{ minHeight:"100vh", background:"#FFFFFF", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Outfit',sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@900&display=swap');
+        @keyframes pulse { 0%,100%{transform:scale(0.8);opacity:0.5} 50%{transform:scale(1.2);opacity:1} }
+      `}</style>
       <div style={{ textAlign:"center" }}>
-        <div style={{ width:"36px", height:"36px", border:"2px solid rgba(91,76,245,0.2)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }} />
-        <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.4)", fontFamily:"'Outfit',sans-serif" }}>Loading your portal…</div>
+        <div style={{ fontSize:"28px", fontWeight:900, letterSpacing:"-0.8px", color:"#12111A", marginBottom:"16px" }}>
+          Portl<span style={{ color:"#5B4CF5" }}>.</span>
+        </div>
+        <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:"#5B4CF5", animation:"pulse 1.2s ease-in-out infinite", margin:"0 auto 12px" }} />
+        <div style={{ fontSize:"13px", color:"#8A8A9A" }}>Loading your portal…</div>
       </div>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
