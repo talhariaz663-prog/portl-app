@@ -347,6 +347,18 @@ export default function DashboardPage() {
         .new-btn:focus-visible { box-shadow:0 0 0 3px rgba(91,76,245,0.25); outline:none; }
         button:focus-visible { box-shadow:0 0 0 3px rgba(91,76,245,0.25); outline:none; }
 
+        /* Input fields */
+        input, textarea, select {
+          background:#ffffff; border:1px solid #E4E4E8;
+          border-radius:10px; color:#12111A;
+          font-family:'Outfit',sans-serif;
+        }
+        input:focus, textarea:focus, select:focus {
+          border-color:#5B4CF5;
+          box-shadow:0 0 0 3px rgba(91,76,245,0.15);
+          outline:none;
+        }
+
         /* Activity item */
         .activity-row {
           display:flex; align-items:flex-start; gap:12px;
@@ -698,7 +710,7 @@ export default function DashboardPage() {
                               <div style={{ fontSize:"11px", color:isApproved?"#0BAB6C":"#F59E0B" }}>{isApproved?"Approved":"Changes requested"}</div>
                               {a.message && <div style={{ fontSize:"11px", color:"#6B6B7A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:"2px" }}>"{a.message}"</div>}
                             </div>
-                            <span style={{ fontSize:"11px", color:"#B0B0BC", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
+                            <span style={{ fontSize:"11px", color:"#6B6B7A", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
                           </div>
                         );
                       })}
@@ -785,8 +797,8 @@ export default function DashboardPage() {
 
                         {/* Footer */}
                         <div style={{ borderTop:"1px solid #E4E4E8", paddingTop:"12px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                          <span style={{ fontSize:"11px", color:"#B0B0BC" }}>{timeAgo(project.updated_at)}</span>
-                          <div style={{ display:"flex", alignItems:"center", gap:"4px", color:"#B0B0BC", fontSize:"11px" }}>
+                          <span style={{ fontSize:"11px", color:"#6B6B7A" }}>{timeAgo(project.updated_at)}</span>
+                          <div style={{ display:"flex", alignItems:"center", gap:"4px", color:"#6B6B7A", fontSize:"11px" }}>
                             Open <Icons.Arrow />
                           </div>
                         </div>
