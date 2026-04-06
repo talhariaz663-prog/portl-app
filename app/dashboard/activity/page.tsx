@@ -250,7 +250,7 @@ export default function ActivityPage() {
               <div key={date}>
                 {/* Date header */}
                 <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px"}}>
-                  <span style={{fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",whiteSpace:"nowrap"}}>{date}</span>
+                  <span style={{fontSize:"12px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",whiteSpace:"nowrap"}}>{date}</span>
                   <div style={{flex:1,height:"1px",background:"#E4E4E8"}} />
                 </div>
 
@@ -285,8 +285,8 @@ export default function ActivityPage() {
 
                         {/* Time + arrow */}
                         <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"8px",flexShrink:0}}>
-                          <span style={{fontSize:"11px",color:"#B0B0BC"}}>{timeAgo(a.created_at)}</span>
-                          <div style={{color:"#B0B0BC"}}><Icons.Arrow /></div>
+                          <span style={{fontSize:"12px",color:"#6B6B7A"}}>{timeAgo(a.created_at)}</span>
+                          <div style={{color:"#6B6B7A"}}><Icons.Arrow /></div>
                         </div>
                       </div>
                     );
