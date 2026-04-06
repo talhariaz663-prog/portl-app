@@ -634,7 +634,7 @@ export default function DashboardPage() {
               </div>
 
               {/* In Review */}
-              <div className="card stat-card" style={{ background:"rgba(245,158,11,0.06)", borderColor:"rgba(245,158,11,0.18)", cursor: counts.review > 0 ? "pointer" : "default" }}
+              <div className="card stat-card" style={{ background:"rgba(245,158,11,0.08)", borderColor:"rgba(245,158,11,0.2)", cursor: counts.review > 0 ? "pointer" : "default" }}
                 onClick={() => counts.review > 0 && setFilter("review")}>
                 <div style={{ fontSize:"11px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>In Review</div>
                 <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#F59E0B", lineHeight:1 }}>{counts.review}</div>
@@ -642,19 +642,19 @@ export default function DashboardPage() {
               </div>
 
               {/* Active */}
-              <div className="card stat-card" style={{ background:"rgba(11,171,108,0.06)", borderColor:"rgba(11,171,108,0.18)", cursor:"pointer" }}
+              <div className="card stat-card" style={{ background:"rgba(91,76,245,0.08)", borderColor:"rgba(91,76,245,0.2)", cursor:"pointer" }}
                 onClick={() => setFilter("active")}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#0BAB6C", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>Active</div>
-                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#0BAB6C", lineHeight:1 }}>{counts.active}</div>
-                <div style={{ fontSize:"12px", color:"rgba(11,171,108,0.5)", marginTop:"6px" }}>in progress</div>
+                <div style={{ fontSize:"11px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>Active</div>
+                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#5B4CF5", lineHeight:1 }}>{counts.active}</div>
+                <div style={{ fontSize:"12px", color:"rgba(91,76,245,0.5)", marginTop:"6px" }}>in progress</div>
               </div>
 
               {/* Approved */}
-              <div className="card stat-card" style={{ background:"rgba(91,76,245,0.06)", borderColor:"rgba(91,76,245,0.18)", cursor:"pointer" }}
+              <div className="card stat-card" style={{ background:"rgba(11,171,108,0.08)", borderColor:"rgba(11,171,108,0.2)", cursor:"pointer" }}
                 onClick={() => setFilter("approved")}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#7B6CF9", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>Approved</div>
-                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#7B6CF9", lineHeight:1 }}>{counts.approved}</div>
-                <div style={{ fontSize:"12px", color:"rgba(91,76,245,0.5)", marginTop:"6px" }}>completed</div>
+                <div style={{ fontSize:"11px", fontWeight:700, color:"#0BAB6C", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>Approved</div>
+                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#0BAB6C", lineHeight:1 }}>{counts.approved}</div>
+                <div style={{ fontSize:"12px", color:"rgba(11,171,108,0.5)", marginTop:"6px" }}>completed</div>
               </div>
             </div>
 
