@@ -158,7 +158,7 @@ export default function NewProjectPage() {
         .remove-btn{flex-shrink:0;background:none;border:none;cursor:pointer;color:#C0C0CC;font-size:16px;line-height:1;padding:4px;border-radius:6px;transition:color 0.15s;}
         .remove-btn:hover{color:#EF4444;}
 
-        .add-stage-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed rgba(91,76,245,0.35);border-radius:10px;padding:8px 14px;color:#5B4CF5;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:all 0.18s;}
+        .add-stage-btn{display:flex;align-items:center;gap:6px;background:rgba(91,76,245,0.03);border:1px dashed rgba(91,76,245,0.3);border-radius:10px;padding:8px 14px;color:#5B4CF5;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:all 0.18s;}
         .add-stage-btn:hover{border-color:#5B4CF5;background:rgba(91,76,245,0.05);}
 
         .create-btn{width:100%;padding:12px;border:none;border-radius:12px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
@@ -166,7 +166,7 @@ export default function NewProjectPage() {
         .create-btn:active:not(:disabled){background:#3D32C4;transform:translateY(0);}
         .create-btn:disabled{opacity:0.45;cursor:not-allowed;}
 
-        .cancel-btn{flex:1;padding:12px;background:transparent;border:1px solid #E4E4E8;border-radius:12px;color:#4A4A5A;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;}
+        .cancel-btn{flex:1;padding:12px;background:transparent;border:1px solid #E4E4E8;border-radius:12px;color:#6B6B7A;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;}
         .cancel-btn:hover{color:#12111A;background:#F0F0F5;border-color:#D0D0D8;}
         .cancel-btn:disabled{opacity:0.45;cursor:not-allowed;}
 
@@ -248,7 +248,7 @@ export default function NewProjectPage() {
 
               {/* Project name */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Project Name *</label>
+                <label style={{display:"block",fontSize:"12px",fontWeight:600,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Project Name *</label>
                 <input
                   className="form-input"
                   placeholder="e.g. Brand Refresh — Marble & Co."
@@ -259,7 +259,7 @@ export default function NewProjectPage() {
 
               {/* Client name */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Client Name</label>
+                <label style={{display:"block",fontSize:"12px",fontWeight:600,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Client Name</label>
                 <input
                   className="form-input"
                   placeholder="e.g. Sarah"
@@ -270,7 +270,7 @@ export default function NewProjectPage() {
 
               {/* Client email */}
               <div>
-                <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Client Email</label>
+                <label style={{display:"block",fontSize:"12px",fontWeight:600,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>Client Email</label>
                 <input
                   className="form-input"
                   type="email"
@@ -286,7 +286,7 @@ export default function NewProjectPage() {
               {/* Stages */}
               <div>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"12px"}}>
-                  <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em"}}>Project Stages</label>
+                  <label style={{display:"block",fontSize:"12px",fontWeight:600,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em"}}>Project Stages</label>
                   <span style={{fontSize:"11px",color:"#6B6B7A"}}>{stages.filter(s => s.trim()).length} stage{stages.filter(s => s.trim()).length !== 1 ? "s" : ""}</span>
                 </div>
 
