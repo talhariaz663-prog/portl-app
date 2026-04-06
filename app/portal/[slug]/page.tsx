@@ -156,7 +156,7 @@ export default function ClientPortalPage() {
         .revision-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;background:transparent;border:1.5px solid rgba(15,14,26,0.15);color:rgba(15,14,26,0.55);transition:all 0.15s;flex:1;}
         .revision-btn:hover{border-color:rgba(15,14,26,0.3);color:#0f0e1a;background:rgba(15,14,26,0.04);}
 
-        .file-card{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:#fff;border:1px solid rgba(15,14,26,0.07);transition:all 0.15s;box-shadow:0 1px 4px rgba(15,14,26,0.05);}
+        .file-card{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:#fff;border:1px solid rgba(15,14,26,0.07);transition:all 0.15s;box-shadow:0 1px 4px rgba(15,14,26,0.05);min-height:44px;width:100%;}
         .file-card:hover{border-color:rgba(91,76,245,0.2);box-shadow:0 4px 16px rgba(91,76,245,0.08);}
 
         .feedback-area{width:100%;min-height:100px;padding:14px 16px;background:#fff;border:1.5px solid rgba(91,76,245,0.25);border-radius:12px;color:#0f0e1a;font-family:'Outfit',sans-serif;font-size:14px;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s;}
@@ -169,16 +169,24 @@ export default function ClientPortalPage() {
         .confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;animation:confetti-fall 1.2s ease-out forwards;pointer-events:none;z-index:999;}
         .success-toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#0f0e1a;color:#fff;padding:14px 24px;border-radius:14px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.2);animation:pop 0.4s ease forwards;z-index:100;white-space:nowrap;}
 
-        .tabs-scroll{overflow-x:auto;scrollbar-width:none;}
+        .tabs-scroll{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}
         .tabs-scroll::-webkit-scrollbar{display:none;}
+        .tabs-scroll>div{flex-shrink:0;}
 
         @media(max-width:768px){
+          body,html{overflow-x:hidden;}
           .nav-padding{padding:0 16px!important;}
-          .main-padding{padding:32px 16px 80px!important;}
-          .stage-panel{padding:20px!important;}
+          .main-padding{padding:24px 16px 80px!important;max-width:100%!important;}
+          .stage-panel{padding:16px!important;}
           .action-row{flex-direction:column!important;}
           .action-row .approve-btn,.action-row .revision-btn{flex:none!important;width:100%!important;}
           .progress-header{flex-direction:column!important;align-items:flex-start!important;gap:4px!important;}
+          .feedback-actions{flex-direction:column!important;}
+          .feedback-actions .submit-btn{width:100%!important;text-align:center!important;}
+          .success-toast{white-space:normal!important;max-width:calc(100% - 32px)!important;text-align:center!important;bottom:20px!important;}
+          .approve-btn,.revision-btn{font-size:14px!important;padding:13px!important;}
+          .file-card{padding:10px 12px!important;}
+          .stage-tab{font-size:12px!important;padding:8px 11px!important;}
         }
       `}</style>
 
@@ -204,7 +212,7 @@ export default function ClientPortalPage() {
         </div>
       </nav>
 
-      <main className="main-padding" style={{ maxWidth:"720px", margin:"0 auto", padding:"48px 24px 80px", position:"relative", zIndex:1 }}>
+      <main className="main-padding" style={{ maxWidth:"720px", margin:"0 auto", padding:"48px 24px 80px", position:"relative", zIndex:1, width:"100%" }}>
 
         <div className="fi fi1" style={{ marginBottom:"32px" }}>
           <div style={{ display:"inline-flex", alignItems:"center", gap:"6px", background:"rgba(91,76,245,0.08)", border:"1px solid rgba(91,76,245,0.15)", borderRadius:"20px", padding:"4px 12px", marginBottom:"14px" }}>
@@ -330,9 +338,9 @@ export default function ClientPortalPage() {
                   <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
                     <div style={{ fontSize:"14px", color:"rgba(15,14,26,0.55)" }}>What changes would you like? Be as specific as possible.</div>
                     <textarea className="feedback-area" value={feedback} onChange={e=>setFeedback(e.target.value)} placeholder="e.g. Can we try a darker shade of blue? The logo feels too large on mobile…" />
-                    <div style={{ display:"flex", gap:"10px" }}>
+                    <div className="feedback-actions" style={{ display:"flex", gap:"10px" }}>
                       <button className="submit-btn" disabled={!feedback.trim()} onClick={handleRevision}>Send feedback →</button>
-                      <button onClick={()=>{setShowFeedback(false);setFeedback("");}} style={{ padding:"12px 20px", borderRadius:"10px", border:"1px solid rgba(15,14,26,0.12)", background:"transparent", color:"rgba(15,14,26,0.45)", fontFamily:"'Outfit',sans-serif", fontSize:"14px", fontWeight:600, cursor:"pointer" }}>Cancel</button>
+                      <button onClick={()=>{setShowFeedback(false);setFeedback("");}} style={{ padding:"12px 20px", borderRadius:"10px", border:"1px solid rgba(15,14,26,0.12)", background:"transparent", color:"rgba(15,14,26,0.45)", fontFamily:"'Outfit',sans-serif", fontSize:"14px", fontWeight:600, cursor:"pointer", whiteSpace:"nowrap" }}>Cancel</button>
                     </div>
                   </div>
                 )}
