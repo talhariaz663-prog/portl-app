@@ -165,13 +165,13 @@ export default function ProjectsPage() {
 
         .filter-pill{padding:4px 10px;border-radius:999px;cursor:pointer;font-size:11px;font-weight:700;border:1px solid #E4E4E8;background:#FFFFFF;color:#6B6B7A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
         .filter-pill:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F0F0F5;}
-        .filter-pill.active{background:rgba(91,76,245,0.1);border-color:rgba(91,76,245,0.35);color:#5B4CF5;}
+        .filter-pill.active{background:rgba(91,76,245,0.1);border-color:rgba(91,76,245,0.3);color:#5B4CF5;}
 
         .sort-select{background:#FFFFFF;border:1px solid #E4E4E8;border-radius:10px;padding:6px 12px;color:#4A4A5A;font-family:'Outfit',sans-serif;font-size:12px;outline:none;cursor:pointer;}
         .sort-select option{background:#FFFFFF;}
 
         .proj-row{display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:12px;background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.18s ease;position:relative;overflow:hidden;}
-        .proj-row:hover{background:#F9F9FB;border-color:#D0D0D8;transform:translateX(2px);}
+        .proj-row:hover{background:#F8F8FC;border-color:#D8D8E4;transform:translateX(2px);}
 
         .icon-btn{background:transparent;border:1px solid #E4E4E8;border-radius:8px;padding:6px 10px;cursor:pointer;color:#6B6B7A;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;white-space:nowrap;}
         .icon-btn:hover{background:#F0F0F5;color:#12111A;border-color:#D0D0D8;}
@@ -265,7 +265,7 @@ export default function ProjectsPage() {
         <div className="fi fi2" style={{display:"flex",flexDirection:"column",gap:"12px",marginBottom:"20px"}}>
           {/* Search */}
           <div style={{position:"relative"}}>
-            <div style={{position:"absolute",left:"14px",top:"50%",transform:"translateY(-50%)",color:"#B0B0BC",pointerEvents:"none"}}>
+            <div style={{position:"absolute",left:"14px",top:"50%",transform:"translateY(-50%)",color:"#6B6B7A",pointerEvents:"none"}}>
               <Icons.Search />
             </div>
             <input className="search-input" placeholder="Search projects or clients…" value={search} onChange={e => setSearch(e.target.value)} />
@@ -320,7 +320,7 @@ export default function ProjectsPage() {
                   {/* Name + client */}
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:"14px",fontWeight:700,marginBottom:"3px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:"#12111A"}}>{project.name}</div>
-                    <div style={{fontSize:"12px",color:"#6B6B7A"}}>{project.client_name}{project.client_email&&<span style={{color:"#B0B0BC",marginLeft:"8px"}}>{project.client_email}</span>}</div>
+                    <div style={{fontSize:"12px",color:"#6B6B7A"}}>{project.client_name}{project.client_email&&<span style={{color:"#6B6B7A",marginLeft:"8px"}}>{project.client_email}</span>}</div>
                   </div>
 
                   {/* Stage */}
@@ -336,7 +336,7 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Time */}
-                  <div style={{fontSize:"11px",color:"#B0B0BC",flexShrink:0,minWidth:"60px",textAlign:"right"}}>{timeAgo(project.updated_at)}</div>
+                  <div style={{fontSize:"11px",color:"#6B6B7A",flexShrink:0,minWidth:"60px",textAlign:"right"}}>{timeAgo(project.updated_at)}</div>
 
                   {/* Actions */}
                   <div className="proj-actions" style={{display:"flex",gap:"6px",flexShrink:0}} onClick={e => e.stopPropagation()}>
