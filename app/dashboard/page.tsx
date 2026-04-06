@@ -265,7 +265,7 @@ export default function DashboardPage() {
           width:100%; display:flex; align-items:center; gap:12px;
           padding:10px 14px; border-radius:12px; border:1px solid transparent;
           background:none; cursor:pointer; transition:all 0.18s;
-          color:rgba(255,255,255,0.38); font-family:'Outfit',sans-serif;
+          color:rgba(255,255,255,0.58); font-family:'Outfit',sans-serif;
           font-size:13.5px; font-weight:500; position:relative;
         }
         .bell-btn:hover { color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.04); }
