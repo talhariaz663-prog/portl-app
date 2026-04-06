@@ -276,9 +276,68 @@ export default function ProjectDetailPage() {
   };
 
   if (loading) return (
-    <div style={{ minHeight:"100vh", background:"#F5F6FA", display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <div style={{ width:"32px", height:"32px", border:"2px solid rgba(0,0,0,0.08)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    <div style={{ minHeight:"100vh", background:"#F5F6FA", fontFamily:"'Outfit',sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        * { box-sizing:border-box; margin:0; padding:0; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        .skel {
+          background:linear-gradient(90deg,#E8E8F0 25%,#F0F0F8 50%,#E8E8F0 75%);
+          background-size:200% 100%;
+          animation:shimmer 1.4s ease-in-out infinite;
+          border-radius:6px;
+        }
+        .skel-sidebar {
+          position:fixed; top:0; left:0; bottom:0; width:240px;
+          background:linear-gradient(180deg,#0c0e1a 0%,#080a15 100%);
+          border-right:1px solid rgba(255,255,255,0.055);
+        }
+        .skel-main { margin-left:240px; padding:36px 40px; }
+        @media(max-width:768px){ .skel-sidebar{display:none!important;} .skel-main{margin-left:0!important;padding:24px 16px!important;} }
+      `}</style>
+      {/* Sidebar ghost */}
+      <div className="skel-sidebar" />
+      <div className="skel-main">
+        {/* Header card skeleton */}
+        <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"12px", padding:"24px", marginBottom:"20px", boxShadow:"0 1px 3px rgba(0,0,0,0.06)" }}>
+          <div className="skel" style={{ height:"32px", width:"55%", borderRadius:"8px", marginBottom:"10px" }} />
+          <div className="skel" style={{ height:"16px", width:"30%", borderRadius:"4px", marginBottom:"20px" }} />
+          <div style={{ height:"4px", background:"#E8E8F0", borderRadius:"99px", overflow:"hidden" }}>
+            <div className="skel" style={{ height:"100%", width:"60%", borderRadius:"99px" }} />
+          </div>
+        </div>
+        {/* Stage tabs skeleton */}
+        <div style={{ display:"flex", gap:"8px", marginBottom:"20px", overflowX:"auto" }}>
+          {[120, 100, 110, 95].map((w, i) => (
+            <div key={i} className="skel" style={{ height:"36px", width:`${w}px`, borderRadius:"10px", flexShrink:0 }} />
+          ))}
+        </div>
+        {/* Two-column panel skeleton */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1.4fr", gap:"20px", alignItems:"start" }}>
+          {/* Left panel */}
+          <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"12px", padding:"20px", boxShadow:"0 1px 3px rgba(0,0,0,0.06)" }}>
+            <div style={{ display:"flex", gap:"8px", marginBottom:"16px" }}>
+              {[80, 90, 70].map((w, i) => (
+                <div key={i} className="skel" style={{ height:"24px", width:`${w}px`, borderRadius:"999px" }} />
+              ))}
+            </div>
+            <div className="skel" style={{ height:"120px", borderRadius:"10px" }} />
+          </div>
+          {/* Right panel */}
+          <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"12px", padding:"20px", boxShadow:"0 1px 3px rgba(0,0,0,0.06)" }}>
+            <div className="skel" style={{ height:"80px", borderRadius:"12px", marginBottom:"14px" }} />
+            {[1,2].map(i => (
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"10px" }}>
+                <div className="skel" style={{ width:"32px", height:"32px", borderRadius:"8px", flexShrink:0 }} />
+                <div style={{ flex:1 }}>
+                  <div className="skel" style={{ height:"13px", borderRadius:"4px", marginBottom:"5px" }} />
+                  <div className="skel" style={{ height:"11px", width:"40%", borderRadius:"4px" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 
