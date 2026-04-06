@@ -102,6 +102,7 @@ export default function ProjectDetailPage() {
   const [noteSaved,        setNoteSaved]        = useState(false);
   const [noteText,         setNoteText]         = useState("");
   const [approvalSent,     setApprovalSent]     = useState(false);
+  const [sendingApproval,  setSendingApproval]  = useState(false);
   const [showDeleteConfirm,setShowDeleteConfirm]= useState(false);
   const [deleting,         setDeleting]         = useState(false);
   const [historyExpanded,  setHistoryExpanded]  = useState(false);
@@ -209,12 +210,14 @@ export default function ProjectDetailPage() {
 
   const requestApproval = async () => {
     if (!activeStageId || !project) return;
+    setSendingApproval(true);
     await updateStageStatus(activeStageId, "in_progress");
     const { error } = await supabase.from("projects").update({ status: "review" }).eq("id", projectId);
     if (!error) setProject(prev => prev ? { ...prev, status: "review" } : prev);
     await logActivity("approval_requested");
     const { data: ad } = await supabase.from("activity").select("*").eq("project_id", projectId).order("created_at", { ascending: false });
     setActivity((ad as ActivityItem[]) ?? []);
+    setSendingApproval(false);
     setApprovalSent(true);
     setTimeout(() => setApprovalSent(false), 3000);
   };
@@ -348,6 +351,7 @@ export default function ProjectDetailPage() {
         * { box-sizing:border-box; margin:0; padding:0; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes dotPulse { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
 
         .fi{animation:fadeUp 0.35s ease forwards;opacity:0}
         .fi1{animation-delay:0.04s}.fi2{animation-delay:0.10s}.fi3{animation-delay:0.16s}.fi4{animation-delay:0.22s}
@@ -652,8 +656,8 @@ export default function ProjectDetailPage() {
               <div style={{ background:"#FFFFFF", border:"1px solid #E4E4E8", borderRadius:"16px", padding:"20px" }}>
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"10px" }}>
                   <span style={{ fontSize:"12px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em" }}>Notes for client</span>
-                  <button onClick={saveNote} disabled={savingNote} style={{ padding:"5px 14px", borderRadius:"7px", border:"1px solid rgba(91,76,245,0.3)", background:noteSaved?"rgba(11,171,108,0.12)":"rgba(91,76,245,0.1)", color:noteSaved?"#0BAB6C":savingNote?"rgba(255,255,255,0.3)":"#a093ff", fontFamily:"'Outfit',sans-serif", fontSize:"12px", fontWeight:700, cursor:savingNote?"not-allowed":"pointer", transition:"all 0.25s", minWidth:"60px" }}>
-                    {noteSaved?"✓ Saved":savingNote?"Saving…":"Save"}
+                  <button onClick={saveNote} disabled={savingNote} style={{ padding:"5px 14px", borderRadius:"7px", border:"1px solid rgba(91,76,245,0.3)", background:noteSaved?"rgba(11,171,108,0.12)":"rgba(91,76,245,0.1)", color:noteSaved?"#0BAB6C":"#a093ff", fontFamily:"'Outfit',sans-serif", fontSize:"12px", fontWeight:700, cursor:savingNote?"not-allowed":"pointer", transition:"all 0.25s", minWidth:"60px", opacity:savingNote?0.7:1, pointerEvents:savingNote?"none":"auto", display:"flex", alignItems:"center", gap:"3px" }}>
+                    {noteSaved ? "✓ Saved" : savingNote ? <>Saving<span style={{ animation:"dotPulse 1.2s ease-in-out 0s infinite", display:"inline-block" }}>·</span></> : "Save"}
                   </button>
                 </div>
                 <textarea className="note-area" value={noteText} onChange={e => setNoteText(e.target.value)}
@@ -662,8 +666,19 @@ export default function ProjectDetailPage() {
                 <div style={{ fontSize:"11px", color:"#6B6B7A", marginTop:"6px" }}>⌘S / Ctrl+S to save</div>
               </div>
 
-              <button className={`approval-btn${approvalSent?" sent":""}`} onClick={requestApproval}>
-                {approvalSent?<><span>✓</span> Approval requested!</>:<><span style={{ fontSize:"16px" }}>→</span> Request client approval</>}
+              <button className={`approval-btn${approvalSent?" sent":""}`} onClick={requestApproval} disabled={sendingApproval} style={{ opacity:sendingApproval?0.7:1, cursor:sendingApproval?"not-allowed":"pointer", pointerEvents:sendingApproval?"none":"auto" }}>
+                {approvalSent ? (
+                  <><span>✓</span> Approval requested!</>
+                ) : sendingApproval ? (
+                  <span style={{ display:"flex", alignItems:"center", gap:"6px" }}>
+                    Sending
+                    {[0, 0.16, 0.32].map((delay, i) => (
+                      <span key={i} style={{ width:"5px", height:"5px", borderRadius:"50%", background:"#fff", display:"inline-block", animation:`dotPulse 1.2s ease-in-out ${delay}s infinite` }} />
+                    ))}
+                  </span>
+                ) : (
+                  <><span style={{ fontSize:"16px" }}>→</span> Request client approval</>
+                )}
               </button>
 
               {/* Activity log */}

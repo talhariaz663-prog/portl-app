@@ -128,6 +128,7 @@ export default function NewProjectPage() {
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes fadeIn { from{opacity:0} to{opacity:1} }
         @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes dotPulse { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
 
         .fi { animation:fadeUp 0.4s ease forwards; opacity:0; }
         .fi1 { animation-delay:0.04s; }
@@ -164,7 +165,7 @@ export default function NewProjectPage() {
         .create-btn{width:100%;padding:12px;border:none;border-radius:12px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
         .create-btn:hover:not(:disabled){background:#4A3DE0;transform:translateY(-1px);}
         .create-btn:active:not(:disabled){background:#3D32C4;transform:translateY(0);}
-        .create-btn:disabled{opacity:0.45;cursor:not-allowed;}
+        .create-btn:disabled{opacity:0.7;cursor:not-allowed;pointer-events:none;}
 
         .cancel-btn{flex:1;padding:12px;background:transparent;border:1px solid #E4E4E8;border-radius:12px;color:#6B6B7A;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;}
         .cancel-btn:hover{color:#12111A;background:#F0F0F5;border-color:#D0D0D8;}
@@ -336,10 +337,11 @@ export default function NewProjectPage() {
                   style={{flex:2}}
                 >
                   {loading ? (
-                    <>
-                      <span style={{width:"13px",height:"13px",border:"2px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin 0.7s linear infinite",display:"inline-block",flexShrink:0}} />
-                      Creating…
-                    </>
+                    <span style={{ display:"flex", alignItems:"center", gap:"4px" }}>
+                      {[0, 0.16, 0.32].map((delay, i) => (
+                        <span key={i} style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#fff", display:"inline-block", animation:`dotPulse 1.2s ease-in-out ${delay}s infinite` }} />
+                      ))}
+                    </span>
                   ) : (
                     <><Icons.Plus /> Create Project</>
                   )}
