@@ -206,6 +206,14 @@ export default function DashboardPage() {
         @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:0.4} }
         @keyframes slideIn  { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
         @keyframes popIn    { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+        @keyframes shimmer  { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        .skel {
+          background:linear-gradient(90deg,#E8E8F0 25%,#F0F0F8 50%,#E8E8F0 75%);
+          background-size:200% 100%;
+          animation:shimmer 1.4s infinite;
+          border-radius:6px;
+        }
 
         .fi  { animation:fadeUp 0.4s ease forwards; opacity:0; }
         .fi1 { animation-delay:0.05s } .fi2 { animation-delay:0.10s }
@@ -618,9 +626,32 @@ export default function DashboardPage() {
         )}
 
         {loading ? (
-          <div style={{ display:"flex", justifyContent:"center", paddingTop:"80px" }}>
-            <div style={{ width:"28px", height:"28px", border:"2px solid rgba(0,0,0,0.08)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
-          </div>
+          <>
+            {/* Skeleton stat cards */}
+            <div className="fi fi2 bento bento-top" style={{ marginBottom:"16px" }}>
+              {[0,1,2].map(i => (
+                <div key={i} className="card stat-card">
+                  <div className="skel" style={{ height:"40px", borderRadius:"8px", marginBottom:"10px" }} />
+                  <div className="skel" style={{ height:"16px", width:"60%", borderRadius:"4px" }} />
+                </div>
+              ))}
+            </div>
+            {/* Skeleton project cards */}
+            <div className="bento bento-projects">
+              {[0,1,2,3].map(i => (
+                <div key={i} className="proj-card">
+                  <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"14px" }}>
+                    <div className="skel" style={{ width:"40px", height:"40px", borderRadius:"50%", flexShrink:0 }} />
+                    <div style={{ flex:1 }}>
+                      <div className="skel" style={{ height:"14px", borderRadius:"4px", marginBottom:"6px" }} />
+                      <div className="skel" style={{ height:"12px", width:"55%", borderRadius:"4px" }} />
+                    </div>
+                  </div>
+                  <div className="skel" style={{ height:"22px", width:"80px", borderRadius:"999px" }} />
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <>
             {/* ── TOP STAT CARDS ── */}
