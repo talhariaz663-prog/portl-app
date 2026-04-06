@@ -4,7 +4,8 @@
       "Bash(grep -n \"background:#07090f\\\\|background:#080a18\\\\|color:#fff\\\\|rgba\\(7,9,15\" C:/Users/Shahroz/desktop/portl-app/app/dashboard/page.tsx C:/Users/Shahroz/desktop/portl-app/app/dashboard/projects/page.tsx C:/Users/Shahroz/desktop/portl-app/app/dashboard/activity/page.tsx C:/Users/Shahroz/desktop/portl-app/app/dashboard/approvals/page.tsx C:/Users/Shahroz/desktop/portl-app/app/dashboard/payments/page.tsx C:/Users/Shahroz/desktop/portl-app/app/dashboard/project/[id]/page.tsx)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

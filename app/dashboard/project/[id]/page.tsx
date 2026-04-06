@@ -105,12 +105,17 @@ export default function ProjectDetailPage() {
   const [showDeleteConfirm,setShowDeleteConfirm]= useState(false);
   const [deleting,         setDeleting]         = useState(false);
   const [historyExpanded,  setHistoryExpanded]  = useState(false);
+  const [userEmail,        setUserEmail]        = useState("");
+  const [reviewCount,      setReviewCount]      = useState(0);
 
   const fetchData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     setError(null);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.replace("/login"); return; }
+    setUserEmail(session.user.email ?? "");
+    const { data: allProjs } = await supabase.from("projects").select("status").eq("designer_id", session.user.id);
+    setReviewCount(((allProjs ?? []) as { status: string }[]).filter(p => p.status === "review").length);
 
     const { data: proj, error: pe } = await supabase
       .from("projects").select("id, name, client_name, client_email, portal_slug, status")
@@ -228,10 +233,27 @@ export default function ProjectDetailPage() {
     router.replace("/dashboard");
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.replace("/login");
+  };
+
   const copyPortalLink = () => {
     if (!project) return;
     navigator.clipboard.writeText(`${window.location.origin}/portal/${project.portal_slug}`);
     setCopied(true); setTimeout(() => setCopied(false), 2000);
+  };
+
+  const initials = userEmail ? userEmail.slice(0, 2).toUpperCase() : "??";
+
+  const SidebarIcons = {
+    Studio:    () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.9"/><rect x="13" y="3" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/><rect x="3" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.5"/><rect x="13" y="13" width="8" height="8" rx="2" fill="currentColor" opacity="0.3"/></svg>,
+    Projects:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 7C3 5.9 3.9 5 5 5h4l2 2h8c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7z" fill="currentColor" opacity="0.8"/></svg>,
+    Activity:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 12h3l3-8 4 16 3-8h7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    Approvals: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/><path d="M8 12l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    Payments:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" opacity="0.8"/><path d="M2 10h20" stroke="currentColor" strokeWidth="1.8" opacity="0.6"/></svg>,
+    Help:      () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2 2-2 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M12 17h.01" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/></svg>,
+    Signout:   () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   };
 
   const activeStage      = stages.find(s => s.id === activeStageId);
@@ -271,9 +293,14 @@ export default function ProjectDetailPage() {
         .fi{animation:fadeUp 0.35s ease forwards;opacity:0}
         .fi1{animation-delay:0.04s}.fi2{animation-delay:0.10s}.fi3{animation-delay:0.16s}.fi4{animation-delay:0.22s}
 
-        .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;transition:all 0.15s;border:1px solid transparent;color:rgba(255,255,255,0.58);}
-        .nav-item.active{background:rgba(91,76,245,0.18);border-left:3px solid #5B4CF5;color:#ffffff;font-weight:600;}
-        .nav-item:not(.active):hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.18s ease;border:1px solid transparent;color:rgba(255,255,255,0.58);position:relative;}
+        .nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+        .nav-item.active{color:#ffffff;font-weight:600;background:rgba(91,76,245,0.14);border:1px solid rgba(91,76,245,0.28);}
+        .nav-badge{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:linear-gradient(135deg,#F59E0B,#E8971A);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;padding:0 6px;}
+        .sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.05);}
+        .sidebar-nav{padding:16px 12px;flex:1;display:flex;flex-direction:column;gap:2px;}
+        .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
+        .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
 
         .stage-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;cursor:pointer;border:1px solid #E4E4E8;background:#FFFFFF;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:#6B6B7A;white-space:nowrap;transition:all 0.18s ease;}
         .stage-tab:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F8F8FC;}
@@ -307,7 +334,7 @@ export default function ProjectDetailPage() {
         .history-toggle{background:none;border:none;color:#6B6B7A;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
         .history-toggle:hover{color:#4A4A5A;}
 
-        .sidebar{display:flex;}.topbar{display:none;}.main-content{margin-left:220px;padding:36px 40px;}
+        .sidebar{display:flex;}.topbar{display:none;}.main-content{margin-left:240px;padding:36px 40px;}
         .stage-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:20px;align-items:start;}
 
         @media(max-width:900px){.stage-grid{grid-template-columns:1fr!important;}}
@@ -344,17 +371,46 @@ export default function ProjectDetailPage() {
       <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none", backgroundImage:"radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)", backgroundSize:"40px 40px" }} />
 
       {/* Sidebar */}
-      <aside className="sidebar" style={{ position:"fixed", top:0, left:0, bottom:0, width:"220px", background:"#0c0e1a", borderRight:"1px solid rgba(255,255,255,0.06)", flexDirection:"column", padding:"28px 16px", zIndex:10 }}>
-        <div style={{ marginBottom:"40px", paddingLeft:"8px" }}>
-          <span style={{ fontSize:"22px", fontWeight:800, letterSpacing:"-0.5px", color:"#ffffff" }}>Portl<span style={{ color:"#5B4CF5", fontSize:"26px" }}>.</span></span>
+      <aside className="sidebar" style={{ position:"fixed", top:0, left:0, bottom:0, width:"240px", background:"linear-gradient(180deg,#0c0e1a 0%,#080a15 100%)", borderRight:"1px solid rgba(255,255,255,0.055)", flexDirection:"column", zIndex:10 }}>
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+            <span style={{ fontSize:"22px", fontWeight:900, letterSpacing:"-0.8px", color:"#ffffff" }}>
+              Portl<span style={{ color:"#5B4CF5", fontSize:"26px" }}>.</span>
+            </span>
+            <span style={{ fontSize:"10px", fontWeight:700, color:"#5B4CF5", background:"rgba(91,76,245,0.15)", border:"1px solid rgba(91,76,245,0.3)", borderRadius:"6px", padding:"2px 7px", letterSpacing:"0.05em" }}>BETA</span>
+          </div>
+          <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.25)", marginTop:"4px" }}>Designer workspace</div>
         </div>
-        <nav style={{ display:"flex", flexDirection:"column", gap:"4px", flex:1 }}>
-          {[{ icon:"⬡", label:"Studio", active:false, path:"/dashboard" },{ icon:"◷", label:"Timeline", active:true, path:"" },{ icon:"⬚", label:"Files", active:false, path:"" },{ icon:"✓", label:"Approvals", active:false, path:"" }].map(({ icon, label, active, path }) => (
-            <div key={label} className={`nav-item${active?" active":""}`} onClick={() => path && router.push(path)}>
-              <span style={{ fontSize:"16px" }}>{icon}</span>{label}
+        {/* Nav */}
+        <nav className="sidebar-nav">
+          {[
+            { Icon: SidebarIcons.Studio,    label: "Studio",    path: "/dashboard"           },
+            { Icon: SidebarIcons.Projects,  label: "My Work",   path: "/dashboard/projects"  },
+            { Icon: SidebarIcons.Activity,  label: "Activity",  path: "/dashboard/activity"  },
+            { Icon: SidebarIcons.Approvals, label: "Approvals", path: "/dashboard/approvals", badge: reviewCount },
+            { Icon: SidebarIcons.Payments,  label: "Payments",  path: "/dashboard/payments"  },
+            { Icon: SidebarIcons.Help,      label: "Help",      path: "/dashboard/help"      },
+          ].map(({ Icon, label, path, badge }) => (
+            <div key={label} className={`nav-item${label === "Studio" ? " active" : ""}`} onClick={() => router.push(path)}>
+              <Icon /><span>{label}</span>
+              {badge != null && badge > 0 && <span className="nav-badge">{badge}</span>}
             </div>
           ))}
         </nav>
+        {/* Bottom */}
+        <div className="sidebar-bottom">
+          <div className="user-card">
+            <div style={{ width:"34px", height:"34px", borderRadius:"10px", background:"linear-gradient(135deg,#5B4CF5,#0BAB6C)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"12px", fontWeight:800, flexShrink:0, color:"#fff" }}>{initials}</div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:"12px", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", color:"rgba(255,255,255,0.85)" }}>{userEmail}</div>
+              <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.28)", marginTop:"1px" }}>Designer</div>
+            </div>
+            <button onClick={handleSignOut} style={{ background:"none", border:"none", cursor:"pointer", color:"rgba(255,255,255,0.25)", padding:"4px", borderRadius:"6px", display:"flex", alignItems:"center" }} title="Sign out">
+              <SidebarIcons.Signout />
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* Mobile topbar */}
