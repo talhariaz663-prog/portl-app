@@ -276,10 +276,10 @@ export default function ProjectDetailPage() {
         .nav-item:not(.active):hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
 
         .stage-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;cursor:pointer;border:1px solid #E4E4E8;background:#FFFFFF;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:#6B6B7A;white-space:nowrap;transition:all 0.18s ease;}
-        .stage-tab:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F9F9FB;}
-        .stage-tab.active{background:rgba(91,76,245,0.16);border-color:rgba(91,76,245,0.5);color:#fff;font-weight:700;}
+        .stage-tab:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F8F8FC;}
+        .stage-tab.active{background:rgba(91,76,245,0.06);border-color:rgba(91,76,245,0.3);color:#5B4CF5;font-weight:700;}
 
-        .status-pill{padding:4px 10px;border-radius:999px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;transition:all 0.15s;border:1px solid transparent;white-space:nowrap;}
+        .status-pill{padding:4px 10px;border-radius:999px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;transition:all 0.15s;border:1px solid transparent;white-space:nowrap;}
 
         .upload-zone{border:1.5px dashed rgba(91,76,245,0.28);border-radius:12px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center;transition:all 0.2s ease;background:rgba(91,76,245,0.03);}
         .upload-zone:hover,.upload-zone.drag{border-color:rgba(91,76,245,0.6);background:rgba(91,76,245,0.08);}
@@ -544,7 +544,7 @@ export default function ProjectDetailPage() {
                 <textarea className="note-area" value={noteText} onChange={e => setNoteText(e.target.value)}
                   onKeyDown={e => { if (e.key==="s"&&(e.metaKey||e.ctrlKey)){ e.preventDefault(); saveNote(); } }}
                   placeholder="Add context for your client — what to review, what feedback you need…" />
-                <div style={{ fontSize:"11px", color:"#B0B0BC", marginTop:"6px" }}>⌘S / Ctrl+S to save</div>
+                <div style={{ fontSize:"11px", color:"#6B6B7A", marginTop:"6px" }}>⌘S / Ctrl+S to save</div>
               </div>
 
               <button className={`approval-btn${approvalSent?" sent":""}`} onClick={requestApproval}>
@@ -557,7 +557,7 @@ export default function ProjectDetailPage() {
                   <div style={{ fontSize:"12px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"12px" }}>Stage activity</div>
                   <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
                     {stageActivity.slice(0,8).map(a => {
-                      const colors: Record<string,string> = { approved:"#0BAB6C", changes_requested:"#F59E0B", approval_requested:"#5B4CF5", file_uploaded:"#B0B0BC" };
+                      const colors: Record<string,string> = { approved:"#0BAB6C", changes_requested:"#F59E0B", approval_requested:"#5B4CF5", file_uploaded:"#6B6B7A" };
                       const labels: Record<string,string> = { approved:"Client approved", changes_requested:"Client requested changes", approval_requested:"Approval requested", file_uploaded:"File uploaded" };
                       return (
                         <div key={a.id} style={{ display:"flex", alignItems:"flex-start", gap:"10px" }}>
@@ -566,7 +566,7 @@ export default function ProjectDetailPage() {
                             <span style={{ fontSize:"12px", color:"#4A4A5A" }}>{labels[a.type]??a.type}</span>
                             {a.message && a.type==="file_uploaded" && <span style={{ fontSize:"12px", color:"#6B6B7A" }}> — {a.message}</span>}
                           </div>
-                          <span style={{ fontSize:"11px", color:"#B0B0BC", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
+                          <span style={{ fontSize:"11px", color:"#6B6B7A", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
                         </div>
                       );
                     })}
@@ -593,7 +593,7 @@ export default function ProjectDetailPage() {
                 onDragLeave={() => setDragOver(false)}
                 onDrop={e => { e.preventDefault(); setDragOver(false); handleUpload(e.dataTransfer.files); }}>
                 {uploading?(
-                  <><div style={{ width:"22px", height:"22px", border:"2px solid rgba(91,76,245,0.3)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} /><span style={{ fontSize:"13px", color:"rgba(255,255,255,0.4)" }}>Uploading…</span></>
+                  <><div style={{ width:"22px", height:"22px", border:"2px solid rgba(91,76,245,0.3)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} /><span style={{ fontSize:"13px", color:"#6B6B7A" }}>Uploading…</span></>
                 ):(
                   <><div style={{ fontSize:"24px", opacity:0.3 }}>⬆</div><span style={{ fontSize:"14px", fontWeight:600, color:"#4A4A5A" }}>Drop files or click to upload</span><span style={{ fontSize:"12px", color:"#6B6B7A" }}>Images · PDFs · Figma · ZIPs</span></>
                 )}
