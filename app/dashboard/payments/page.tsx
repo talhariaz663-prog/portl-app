@@ -37,10 +37,10 @@ interface Project {
 }
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; color: string; bg: string; border: string }> = {
-  draft:   { label: "Draft",   color: "#6b7280", bg: "rgba(107,114,128,0.08)", border: "rgba(107,114,128,0.2)"  },
-  sent:    { label: "Sent",    color: "#7B6CF9", bg: "rgba(123,108,249,0.1)",  border: "rgba(123,108,249,0.25)" },
-  paid:    { label: "Paid",    color: "#0BAB6C", bg: "rgba(11,171,108,0.1)",   border: "rgba(11,171,108,0.25)"  },
-  overdue: { label: "Overdue", color: "#EF4444", bg: "rgba(239,68,68,0.07)",   border: "rgba(239,68,68,0.2)"    },
+  draft:   { label: "Draft",   color: "#6B6B7A", bg: "rgba(107,107,122,0.08)", border: "rgba(107,107,122,0.2)"  },
+  sent:    { label: "Sent",    color: "#F59E0B", bg: "rgba(245,158,11,0.08)",  border: "rgba(245,158,11,0.25)"  },
+  paid:    { label: "Paid",    color: "#0BAB6C", bg: "rgba(11,171,108,0.08)",  border: "rgba(11,171,108,0.25)"  },
+  overdue: { label: "Overdue", color: "#EF4444", bg: "rgba(239,68,68,0.08)",   border: "rgba(239,68,68,0.2)"    },
 };
 
 const CURRENCIES: Record<Currency, string> = { USD: "$", PKR: "₨" };
@@ -447,7 +447,7 @@ export default function PaymentsPage() {
                     <div style={{fontSize:"13.5px",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{inv.client_name}</div>
                     <div style={{fontSize:"12px",color:"#6B6B7A",marginTop:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                       {inv.client_email}
-                      {proj && <span style={{marginLeft:"8px",color:"#B0B0BC"}}>· {proj.name}</span>}
+                      {proj && <span style={{marginLeft:"8px",color:"#6B6B7A"}}>· {proj.name}</span>}
                     </div>
                   </div>
 
