@@ -183,11 +183,11 @@ export default function ApprovalsPage() {
         .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;flex:1;}
 
-        .action-card{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;border-radius:12px;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.18);cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;}
+        .action-card{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;border-radius:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;}
         .action-card:hover{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.3);transform:translateY(-1px);}
         .action-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#F59E0B,#E8971A);}
 
-        .done-card{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(11,171,108,0.04);border:1px solid rgba(11,171,108,0.15);cursor:pointer;transition:all 0.18s;}
+        .done-card{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(11,171,108,0.08);border:1px solid rgba(11,171,108,0.2);cursor:pointer;transition:all 0.18s;}
         .done-card:hover{background:rgba(11,171,108,0.07);border-color:rgba(11,171,108,0.25);}
 
         .icon-btn{background:transparent;border:1px solid #E4E4E8;border-radius:8px;padding:6px 10px;cursor:pointer;color:#6B6B7A;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
