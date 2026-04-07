@@ -415,6 +415,7 @@ export default function DashboardPage() {
         }
         .proj-card:hover { border-color:#C8C8D8; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
         .new-proj-card:hover { border-color:rgba(91,76,245,0.5) !important; background:rgba(91,76,245,0.02) !important; }
+        .action-capsule:hover { border-color:#C8C8D8 !important; background:#FAFAFA !important; transform:translateX(2px); }
 
         /* Filter pills */
         .filter-pill {
@@ -739,26 +740,29 @@ export default function DashboardPage() {
             {/* ── ZONE 1: ACTION REQUIRED ── */}
             {actionItems.length > 0 && (
               <div className="fi fi2" style={{ marginBottom:"24px" }}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Action Required</div>
-                <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:"6px", marginBottom:"10px" }}>
+                  <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#F59E0B", flexShrink:0 }} />
+                  <span style={{ fontSize:"11px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.08em" }}>Action Required</span>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:"6px" }}>
                   {actionItems.map((item, idx) => {
-                    const bc = item.type === "revision" ? "#EF4444" : item.type === "pending" ? "#F59E0B" : "#5B4CF5";
-                    const ba = item.type === "revision" ? "rgba(239,68,68,0.2)" : item.type === "pending" ? "rgba(245,158,11,0.2)" : "rgba(91,76,245,0.2)";
-                    const ctaBg = item.type === "revision" ? "rgba(239,68,68,0.08)" : item.type === "pending" ? "rgba(245,158,11,0.08)" : "rgba(91,76,245,0.08)";
+                    const dotColor = item.type === "revision" ? "#EF4444" : item.type === "pending" ? "#F59E0B" : "#5B4CF5";
+                    const tagBg    = item.type === "revision" ? "rgba(239,68,68,0.08)"   : item.type === "pending" ? "rgba(245,158,11,0.08)"  : "rgba(91,76,245,0.08)";
+                    const tagBd    = item.type === "revision" ? "rgba(239,68,68,0.2)"    : item.type === "pending" ? "rgba(245,158,11,0.2)"   : "rgba(91,76,245,0.2)";
+                    const tagColor = item.type === "revision" ? "#EF4444"                : item.type === "pending" ? "#F59E0B"                : "#5B4CF5";
+                    const tagText  = item.type === "revision" ? "Needs revision"         : item.type === "pending" ? "Awaiting client"        : "No files";
+                    const text     = item.type === "revision"
+                      ? `${item.projectName} · ${item.clientName ?? item.stageName ?? ""} requested changes`
+                      : item.type === "pending"
+                      ? `${item.projectName} · approval pending ${item.label.match(/\d+ days?/)?.[0] ?? ""}`
+                      : `${item.projectName} · ${item.stageName} has no files yet`;
                     return (
-                      <div key={idx} style={{ background:"#fff", border:`1px solid ${ba}`, borderLeft:`4px solid ${bc}`, borderRadius:"12px", padding:"14px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"16px" }}>
-                        <div style={{ display:"flex", alignItems:"flex-start", gap:"12px", flex:1, minWidth:0 }}>
-                          <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:bc, flexShrink:0, marginTop:"5px" }} />
-                          <div style={{ minWidth:0 }}>
-                            <div style={{ fontSize:"14px", fontWeight:600, color:"#12111A", marginBottom:item.message ? "3px" : 0 }}>{item.label}</div>
-                            {item.message && (
-                              <div style={{ fontSize:"13px", color:"#6B6B7A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{item.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <button onClick={() => router.push(`/dashboard/project/${item.projectId}`)} style={{ background:ctaBg, color:bc, border:`1px solid ${ba}`, padding:"7px 14px", borderRadius:"8px", fontSize:"12px", fontWeight:700, cursor:"pointer", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif", flexShrink:0 }}>
-                          {item.cta}
-                        </button>
+                      <div key={idx} className="action-capsule" onClick={() => router.push(`/dashboard/project/${item.projectId}`)}
+                        style={{ display:"flex", alignItems:"center", gap:"12px", padding:"10px 16px", background:"#ffffff", border:"1px solid #E4E4E8", borderRadius:"999px", cursor:"pointer", transition:"all 0.15s" }}>
+                        <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:dotColor, flexShrink:0 }} />
+                        <span style={{ flex:1, fontSize:"13px", fontWeight:500, color:"#12111A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{text}</span>
+                        <span style={{ flexShrink:0, padding:"3px 10px", borderRadius:"999px", fontSize:"10px", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em", background:tagBg, color:tagColor, border:`1px solid ${tagBd}` }}>{tagText}</span>
+                        <span style={{ fontSize:"12px", color:"#C0C0CC", flexShrink:0 }}>→</span>
                       </div>
                     );
                   })}
