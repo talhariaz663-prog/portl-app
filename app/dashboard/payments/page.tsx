@@ -82,7 +82,7 @@ export default function PaymentsPage() {
   const [saving,      setSaving]      = useState(false);
   const [userEmail,   setUserEmail]   = useState("");
   const [userId,      setUserId]      = useState("");
-  const [filter,      setFilter]      = useState<"all" | "unpaid" | "paid">("all");
+  const [filter,      setFilter]      = useState<"all" | "unpaid" | "paid" | "overdue" | "draft">("all");
   const [menuOpen,    setMenuOpen]    = useState(false);
   const [reviewCount, setReviewCount] = useState(0);
   const [modal,       setModal]       = useState<"new" | "edit" | null>(null);
@@ -141,8 +141,10 @@ export default function PaymentsPage() {
 
   // ── Filtered invoices ──────────────────────────────────────────────────────
   const filtered = invoices.filter(inv => {
-    if (filter === "paid")   return inv.status === "paid";
-    if (filter === "unpaid") return inv.status !== "paid";
+    if (filter === "paid")    return inv.status === "paid";
+    if (filter === "unpaid")  return inv.status !== "paid";
+    if (filter === "overdue") return inv.status === "overdue";
+    if (filter === "draft")   return inv.status === "draft";
     return true;
   });
 
@@ -150,6 +152,8 @@ export default function PaymentsPage() {
     total:   invoices.length,
     unpaid:  invoices.filter(i => i.status !== "paid").length,
     paid:    invoices.filter(i => i.status === "paid").length,
+    overdue: invoices.filter(i => i.status === "overdue").length,
+    draft:   invoices.filter(i => i.status === "draft").length,
     revenue: invoices.filter(i => i.status === "paid").reduce((s, i) => s + Number(i.total_amount), 0),
   };
 
@@ -267,25 +271,28 @@ export default function PaymentsPage() {
         .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:32px 36px;position:relative;flex:1;}
 
-        .new-btn{display:flex;align-items:center;gap:8px;padding:8px 18px;border:none;border-radius:10px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s,transform 0.15s;white-space:nowrap;}
+        .new-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border:none;border-radius:10px;background:#5B4CF5;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s,transform 0.15s;white-space:nowrap;flex-shrink:0;}
         .new-btn:hover{background:#4A3DE0;transform:translateY(-1px);}
         .new-btn:active{background:#3D32C4;transform:translateY(0);}
         .new-btn:disabled{opacity:0.45;cursor:not-allowed;}
 
-        .filter-pill{padding:4px 10px;border-radius:999px;cursor:pointer;font-size:11px;font-weight:700;border:1px solid #E4E4E8;background:#FFFFFF;color:#6B6B7A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
+        .filter-pill{padding:5px 14px;border-radius:999px;cursor:pointer;font-size:11px;font-weight:600;border:1px solid #E4E4E8;background:#fff;color:#6B6B7A;font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
         .filter-pill:hover{color:#4A4A5A;border-color:#D0D0D8;background:#F0F0F5;}
-        .filter-pill.active{background:rgba(91,76,245,0.1);border-color:rgba(91,76,245,0.35);color:#5B4CF5;}
+        .filter-pill.active{background:rgba(91,76,245,0.08);border-color:rgba(91,76,245,0.3);color:#5B4CF5;}
 
-        .stat-card{background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-radius:12px;padding:16px 20px;}
+        .stat-card{background:#fff;border:1px solid #E4E4E8;border-radius:12px;padding:14px 16px;}
 
-        .inv-row{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:#FFFFFF;border:1px solid #E4E4E8;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.18s ease;position:relative;overflow:hidden;}
-        .inv-row:hover{background:#F9F9FB;border-color:#D0D0D8;}
+        .inv-card{background:#fff;border:1px solid #E4E4E8;border-radius:12px;padding:14px 16px;transition:border-color 0.15s;}
+        .inv-card:hover{border-color:#D0D0D8;}
 
-        .icon-btn{background:transparent;border:1px solid #E4E4E8;border-radius:8px;padding:6px 10px;cursor:pointer;color:#6B6B7A;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.15s;white-space:nowrap;}
-        .icon-btn:hover{background:#F0F0F5;color:#12111A;border-color:#D0D0D8;}
-        .icon-btn.danger:hover{background:rgba(239,68,68,0.07);color:#EF4444;border-color:rgba(239,68,68,0.2);}
-        .icon-btn.success{background:rgba(11,171,108,0.1);border-color:rgba(11,171,108,0.3);color:#0BAB6C;}
-        .icon-btn.success:hover{background:rgba(11,171,108,0.2);}
+        .act-btn{border-radius:7px;padding:5px 10px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
+        .act-btn-paid{background:rgba(11,171,108,0.08);border:1px solid rgba(11,171,108,0.25);color:#0BAB6C;}
+        .act-btn-paid:hover{background:rgba(11,171,108,0.15);}
+        .act-btn-ghost{background:#fff;border:1px solid #E4E4E8;color:#6B6B7A;}
+        .act-btn-ghost:hover{background:#F5F6FA;border-color:#D0D0D8;}
+        .act-btn-danger{background:#fff;border:1px solid #E4E4E8;color:#6B6B7A;}
+        .act-btn-danger:hover{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.2);color:#EF4444;}
+
         button:focus-visible{box-shadow:0 0 0 3px rgba(91,76,245,0.25);outline:none;}
 
         /* Modal */
@@ -309,14 +316,23 @@ export default function PaymentsPage() {
 
         .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(255,255,255,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
 
+        .filter-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
+        .filter-scroll::-webkit-scrollbar{display:none;}
+
         @media(max-width:768px){
           .sidebar{display:none!important;}
           .topbar{display:flex!important;}
           .main{margin-left:0!important;padding:76px 16px 40px!important;}
-          .inv-row{flex-wrap:wrap;}
-          .inv-actions{display:none!important;}
-          .stat-grid{grid-template-columns:1fr 1fr!important;}
-          .line-item-row{grid-template-columns:1fr 60px 80px 70px 24px!important;}
+          .stats-grid{grid-template-columns:1fr 1fr!important;}
+          .inv-card-top{flex-wrap:wrap;gap:8px!important;}
+          .inv-card-bottom{flex-direction:column!important;align-items:flex-start!important;gap:8px!important;}
+          .inv-card-actions{align-self:flex-end;}
+          .inv-title{max-width:160px!important;}
+          .line-item-row{grid-template-columns:1fr 48px 72px 64px 28px!important;}
+        }
+        @media(max-width:380px){
+          .stat-card{padding:10px 12px!important;}
+          .stat-num{font-size:20px!important;}
         }
       `}</style>
 
@@ -379,114 +395,118 @@ export default function PaymentsPage() {
 
       {/* Main */}
       <main className="main">
-        {/* Header */}
-        <div className="fi fi1" style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:"24px",gap:"16px"}}>
+
+        {/* ── Header ── */}
+        <div className="fi fi1" style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:"20px",gap:"12px"}}>
           <div>
-            <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px",marginBottom:"5px",color:"#12111A"}}>Payments</h1>
-            <p style={{fontSize:"13px",color:"#6B6B7A"}}>
+            <h1 style={{fontSize:"clamp(20px,3vw,26px)",fontWeight:800,letterSpacing:"-0.5px",color:"#12111A",marginBottom:"4px"}}>Payments</h1>
+            <p style={{fontSize:"13px",color:"#8A8A9A"}}>
               {loading ? "Loading…" : `${invoices.length} invoice${invoices.length!==1?"s":""} total`}
             </p>
           </div>
-          <button className="new-btn" onClick={openNew} id="desk-new" style={{display:"none"}}>
-            <Icons.Plus /> New Invoice
+          <button className="new-btn" onClick={openNew}>
+            <Icons.Plus />
+            <span className="btn-label-full">New Invoice</span>
+            <span className="btn-label-short" style={{display:"none"}}>New</span>
           </button>
-          <style>{`@media(min-width:769px){#desk-new{display:flex!important}}`}</style>
+          <style>{`@media(max-width:480px){.btn-label-full{display:none!important}.btn-label-short{display:inline!important}}`}</style>
         </div>
 
-        {/* Stats */}
-        <div className="fi fi2" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"12px",marginBottom:"24px"}} >
-          {[
-            { label:"Total",   value: stats.total,   sub: "invoices",        color:"#5B4CF5" },
-            { label:"Unpaid",  value: stats.unpaid,  sub: "pending",         color:"#F59E0B" },
-            { label:"Paid",    value: stats.paid,    sub: "collected",       color:"#0BAB6C" },
-            { label:"Revenue", value: formatCurrency(stats.revenue,"USD"), sub: "total paid", color:"#7B6CF9", isStr:true },
-          ].map(s => (
-            <div key={s.label} className="stat-card stat-grid">
-              <div style={{fontSize:"11px",fontWeight:600,color:"#6B6B7A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"8px"}}>{s.label}</div>
-              <div style={{fontSize:s.isStr?"20px":"24px",fontWeight:800,color:s.color,letterSpacing:"-0.5px",marginBottom:"2px"}}>{s.value}</div>
-              <div style={{fontSize:"11px",color:"#6B6B7A"}}>{s.sub}</div>
+        {/* ── Stats ── */}
+        <div className="fi fi2 stats-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",marginBottom:"20px"}}>
+          {([
+            { label:"Total",   value: String(stats.total),   sub:"invoices",   color:"#12111A"  },
+            { label:"Unpaid",  value: String(stats.unpaid),  sub:"pending",    color:"#F59E0B"  },
+            { label:"Paid",    value: String(stats.paid),    sub:"collected",  color:"#0BAB6C"  },
+            { label:"Revenue", value: formatCurrency(stats.revenue,"USD"), sub:"total paid", color:"#5B4CF5", small:true },
+          ] as {label:string;value:string;sub:string;color:string;small?:boolean}[]).map(s => (
+            <div key={s.label} className="stat-card">
+              <div style={{fontSize:"10px",fontWeight:700,color:"#8A8A9A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"6px"}}>{s.label}</div>
+              <div className="stat-num" style={{fontSize:s.small?"18px":"24px",fontWeight:800,color:s.color,letterSpacing:"-0.8px",lineHeight:1,marginBottom:"3px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.value}</div>
+              <div style={{fontSize:"11px",color:"#8A8A9A"}}>{s.sub}</div>
             </div>
           ))}
         </div>
 
-        {/* Filter tabs */}
-        <div className="fi fi3" style={{display:"flex",gap:"6px",marginBottom:"20px"}}>
-          {(["all","unpaid","paid"] as const).map(f => (
-            <button key={f} className={`filter-pill${filter===f?" active":""}`} onClick={() => setFilter(f)}>
-              {f.charAt(0).toUpperCase()+f.slice(1)}
-              <span style={{marginLeft:"5px",opacity:0.45,fontSize:"11px"}}>
-                {f==="all"?stats.total:f==="unpaid"?stats.unpaid:stats.paid}
-              </span>
+        {/* ── Filter pills ── */}
+        <div className="fi fi3 filter-scroll" style={{marginBottom:"18px"}}>
+          {([
+            { key:"all",     label:"All",     count: stats.total   },
+            { key:"unpaid",  label:"Unpaid",  count: stats.unpaid  },
+            { key:"paid",    label:"Paid",    count: stats.paid    },
+            { key:"overdue", label:"Overdue", count: stats.overdue },
+            { key:"draft",   label:"Draft",   count: stats.draft   },
+          ] as {key:typeof filter;label:string;count:number}[]).map(f => (
+            <button key={f.key} className={`filter-pill${filter===f.key?" active":""}`} onClick={() => setFilter(f.key)}>
+              {f.label} <span style={{marginLeft:"4px",opacity:0.5}}>{f.count}</span>
             </button>
           ))}
         </div>
 
-        {/* Invoice list */}
+        {/* ── Invoice list ── */}
         {loading ? (
           <div style={{display:"flex",justifyContent:"center",paddingTop:"60px"}}>
             <div style={{width:"28px",height:"28px",border:"2px solid rgba(0,0,0,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#6B6B7A"}}>
-            <div style={{fontSize:"32px",marginBottom:"12px",opacity:0.4}}>⬡</div>
-            <div style={{fontSize:"14px",fontWeight:600,marginBottom:"6px",color:"#4A4A5A"}}>No invoices yet</div>
-            <button className="new-btn" style={{margin:"16px auto 0"}} onClick={openNew}><Icons.Plus /> Create First Invoice</button>
+          <div className="fi fi3" style={{background:"#fff",border:"1.5px dashed rgba(91,76,245,0.2)",borderRadius:"12px",padding:"48px 24px",textAlign:"center"}}>
+            <div style={{fontSize:"28px",opacity:0.3,marginBottom:"12px"}}>💳</div>
+            <div style={{fontSize:"15px",fontWeight:700,color:"#12111A",marginBottom:"6px"}}>No invoices yet</div>
+            <div style={{fontSize:"12px",color:"#8A8A9A",marginBottom:"20px"}}>Create your first invoice and start getting paid</div>
+            <button className="new-btn" style={{margin:"0 auto"}} onClick={openNew}><Icons.Plus /> Create First Invoice</button>
           </div>
         ) : (
           <div className="fi fi4" style={{display:"flex",flexDirection:"column",gap:"8px"}}>
             {filtered.map(inv => {
-              const st = STATUS_CONFIG[inv.status];
+              const st   = STATUS_CONFIG[inv.status];
               const proj = projects.find(p => p.id === inv.project_id);
+              const isOverdue = inv.status === "overdue";
+              const dueColor  = isOverdue ? "#EF4444" : "#8A8A9A";
               return (
-                <div key={inv.id} className="inv-row">
-                  {/* Status strip */}
-                  <div style={{position:"absolute",left:0,top:0,bottom:0,width:"3px",background:st.color,borderRadius:"14px 0 0 14px"}} />
-
-                  {/* Invoice number */}
-                  <div style={{minWidth:"80px",marginLeft:"8px"}}>
-                    <div style={{fontSize:"13px",fontWeight:700,color:"#12111A"}}>{inv.invoice_number}</div>
-                    <div style={{fontSize:"11px",color:"#6B6B7A",marginTop:"2px"}}>{formatDate(inv.created_at)}</div>
-                  </div>
-
-                  {/* Client */}
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:"13.5px",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{inv.client_name}</div>
-                    <div style={{fontSize:"12px",color:"#6B6B7A",marginTop:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                      {inv.client_email}
-                      {proj && <span style={{marginLeft:"8px",color:"#6B6B7A"}}>· {proj.name}</span>}
+                <div key={inv.id} className="inv-card">
+                  {/* Top section */}
+                  <div className="inv-card-top" style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:"12px",marginBottom:"10px"}}>
+                    {/* Left */}
+                    <div style={{minWidth:0,flex:1}}>
+                      <span style={{display:"inline-block",background:"rgba(91,76,245,0.08)",border:"1px solid rgba(91,76,245,0.15)",borderRadius:"5px",padding:"2px 7px",fontSize:"10px",fontWeight:700,color:"#5B4CF5",marginBottom:"4px"}}>
+                        {inv.invoice_number}
+                      </span>
+                      <div className="inv-title" style={{fontSize:"14px",fontWeight:700,color:"#12111A",maxWidth:"200px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                        {inv.client_name}{proj ? ` — ${proj.name}` : ""}
+                      </div>
+                      <div style={{fontSize:"12px",color:"#8A8A9A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{inv.client_email}</div>
+                    </div>
+                    {/* Right */}
+                    <div style={{textAlign:"right",flexShrink:0}}>
+                      <div style={{fontSize:"18px",fontWeight:800,color:"#12111A",letterSpacing:"-0.5px"}}>{formatCurrency(Number(inv.total_amount),inv.currency)}</div>
+                      <div style={{fontSize:"10px",color:"#8A8A9A",fontWeight:600,marginTop:"2px"}}>{inv.currency}</div>
                     </div>
                   </div>
 
-                  {/* Due date */}
-                  <div style={{flexShrink:0,textAlign:"right",minWidth:"80px"}}>
-                    <div style={{fontSize:"12px",color:"#6B6B7A"}}>Due</div>
-                    <div style={{fontSize:"12px",fontWeight:600,color:"#4A4A5A",marginTop:"2px"}}>{formatDate(inv.due_date)}</div>
-                  </div>
-
-                  {/* Amount */}
-                  <div style={{flexShrink:0,textAlign:"right",minWidth:"90px"}}>
-                    <div style={{fontSize:"14px",fontWeight:800,color:"#12111A"}}>{formatCurrency(Number(inv.total_amount),inv.currency)}</div>
-                    <div style={{fontSize:"11px",color:"#6B6B7A",marginTop:"2px"}}>{inv.currency}</div>
-                  </div>
-
-                  {/* Status badge */}
-                  <div style={{display:"inline-flex",alignItems:"center",gap:"5px",background:st.bg,color:st.color,padding:"4px 10px",borderRadius:"999px",fontSize:"11px",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",border:`1px solid ${st.border}`,flexShrink:0}}>
-                    <span style={{width:"4px",height:"4px",borderRadius:"50%",background:st.color}} />{st.label}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="inv-actions" style={{display:"flex",gap:"6px",flexShrink:0}} onClick={e => e.stopPropagation()}>
-                    {inv.status !== "paid" && (
-                      <button className="icon-btn success" onClick={() => markPaid(inv.id)}>
-                        <Icons.Check /> Paid
+                  {/* Bottom section */}
+                  <div className="inv-card-bottom" style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:"10px",borderTop:"1px solid #F0F0F5",gap:"8px"}}>
+                    {/* Meta */}
+                    <div style={{display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap",flex:1,minWidth:0}}>
+                      <span style={{display:"inline-flex",alignItems:"center",background:st.bg,color:st.color,border:`1px solid ${st.border}`,borderRadius:"999px",padding:"3px 8px",fontSize:"10px",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",flexShrink:0}}>{st.label}</span>
+                      <span style={{fontSize:"11px",color:"#8A8A9A",flexShrink:0}}>{formatDate(inv.created_at)}</span>
+                      {inv.due_date && (
+                        <span style={{fontSize:"11px",color:dueColor,fontWeight:isOverdue?600:400,flexShrink:0}}>Due {formatDate(inv.due_date)}</span>
+                      )}
+                    </div>
+                    {/* Actions */}
+                    <div className="inv-card-actions" style={{display:"flex",gap:"5px",flexShrink:0}}>
+                      {(inv.status === "draft" || inv.status === "sent") && (
+                        <button className="act-btn act-btn-paid" onClick={() => markPaid(inv.id)}>
+                          <Icons.Check /> Mark Paid
+                        </button>
+                      )}
+                      <button className="act-btn act-btn-ghost" onClick={() => openEdit(inv)}>
+                        <Icons.Edit /> Edit
                       </button>
-                    )}
-                    <button className="icon-btn" onClick={() => openEdit(inv)}>
-                      <Icons.Edit /> Edit
-                    </button>
-                    <button className="icon-btn danger" onClick={() => setConfirmDel(inv.id)}>
-                      <Icons.Trash />
-                    </button>
+                      <button className="act-btn act-btn-danger" onClick={() => setConfirmDel(inv.id)}>
+                        <Icons.Trash />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
