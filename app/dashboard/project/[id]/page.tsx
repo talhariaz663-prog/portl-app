@@ -217,6 +217,26 @@ export default function ProjectDetailPage() {
     await logActivity("approval_requested");
     const { data: ad } = await supabase.from("activity").select("*").eq("project_id", projectId).order("created_at", { ascending: false });
     setActivity((ad as ActivityItem[]) ?? []);
+    // Send email to client
+    if (project.client_email) {
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'approval_requested',
+            to: project.client_email,
+            projectName: project.name,
+            stageName: activeStage?.title ?? 'this stage',
+            clientName: project.client_name,
+            portalUrl: `https://portl-app.vercel.app/portal/${project.portal_slug}`,
+            designerEmail: 'talhariaz663@gmail.com',
+          }),
+        })
+      } catch (err) {
+        console.error('Email send failed:', err)
+      }
+    }
     setSendingApproval(false);
     setApprovalSent(true);
     setTimeout(() => setApprovalSent(false), 3000);
