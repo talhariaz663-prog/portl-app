@@ -82,6 +82,22 @@ export default function ClientPortalPage() {
     setStages(prev => prev.map(s => s.id === activeStageId ? { ...s, status: "complete" } : s));
     setApproved(activeStageId);
     setTimeout(() => setApproved(null), 4000);
+    // Notify designer — client approved
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'client_approved',
+          to: 'talhariaz663@gmail.com',
+          projectName: project?.name ?? 'your project',
+          stageName: activeStage?.title ?? 'this stage',
+          clientName: project?.client_name ?? 'Your client',
+        }),
+      })
+    } catch (err) {
+      console.error('Email send failed:', err)
+    }
   };
 
   const handleRevision = async () => {
@@ -100,6 +116,23 @@ export default function ClientPortalPage() {
     setShowFeedback(false);
     setFeedback("");
     setTimeout(() => setSubmitted(null), 4000);
+    // Notify designer — revision requested
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'revision_requested',
+          to: 'talhariaz663@gmail.com',
+          projectName: project?.name ?? 'your project',
+          stageName: activeStage?.title ?? 'this stage',
+          clientName: project?.client_name ?? 'Your client',
+          revisionNote: feedback ?? '',
+        }),
+      })
+    } catch (err) {
+      console.error('Email send failed:', err)
+    }
   };
 
   const activeStage      = stages.find(s => s.id === activeStageId);
