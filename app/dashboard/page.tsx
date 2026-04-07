@@ -25,11 +25,23 @@ interface ActivityItem {
   project_name?: string;
 }
 
+interface ActionItem {
+  type: "revision" | "pending" | "empty_stage";
+  projectId: string;
+  projectName: string;
+  clientName?: string;
+  stageName?: string;
+  message?: string | null;
+  createdAt?: string;
+  label: string;
+  cta: string;
+}
+
 const STATUS_CONFIG: Record<Status, { label: string; color: string; bg: string; border: string }> = {
-  active:   { label: "Active",    color: "#0BAB6C", bg: "rgba(11,171,108,0.12)",  border: "rgba(11,171,108,0.25)"  },
+  active:   { label: "Active",    color: "#5B4CF5", bg: "rgba(91,76,245,0.12)",   border: "rgba(91,76,245,0.25)"   },
   review:   { label: "In Review", color: "#F59E0B", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)"  },
-  approved: { label: "Approved",  color: "#5B4CF5", bg: "rgba(91,76,245,0.12)",   border: "rgba(91,76,245,0.25)"   },
-  draft:    { label: "Draft",     color: "#6b7280", bg: "rgba(107,114,128,0.08)", border: "rgba(107,114,128,0.2)"  },
+  approved: { label: "Approved",  color: "#0BAB6C", bg: "rgba(11,171,108,0.12)",  border: "rgba(11,171,108,0.25)"  },
+  draft:    { label: "Draft",     color: "#8A8A9A", bg: "rgba(138,138,154,0.08)", border: "rgba(138,138,154,0.2)"  },
 };
 
 const CARD_COLORS = ["#5B4CF5", "#0BAB6C", "#F59E0B", "#EF4444", "#7B6CF9"];
@@ -81,6 +93,7 @@ export default function DashboardPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isMobile,    setIsMobile]    = useState(false);
   const [activeNav,   setActiveNav]   = useState("Studio");
+  const [actionItems, setActionItems] = useState<ActionItem[]>([]);
   const [lastSeen,    setLastSeen]    = useState<Date>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(NOTIF_KEY);
@@ -141,6 +154,76 @@ export default function DashboardPage() {
         (a.type === "approved" || a.type === "changes_requested")
       ).length;
       setUnreadCount(unread);
+
+      // Action items
+      const { data: revisions } = await supabase
+        .from("activity")
+        .select("id, project_id, stage_id, message, created_at")
+        .eq("type", "changes_requested")
+        .in("project_id", projectIds)
+        .order("created_at", { ascending: false });
+
+      const { data: allStages } = await supabase
+        .from("stages")
+        .select("id, project_id, title, status")
+        .in("project_id", projectIds)
+        .eq("status", "in_progress");
+
+      const { data: allFiles } = await supabase
+        .from("files")
+        .select("stage_id")
+        .in("stage_id", allStages?.map((s: { id: string }) => s.id) ?? []);
+
+      const items: ActionItem[] = [];
+
+      revisions?.forEach((rev: { id: string; project_id: string; message: string | null; created_at: string }) => {
+        const project = projs.find(p => p.id === rev.project_id);
+        if (project) {
+          items.push({
+            type: "revision",
+            projectId: rev.project_id,
+            projectName: project.name,
+            clientName: project.client_name,
+            message: rev.message,
+            createdAt: rev.created_at,
+            label: `${project.client_name} requested changes · ${project.name}`,
+            cta: "View Feedback →",
+          });
+        }
+      });
+
+      projs.filter(p => p.status === "review").forEach(p => {
+        const hoursWaiting = (Date.now() - new Date(p.updated_at).getTime()) / 3600000;
+        if (hoursWaiting >= 48) {
+          items.push({
+            type: "pending",
+            projectId: p.id,
+            projectName: p.name,
+            clientName: p.client_name,
+            label: `Approval pending ${Math.floor(hoursWaiting / 24)} days · ${p.name}`,
+            cta: "Send Reminder →",
+          });
+        }
+      });
+
+      allStages?.forEach((stage: { id: string; project_id: string; title: string }) => {
+        const hasFiles = (allFiles as { stage_id: string }[] | null)?.some(f => f.stage_id === stage.id);
+        if (!hasFiles) {
+          const project = projs.find(p => p.id === stage.project_id);
+          if (project) {
+            items.push({
+              type: "empty_stage",
+              projectId: stage.project_id,
+              projectName: project.name,
+              stageName: stage.title,
+              label: `${project.name} · ${stage.title} is in progress but has no files`,
+              cta: "Upload Files →",
+            });
+          }
+        }
+      });
+
+      setActionItems(items);
     }
     setLoading(false);
   }, [supabase, router, lastSeen]);
@@ -180,6 +263,8 @@ export default function DashboardPage() {
 
   const filtered      = filter === "all" ? projects : projects.filter(p => p.status === filter);
   const initials      = userEmail ? userEmail.slice(0, 2).toUpperCase() : "??";
+  const hour          = new Date().getHours();
+  const firstName     = (() => { const n = userEmail.split("@")[0].split(".")[0]; return n ? n.charAt(0).toUpperCase() + n.slice(1) : "there"; })();
   const reviewProjs   = projects.filter(p => p.status === "review");
   const recentActivity = activity.filter(a => a.type === "approved" || a.type === "changes_requested").slice(0, 5);
   const hasUnread     = unreadCount > 0;
@@ -301,7 +386,7 @@ export default function DashboardPage() {
         .bento { display:grid; gap:16px; }
         .bento-top { grid-template-columns:repeat(4,1fr); }
         .bento-mid { grid-template-columns:2fr 1fr; }
-        .bento-projects { grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); }
+        .bento-projects { grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
 
         /* Cards */
         .card {
@@ -323,12 +408,13 @@ export default function DashboardPage() {
         .proj-card {
           background:#FFFFFF;
           border:1px solid #E4E4E8;
-          box-shadow:0 1px 3px rgba(0,0,0,0.06);
-          border-radius:12px; padding:20px 22px; cursor:pointer;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04);
+          border-radius:12px; padding:16px; cursor:pointer;
           position:relative; overflow:hidden;
-          transition:all 0.2s ease;
+          transition:all 0.18s ease;
         }
-        .proj-card:hover { border-color:#D0D0D8; transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+        .proj-card:hover { border-color:#C8C8D8; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+        .new-proj-card:hover { border-color:rgba(91,76,245,0.5) !important; background:rgba(91,76,245,0.02) !important; }
 
         /* Filter pills */
         .filter-pill {
@@ -599,17 +685,13 @@ export default function DashboardPage() {
       <main className="main" style={{ flex:1, position:"relative", zIndex:1 }}>
 
         {/* Page header */}
-        <div className="fi fi1" style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"32px", gap:"16px" }}>
+        <div className="fi fi1" style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"28px", gap:"16px" }}>
           <div>
-            <h1 style={{ fontSize:"clamp(22px,3vw,28px)", fontWeight:800, letterSpacing:"-0.6px", marginBottom:"5px" }}>
+            <h1 style={{ fontSize:"28px", fontWeight:800, letterSpacing:"-0.6px", color:"#12111A", marginBottom:"4px" }}>
               The Studio
             </h1>
-            <div style={{ display:"flex", alignItems:"center", gap:"7px" }}>
-              <div className="pulse-dot" />
-              <span style={{ fontSize:"13px", color:"#6B6B7A" }}>
-                {loading ? "Loading…" : `${counts.active} active · ${counts.review} in review`}
-              </span>
-
+            <div style={{ fontSize:"13px", color:"#8A8A9A" }}>
+              Good {hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening"}, {firstName}
             </div>
           </div>
           <button className="new-btn" onClick={() => router.push("/dashboard/new")} id="desktop-new-btn" style={{ display:"none" }}>
@@ -654,108 +736,77 @@ export default function DashboardPage() {
           </>
         ) : (
           <>
-            {/* ── TOP STAT CARDS ── */}
-            <div className="fi fi2 bento bento-top" style={{ marginBottom:"16px" }}>
-
-              {/* Total */}
-              <div className="card stat-card">
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px" }}>Total</div>
-                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#12111A", lineHeight:1 }}>{counts.all}</div>
-                <div style={{ fontSize:"12px", color:"#6B6B7A", marginTop:"6px" }}>projects</div>
-              </div>
-
-              {/* In Review */}
-              <div className="card stat-card" style={{ background:"rgba(245,158,11,0.08)", borderColor:"rgba(245,158,11,0.2)", cursor: counts.review > 0 ? "pointer" : "default" }}
-                onClick={() => counts.review > 0 && setFilter("review")}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>In Review</div>
-                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#F59E0B", lineHeight:1 }}>{counts.review}</div>
-                <div style={{ fontSize:"12px", color:"rgba(245,158,11,0.5)", marginTop:"6px" }}>awaiting client</div>
-              </div>
-
-              {/* Active */}
-              <div className="card stat-card" style={{ background:"rgba(91,76,245,0.08)", borderColor:"rgba(91,76,245,0.2)", cursor:"pointer" }}
-                onClick={() => setFilter("active")}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>Active</div>
-                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#5B4CF5", lineHeight:1 }}>{counts.active}</div>
-                <div style={{ fontSize:"12px", color:"rgba(91,76,245,0.5)", marginTop:"6px" }}>in progress</div>
-              </div>
-
-              {/* Approved */}
-              <div className="card stat-card" style={{ background:"rgba(11,171,108,0.08)", borderColor:"rgba(11,171,108,0.2)", cursor:"pointer" }}
-                onClick={() => setFilter("approved")}>
-                <div style={{ fontSize:"11px", fontWeight:700, color:"#0BAB6C", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"10px", opacity:0.8 }}>Approved</div>
-                <div style={{ fontSize:"36px", fontWeight:900, letterSpacing:"-1px", color:"#0BAB6C", lineHeight:1 }}>{counts.approved}</div>
-                <div style={{ fontSize:"12px", color:"rgba(11,171,108,0.5)", marginTop:"6px" }}>completed</div>
-              </div>
-            </div>
-
-            {/* ── MID ROW: In Review Spotlight + Recent Activity ── */}
-            {(reviewProjs.length > 0 || recentActivity.length > 0) && (
-              <div className="fi fi3 bento bento-mid" style={{ marginBottom:"16px" }}>
-
-                {/* In Review Spotlight */}
-                {reviewProjs.length > 0 && (
-                  <div className="card" style={{ background:"rgba(245,158,11,0.04)", borderColor:"rgba(245,158,11,0.15)" }}>
-                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"18px" }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-                        <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:"#F59E0B", animation:"pulse 2s ease-in-out infinite" }} />
-                        <span style={{ fontSize:"12px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.07em" }}>Awaiting Client</span>
-                      </div>
-                      <span style={{ fontSize:"11px", color:"#6B6B7A" }}>{reviewProjs.length} project{reviewProjs.length!==1?"s":""}</span>
-                    </div>
-                    <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
-                      {reviewProjs.slice(0,3).map((p, i) => (
-                        <div key={p.id} onClick={() => router.push(`/dashboard/project/${p.id}`)}
-                          style={{ display:"flex", alignItems:"center", gap:"14px", padding:"12px 16px", borderRadius:"12px", background:"#F9F9FB", border:"1px solid #E4E4E8", cursor:"pointer", transition:"all 0.15s" }}>
-                          <div style={{ width:"36px", height:"36px", borderRadius:"10px", background:`${CARD_COLORS[i%CARD_COLORS.length]}22`, border:`1px solid ${CARD_COLORS[i%CARD_COLORS.length]}40`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"13px", fontWeight:800, color:CARD_COLORS[i%CARD_COLORS.length], flexShrink:0 }}>
-                            {p.name.slice(0,2).toUpperCase()}
-                          </div>
-                          <div style={{ flex:1, minWidth:0 }}>
-                            <div style={{ fontSize:"14px", fontWeight:700, marginBottom:"2px", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.name}</div>
-                            <div style={{ fontSize:"12px", color:"#6B6B7A" }}>{p.client_name}</div>
-                          </div>
-                          <div style={{ display:"flex", alignItems:"center", gap:"6px", flexShrink:0 }}>
-                            <span style={{ fontSize:"11px", color:"#6B6B7A" }}>{timeAgo(p.updated_at)}</span>
-                            <Icons.Arrow />
+            {/* ── ZONE 1: ACTION REQUIRED ── */}
+            {actionItems.length > 0 && (
+              <div className="fi fi2" style={{ marginBottom:"24px" }}>
+                <div style={{ fontSize:"11px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Action Required</div>
+                <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
+                  {actionItems.map((item, idx) => {
+                    const bc = item.type === "revision" ? "#EF4444" : item.type === "pending" ? "#F59E0B" : "#5B4CF5";
+                    const ba = item.type === "revision" ? "rgba(239,68,68,0.2)" : item.type === "pending" ? "rgba(245,158,11,0.2)" : "rgba(91,76,245,0.2)";
+                    const ctaBg = item.type === "revision" ? "rgba(239,68,68,0.08)" : item.type === "pending" ? "rgba(245,158,11,0.08)" : "rgba(91,76,245,0.08)";
+                    return (
+                      <div key={idx} style={{ background:"#fff", border:`1px solid ${ba}`, borderLeft:`4px solid ${bc}`, borderRadius:"12px", padding:"14px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"16px" }}>
+                        <div style={{ display:"flex", alignItems:"flex-start", gap:"12px", flex:1, minWidth:0 }}>
+                          <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:bc, flexShrink:0, marginTop:"5px" }} />
+                          <div style={{ minWidth:0 }}>
+                            <div style={{ fontSize:"14px", fontWeight:600, color:"#12111A", marginBottom:item.message ? "3px" : 0 }}>{item.label}</div>
+                            {item.message && (
+                              <div style={{ fontSize:"13px", color:"#6B6B7A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{item.message}</div>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Recent Activity */}
-                {recentActivity.length > 0 && (
-                  <div className="card">
-                    <div style={{ fontSize:"12px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:"16px" }}>Recent Activity</div>
-                    <div>
-                      {recentActivity.map(a => {
-                        const isApproved = a.type === "approved";
-                        return (
-                          <div key={a.id} className="activity-row" onClick={() => router.push(`/dashboard/project/${a.project_id}`)}>
-                            <div style={{ width:"30px", height:"30px", borderRadius:"8px", flexShrink:0, background:isApproved?"rgba(11,171,108,0.12)":"rgba(245,158,11,0.12)", border:`1px solid ${isApproved?"rgba(11,171,108,0.25)":"rgba(245,158,11,0.25)"}`, display:"flex", alignItems:"center", justifyContent:"center", color:isApproved?"#0BAB6C":"#F59E0B" }}>
-                              {isApproved ? <Icons.Check /> : <Icons.Warning />}
-                            </div>
-                            <div style={{ flex:1, minWidth:0 }}>
-                              <div style={{ fontSize:"13px", fontWeight:600, color:"#12111A", marginBottom:"1px", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{a.project_name}</div>
-                              <div style={{ fontSize:"11px", color:isApproved?"#0BAB6C":"#F59E0B" }}>{isApproved?"Approved":"Changes requested"}</div>
-                              {a.message && <div style={{ fontSize:"11px", color:"#6B6B7A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:"2px" }}>"{a.message}"</div>}
-                            </div>
-                            <span style={{ fontSize:"11px", color:"#6B6B7A", flexShrink:0 }}>{timeAgo(a.created_at)}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                        <button onClick={() => router.push(`/dashboard/project/${item.projectId}`)} style={{ background:ctaBg, color:bc, border:`1px solid ${ba}`, padding:"7px 14px", borderRadius:"8px", fontSize:"12px", fontWeight:700, cursor:"pointer", whiteSpace:"nowrap", fontFamily:"'Outfit',sans-serif", flexShrink:0 }}>
+                          {item.cta}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
+
+            {/* ── ZONE 2: OVERVIEW STATS ── */}
+            <div className="fi fi3" style={{ marginBottom:"24px" }}>
+              <div style={{ fontSize:"11px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"12px" }}>Overview</div>
+              <div className="bento bento-top">
+                {/* Total */}
+                <div className="card stat-card">
+                  <div style={{ fontSize:"11px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Total</div>
+                  <div style={{ fontSize:"32px", fontWeight:800, letterSpacing:"-1px", color:"#12111A", lineHeight:1 }}>{counts.all}</div>
+                  <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>projects</div>
+                </div>
+
+                {/* In Review */}
+                <div className="card stat-card" style={{ background:"rgba(245,158,11,0.04)", borderColor:"rgba(245,158,11,0.2)", cursor: counts.review > 0 ? "pointer" : "default" }}
+                  onClick={() => counts.review > 0 && setFilter("review")}>
+                  <div style={{ fontSize:"11px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>In Review</div>
+                  <div style={{ fontSize:"32px", fontWeight:800, letterSpacing:"-1px", color:"#F59E0B", lineHeight:1 }}>{counts.review}</div>
+                  <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>awaiting client</div>
+                </div>
+                {/* Active */}
+                <div className="card stat-card" style={{ background:"rgba(91,76,245,0.04)", borderColor:"rgba(91,76,245,0.2)", cursor:"pointer" }}
+                  onClick={() => setFilter("active")}>
+                  <div style={{ fontSize:"11px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Active</div>
+                  <div style={{ fontSize:"32px", fontWeight:800, letterSpacing:"-1px", color:"#5B4CF5", lineHeight:1 }}>{counts.active}</div>
+                  <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>in progress</div>
+                </div>
+                {/* Approved */}
+                <div className="card stat-card" style={{ background:"rgba(11,171,108,0.04)", borderColor:"rgba(11,171,108,0.2)", cursor:"pointer" }}
+                  onClick={() => setFilter("approved")}>
+                  <div style={{ fontSize:"11px", fontWeight:700, color:"#0BAB6C", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Approved</div>
+                  <div style={{ fontSize:"32px", fontWeight:800, letterSpacing:"-1px", color:"#0BAB6C", lineHeight:1 }}>{counts.approved}</div>
+                  <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>completed</div>
+                </div>
+              </div>
+            </div>
 
             {/* ── PROJECT GRID ── */}
             <div className="fi fi4">
               {/* Filter row */}
               {projects.length > 0 && (
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"16px", gap:"12px", flexWrap:"wrap" }}>
+                  <span style={{ fontSize:"11px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em" }}>Your Projects</span>
                   <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
                     {(["all","active","review","approved","draft"] as const).map(f => (
                       <button key={f} className={`filter-pill${filter===f?" active":""}`} onClick={() => setFilter(f)}>
@@ -784,54 +835,31 @@ export default function DashboardPage() {
               {/* Grid */}
               {filtered.length > 0 && (
                 <div className="bento bento-projects">
-                  {filtered.map((project, i) => {
-                    const st    = STATUS_CONFIG[project.status] ?? STATUS_CONFIG.draft;
-                    const color = CARD_COLORS[i % CARD_COLORS.length];
-                    const hasUnreadCard = activity.some(a =>
-                      a.project_id === project.id &&
-                      new Date(a.created_at) > lastSeen &&
-                      (a.type === "approved" || a.type === "changes_requested")
-                    );
+                  {filtered.map((project) => {
+                    const st = STATUS_CONFIG[project.status] ?? STATUS_CONFIG.draft;
                     return (
                       <div key={project.id} className="proj-card" onClick={() => router.push(`/dashboard/project/${project.id}`)}>
-                        {/* Top color accent */}
-                        <div style={{ position:"absolute", top:0, left:0, right:0, height:"2px", background:`linear-gradient(90deg,${color},transparent)`, borderRadius:"16px 16px 0 0" }} />
+                        {/* Top accent bar — status color */}
+                        <div style={{ position:"absolute", top:0, left:0, right:0, height:"3px", background:st.color, borderRadius:"12px 12px 0 0" }} />
 
-                        {/* Unread dot */}
-                        {hasUnreadCard && (
-                          <div style={{ position:"absolute", top:"14px", right:"14px", width:"7px", height:"7px", borderRadius:"50%", background:"#EF4444", boxShadow:`0 0 0 2px #F5F6FA` }} />
-                        )}
-
-                        {/* Header */}
-                        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"14px" }}>
-                          <div style={{ width:"40px", height:"40px", borderRadius:"11px", background:`${color}18`, border:`1px solid ${color}30`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"13px", fontWeight:800, color, flexShrink:0 }}>
+                        {/* Avatar + name */}
+                        <div style={{ display:"flex", alignItems:"flex-start", gap:"12px", marginBottom:"14px", marginTop:"6px" }}>
+                          <div style={{ width:"36px", height:"36px", borderRadius:"10px", background:st.bg, border:`1px solid ${st.border}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"12px", fontWeight:800, color:st.color, flexShrink:0 }}>
                             {project.name.slice(0,2).toUpperCase()}
                           </div>
-                          <div style={{ display:"inline-flex", alignItems:"center", gap:"5px", background:st.bg, color:st.color, padding:"4px 10px", borderRadius:"999px", fontSize:"11px", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em", border:`1px solid ${st.border}` }}>
+                          <div style={{ minWidth:0 }}>
+                            <h3 style={{ fontSize:"14px", fontWeight:700, color:"#12111A", marginBottom:"3px", lineHeight:1.3, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{project.name}</h3>
+                            <div style={{ fontSize:"12px", color:"#8A8A9A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{project.client_name}</div>
+                          </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div style={{ borderTop:"1px solid #E4E4E8", paddingTop:"10px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                          <div style={{ display:"inline-flex", alignItems:"center", gap:"4px", background:st.bg, color:st.color, padding:"3px 9px", borderRadius:"999px", fontSize:"11px", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em", border:`1px solid ${st.border}` }}>
                             <span style={{ width:"4px", height:"4px", borderRadius:"50%", background:st.color }} />
                             {st.label}
                           </div>
-                        </div>
-
-                        {/* Name + client */}
-                        <div style={{ marginBottom:"14px" }}>
-                          <h3 style={{ fontSize:"14px", fontWeight:700, marginBottom:"3px", lineHeight:1.3 }}>{project.name}</h3>
-                          <div style={{ fontSize:"12px", color:"#6B6B7A" }}>{project.client_name}</div>
-                        </div>
-
-                        {/* Current stage */}
-                        {project.current_stage && (
-                          <div style={{ fontSize:"11px", color:"#6B6B7A", marginBottom:"14px", display:"flex", alignItems:"center", gap:"5px" }}>
-                            <span style={{ color, fontSize:"8px" }}>◆</span>{project.current_stage}
-                          </div>
-                        )}
-
-                        {/* Footer */}
-                        <div style={{ borderTop:"1px solid #E4E4E8", paddingTop:"12px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                          <span style={{ fontSize:"11px", color:"#6B6B7A" }}>{timeAgo(project.updated_at)}</span>
-                          <div style={{ display:"flex", alignItems:"center", gap:"4px", color:"#6B6B7A", fontSize:"11px" }}>
-                            Open <Icons.Arrow />
-                          </div>
+                          <span style={{ fontSize:"11px", color:"#8A8A9A" }}>{timeAgo(project.updated_at)}</span>
                         </div>
                       </div>
                     );
@@ -839,12 +867,12 @@ export default function DashboardPage() {
 
                   {/* New project card */}
                   {filter === "all" && (
-                    <div className="proj-card" style={{ border:"1px dashed rgba(91,76,245,0.25)", background:"rgba(91,76,245,0.03)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"10px", minHeight:"160px" }}
+                    <div className="proj-card new-proj-card" style={{ border:"1.5px dashed rgba(91,76,245,0.25)", background:"#fff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"10px", minHeight:"120px" }}
                       onClick={() => router.push("/dashboard/new")}>
-                      <div style={{ width:"40px", height:"40px", borderRadius:"11px", background:"rgba(91,76,245,0.12)", border:"1px solid rgba(91,76,245,0.25)", display:"flex", alignItems:"center", justifyContent:"center", color:"#5B4CF5" }}>
+                      <div style={{ width:"36px", height:"36px", borderRadius:"50%", background:"rgba(91,76,245,0.1)", border:"1px solid rgba(91,76,245,0.25)", display:"flex", alignItems:"center", justifyContent:"center", color:"#5B4CF5" }}>
                         <Icons.Plus />
                       </div>
-                      <span style={{ fontSize:"13px", fontWeight:600, color:"#6B6B7A" }}>New Project</span>
+                      <span style={{ fontSize:"13px", fontWeight:600, color:"#5B4CF5" }}>New Project</span>
                     </div>
                   )}
                 </div>
