@@ -98,6 +98,7 @@ export default function PaymentsPage() {
   const [fNotes,     setFNotes]     = useState("");
   const [fStatus,    setFStatus]    = useState<InvoiceStatus>("draft");
   const [fItems,     setFItems]     = useState<LineItem[]>([emptyLineItem()]);
+  const [fTitle,     setFTitle]     = useState("");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -177,7 +178,7 @@ export default function PaymentsPage() {
   // ── Open new modal ─────────────────────────────────────────────────────────
   const openNew = () => {
     setFClient(""); setFEmail(""); setFProject(""); setFCurrency("USD");
-    setFDueDate(""); setFNotes(""); setFStatus("draft");
+    setFDueDate(""); setFNotes(""); setFStatus("draft"); setFTitle("");
     setFItems([emptyLineItem()]);
     setEditId(null);
     setModal("new");
@@ -189,13 +190,14 @@ export default function PaymentsPage() {
     setFProject(inv.project_id ?? ""); setFCurrency(inv.currency);
     setFDueDate(inv.due_date ? inv.due_date.slice(0, 10) : "");
     setFNotes(inv.notes ?? ""); setFStatus(inv.status);
+    setFTitle(inv.client_name ? `Invoice for ${inv.client_name}` : "");
     setFItems(inv.line_items.length ? inv.line_items : [emptyLineItem()]);
     setEditId(inv.id);
     setModal("edit");
   };
 
   // ── Save invoice ───────────────────────────────────────────────────────────
-  const saveInvoice = async () => {
+  const saveInvoice = async (statusOverride?: InvoiceStatus) => {
     if (!fClient.trim()) return;
     setSaving(true);
     const payload = {
@@ -208,7 +210,7 @@ export default function PaymentsPage() {
       currency:       fCurrency,
       total_amount:   totalAmount,
       due_date:       fDueDate || null,
-      status:         fStatus,
+      status:         modal === "new" ? (statusOverride ?? "draft") : fStatus,
       notes:          fNotes.trim() || null,
     };
 
@@ -287,19 +289,23 @@ export default function PaymentsPage() {
         button:focus-visible{box-shadow:0 0 0 3px rgba(91,76,245,0.25);outline:none;}
 
         /* Modal */
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;}
-        .modal{background:#0f1120;border:1px solid rgba(255,255,255,0.1);border-radius:20px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;animation:fadeUp 0.25s ease forwards;}
-        .modal-header{padding:24px 28px 0;display:flex;align-items:center;justify-content:space-between;}
-        .modal-body{padding:20px 28px 28px;}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;}
+        .modal{background:#ffffff;border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,0.12);width:100%;max-width:640px;animation:fadeUp 0.25s ease forwards;display:flex;flex-direction:column;max-height:90vh;}
+        .modal-header{padding:24px 28px;border-bottom:1px solid #E4E4E8;flex-shrink:0;}
+        .modal-body{padding:20px 28px;overflow-y:auto;max-height:420px;}
+        .modal-footer{padding:16px 28px;border-top:1px solid #E4E4E8;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;}
 
-        .form-label{font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.05em;}
-        .form-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:13.5px;outline:none;transition:border-color 0.2s;}
-        .form-input::placeholder{color:rgba(255,255,255,0.2);}
-        .form-input:focus{border-color:rgba(91,76,245,0.5);background:rgba(91,76,245,0.04);}
-        .form-select{appearance:none;background:rgba(255,255,255,0.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='rgba(255,255,255,0.3)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 32px 10px 14px;color:#fff;font-family:'Outfit',sans-serif;font-size:13.5px;outline:none;cursor:pointer;}
-        .form-select option{background:#0f1120;}
+        .form-label{font-size:11px;font-weight:700;color:#8A8A9A;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.07em;}
+        .form-input{width:100%;background:#F5F6FA;border:1px solid #E4E4E8;border-radius:10px;padding:10px 14px;color:#12111A;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+        .form-input::placeholder{color:#B0B0BC;}
+        .form-input:focus{border-color:#5B4CF5;box-shadow:0 0 0 3px rgba(91,76,245,0.1);outline:none;}
+        .form-select{appearance:none;background:#F5F6FA url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238A8A9A' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;border:1px solid #E4E4E8;border-radius:10px;padding:10px 32px 10px 14px;color:#12111A;font-family:'Outfit',sans-serif;font-size:14px;outline:none;cursor:pointer;}
+        .form-select option{background:#ffffff;color:#12111A;}
 
-        .line-item-row{display:grid;grid-template-columns:1fr 80px 100px 90px 28px;gap:8px;align-items:center;margin-bottom:8px;}
+        .line-item-row{display:grid;grid-template-columns:1fr 52px 80px 72px 32px;gap:8px;align-items:center;margin-bottom:8px;}
+        .li-card{background:#F5F6FA;border:1px solid #E4E4E8;border-radius:10px;padding:10px 12px;}
+        .li-remove{width:28px;height:28px;border-radius:6px;background:transparent;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#B0B0BC;transition:all 0.15s;font-family:'Outfit',sans-serif;}
+        .li-remove:hover{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.2);color:#EF4444;}
 
         .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(255,255,255,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
 
@@ -493,20 +499,30 @@ export default function PaymentsPage() {
       {modal && (
         <div className="modal-overlay" onClick={() => setModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
+
+            {/* Header */}
             <div className="modal-header">
-              <div>
-                <h2 style={{fontSize:"18px",fontWeight:800,letterSpacing:"-0.4px"}}>{modal==="new"?"New Invoice":"Edit Invoice"}</h2>
-                {modal==="new" && <div style={{fontSize:"12px",color:"rgba(255,255,255,0.3)",marginTop:"3px"}}>#{nextInvoiceNumber()}</div>}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"12px"}}>
+                <span style={{background:"rgba(91,76,245,0.08)",border:"1px solid rgba(91,76,245,0.2)",borderRadius:"6px",padding:"3px 10px",fontSize:"11px",fontWeight:700,color:"#5B4CF5",letterSpacing:"0.04em"}}>
+                  #{modal==="new" ? nextInvoiceNumber() : invoices.find(i=>i.id===editId)?.invoice_number ?? ""}
+                </span>
+                <button onClick={() => setModal(null)} style={{background:"#F5F6FA",border:"1px solid #E4E4E8",borderRadius:"8px",width:"32px",height:"32px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#6B6B7A"}}><Icons.Close /></button>
               </div>
-              <button onClick={() => setModal(null)} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"8px",width:"32px",height:"32px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,0.5)"}}><Icons.Close /></button>
+              <input
+                value={fTitle}
+                onChange={e => setFTitle(e.target.value)}
+                placeholder={fClient ? `Invoice for ${fClient}…` : "Invoice for Client…"}
+                style={{width:"100%",fontSize:"20px",fontWeight:800,color:"#12111A",border:"none",background:"transparent",outline:"none",fontFamily:"'Outfit',sans-serif",padding:0}}
+              />
             </div>
 
+            {/* Body */}
             <div className="modal-body">
-              {/* Client info */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px",marginBottom:"16px"}}>
+              {/* Row 1: Client Name + Email */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px",marginBottom:"14px"}}>
                 <div>
                   <label className="form-label">Client Name *</label>
-                  <input className="form-input" placeholder="Jane Smith" value={fClient} onChange={e => setFClient(e.target.value)} />
+                  <input className="form-input" placeholder="Jane Smith" value={fClient} onChange={e => { setFClient(e.target.value); setFTitle(`Invoice for ${e.target.value}`); }} />
                 </div>
                 <div>
                   <label className="form-label">Client Email</label>
@@ -514,8 +530,8 @@ export default function PaymentsPage() {
                 </div>
               </div>
 
-              {/* Project + Currency + Due date + Status */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px",marginBottom:"16px"}}>
+              {/* Row 2: Project + Due Date */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px",marginBottom:"14px"}}>
                 <div>
                   <label className="form-label">Project (optional)</label>
                   <select className="form-input form-select" value={fProject} onChange={e => setFProject(e.target.value)}>
@@ -524,17 +540,23 @@ export default function PaymentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="form-label">Currency</label>
-                  <select className="form-input form-select" value={fCurrency} onChange={e => setFCurrency(e.target.value as Currency)}>
-                    <option value="USD">USD — US Dollar ($)</option>
-                    <option value="PKR">PKR — Pakistani Rupee (₨)</option>
-                  </select>
-                </div>
-                <div>
                   <label className="form-label">Due Date</label>
-                  <input className="form-input" type="date" value={fDueDate} onChange={e => setFDueDate(e.target.value)} style={{colorScheme:"dark"}} />
+                  <input className="form-input" type="date" value={fDueDate} onChange={e => setFDueDate(e.target.value)} style={{colorScheme:"light"}} />
                 </div>
-                <div>
+              </div>
+
+              {/* Row 3: Currency */}
+              <div style={{marginBottom:"20px",maxWidth:"200px"}}>
+                <label className="form-label">Currency</label>
+                <select className="form-input form-select" value={fCurrency} onChange={e => setFCurrency(e.target.value as Currency)}>
+                  <option value="USD">USD — US Dollar ($)</option>
+                  <option value="PKR">PKR — Pakistani Rupee (₨)</option>
+                </select>
+              </div>
+
+              {/* Edit modal: Status field */}
+              {modal === "edit" && (
+                <div style={{marginBottom:"20px",maxWidth:"200px"}}>
                   <label className="form-label">Status</label>
                   <select className="form-input form-select" value={fStatus} onChange={e => setFStatus(e.target.value as InvoiceStatus)}>
                     <option value="draft">Draft</option>
@@ -543,57 +565,79 @@ export default function PaymentsPage() {
                     <option value="overdue">Overdue</option>
                   </select>
                 </div>
-              </div>
+              )}
 
               {/* Line items */}
               <div style={{marginBottom:"16px"}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"10px"}}>
                   <label className="form-label" style={{margin:0}}>Line Items</label>
-                  <button onClick={addItem} style={{background:"rgba(91,76,245,0.12)",border:"1px solid rgba(91,76,245,0.3)",borderRadius:"8px",padding:"4px 10px",cursor:"pointer",color:"#7B6CF9",fontSize:"12px",fontFamily:"'Outfit',sans-serif",fontWeight:600,display:"flex",alignItems:"center",gap:"5px"}}><Icons.Plus />Add Item</button>
+                  <button onClick={addItem} style={{background:"rgba(91,76,245,0.08)",border:"1px solid rgba(91,76,245,0.2)",borderRadius:"8px",padding:"5px 11px",cursor:"pointer",color:"#5B4CF5",fontSize:"12px",fontFamily:"'Outfit',sans-serif",fontWeight:700,display:"flex",alignItems:"center",gap:"5px"}}><Icons.Plus />Add Item</button>
                 </div>
 
-                {/* Header */}
-                <div className="line-item-row" style={{marginBottom:"4px"}}>
+                {/* Column headers */}
+                <div className="line-item-row" style={{marginBottom:"6px",padding:"0 12px"}}>
                   {["Description","Qty","Unit Price","Amount",""].map((h,i) => (
-                    <div key={i} style={{fontSize:"10px",fontWeight:700,color:"rgba(255,255,255,0.25)",textTransform:"uppercase",letterSpacing:"0.06em"}}>{h}</div>
+                    <div key={i} style={{fontSize:"10px",fontWeight:700,color:"#8A8A9A",textTransform:"uppercase",letterSpacing:"0.06em"}}>{h}</div>
                   ))}
                 </div>
 
-                {fItems.map((item, idx) => (
-                  <div key={idx} className="line-item-row">
-                    <input className="form-input" style={{padding:"8px 10px",fontSize:"13px"}} placeholder="Design work…" value={item.description} onChange={e => updateItem(idx,"description",e.target.value)} />
-                    <input className="form-input" style={{padding:"8px 10px",fontSize:"13px",textAlign:"center"}} type="number" min="1" value={item.quantity} onChange={e => updateItem(idx,"quantity",parseFloat(e.target.value)||1)} />
-                    <input className="form-input" style={{padding:"8px 10px",fontSize:"13px",textAlign:"right"}} type="number" min="0" step="0.01" placeholder="0.00" value={item.unit_price||""} onChange={e => updateItem(idx,"unit_price",parseFloat(e.target.value)||0)} />
-                    <div style={{fontSize:"13px",fontWeight:600,color:"rgba(255,255,255,0.7)",textAlign:"right",padding:"8px 2px"}}>
-                      {CURRENCIES[fCurrency]}{(Number(item.quantity)*Number(item.unit_price)).toFixed(2)}
+                {/* Item rows */}
+                <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+                  {fItems.map((item, idx) => (
+                    <div key={idx} className="li-card">
+                      <div className="line-item-row" style={{margin:0}}>
+                        <input className="form-input" style={{padding:"7px 10px",fontSize:"13px",background:"#fff"}} placeholder="Design work…" value={item.description} onChange={e => updateItem(idx,"description",e.target.value)} />
+                        <input className="form-input" style={{padding:"7px 8px",fontSize:"13px",textAlign:"center",background:"#fff"}} type="number" min="1" value={item.quantity} onChange={e => updateItem(idx,"quantity",parseFloat(e.target.value)||1)} />
+                        <input className="form-input" style={{padding:"7px 8px",fontSize:"13px",textAlign:"right",background:"#fff"}} type="number" min="0" step="0.01" placeholder="0.00" value={item.unit_price||""} onChange={e => updateItem(idx,"unit_price",parseFloat(e.target.value)||0)} />
+                        <div style={{fontSize:"13px",fontWeight:600,color:"#12111A",textAlign:"right",padding:"7px 2px"}}>
+                          {CURRENCIES[fCurrency]}{(Number(item.quantity)*Number(item.unit_price)).toFixed(2)}
+                        </div>
+                        <button className="li-remove" onClick={() => fItems.length > 1 ? removeItem(idx) : undefined}><Icons.Close /></button>
+                      </div>
                     </div>
-                    {fItems.length > 1 ? (
-                      <button onClick={() => removeItem(idx)} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.25)",display:"flex",alignItems:"center",justifyContent:"center",padding:"4px"}}><Icons.Close /></button>
-                    ) : <div />}
-                  </div>
-                ))}
-
-                {/* Total */}
-                <div style={{display:"flex",justifyContent:"flex-end",marginTop:"12px",paddingTop:"12px",borderTop:"1px solid rgba(255,255,255,0.06)"}}>
-                  <div style={{textAlign:"right"}}>
-                    <div style={{fontSize:"11px",color:"rgba(255,255,255,0.35)",marginBottom:"4px"}}>TOTAL</div>
-                    <div style={{fontSize:"20px",fontWeight:800,color:"#fff"}}>{formatCurrency(totalAmount,fCurrency)}</div>
-                  </div>
+                  ))}
                 </div>
+
+                {/* Total row */}
+                <div style={{background:"#F5F6FA",border:"1px solid #E4E4E8",borderRadius:"12px",padding:"14px 18px",marginTop:"12px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <span style={{fontSize:"12px",fontWeight:700,color:"#8A8A9A",textTransform:"uppercase",letterSpacing:"0.07em"}}>Total</span>
+                  <span style={{fontSize:"26px",fontWeight:800,color:"#12111A",letterSpacing:"-1px"}}>{formatCurrency(totalAmount,fCurrency)}</span>
+                </div>
+
+                {/* Zero warning */}
+                {totalAmount === 0 && fItems.some(i => i.description.trim()) && (
+                  <div style={{background:"rgba(245,158,11,0.06)",border:"1px solid rgba(245,158,11,0.2)",borderRadius:"10px",padding:"10px 14px",marginTop:"8px"}}>
+                    <span style={{fontSize:"12px",fontWeight:600,color:"#F59E0B"}}>Total is $0.00 — don&apos;t forget to add your prices above</span>
+                  </div>
+                )}
               </div>
 
               {/* Notes */}
-              <div style={{marginBottom:"24px"}}>
+              <div>
                 <label className="form-label">Notes (optional)</label>
                 <textarea className="form-input" rows={3} placeholder="Payment terms, bank details, thank you note…" value={fNotes} onChange={e => setFNotes(e.target.value)} style={{resize:"vertical"}} />
               </div>
+            </div>
 
-              {/* Submit */}
-              <div style={{display:"flex",gap:"10px",justifyContent:"flex-end"}}>
-                <button onClick={() => setModal(null)} style={{padding:"10px 20px",background:"transparent",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"10px",color:"rgba(255,255,255,0.4)",fontFamily:"'Outfit',sans-serif",fontSize:"13px",cursor:"pointer"}}>Cancel</button>
-                <button onClick={saveInvoice} disabled={saving||!fClient.trim()} style={{padding:"10px 24px",background:"linear-gradient(135deg,#5B4CF5,#0BAB6C)",border:"none",borderRadius:"10px",color:"#fff",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:700,cursor:"pointer",opacity:saving||!fClient.trim()?0.5:1}}>
-                  {saving ? "Saving…" : modal==="new" ? "Create Invoice" : "Save Changes"}
-                </button>
+            {/* Footer */}
+            <div className="modal-footer">
+              <span style={{fontSize:"12px",color:"#B0B0BC"}}>All invoices start as Draft</span>
+              <div style={{display:"flex",gap:"8px",alignItems:"center"}}>
+                <button onClick={() => setModal(null)} style={{padding:"10px 18px",background:"#fff",border:"1px solid #E4E4E8",borderRadius:"10px",color:"#6B6B7A",fontFamily:"'Outfit',sans-serif",fontSize:"13px",cursor:"pointer"}}>Cancel</button>
+                {modal === "new" ? (
+                  <>
+                    <button onClick={() => saveInvoice("draft")} disabled={saving||!fClient.trim()} style={{padding:"10px 18px",background:"rgba(91,76,245,0.07)",border:"1px solid rgba(91,76,245,0.25)",borderRadius:"10px",color:"#5B4CF5",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:700,cursor:"pointer",opacity:saving||!fClient.trim()?0.5:1}}>
+                      {saving ? "Saving…" : "Save Draft"}
+                    </button>
+                    <button onClick={() => saveInvoice("sent")} disabled={saving||!fClient.trim()} style={{padding:"10px 18px",background:"#5B4CF5",border:"none",borderRadius:"10px",color:"#fff",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:700,cursor:"pointer",opacity:saving||!fClient.trim()?0.5:1}}>
+                      {saving ? "Saving…" : "Save & Send →"}
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => saveInvoice()} disabled={saving||!fClient.trim()} style={{padding:"10px 18px",background:"#5B4CF5",border:"none",borderRadius:"10px",color:"#fff",fontFamily:"'Outfit',sans-serif",fontSize:"13px",fontWeight:700,cursor:"pointer",opacity:saving||!fClient.trim()?0.5:1}}>
+                    {saving ? "Saving…" : "Save Changes"}
+                  </button>
+                )}
               </div>
             </div>
           </div>
