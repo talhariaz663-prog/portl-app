@@ -25,7 +25,7 @@ const NICHES = [
   'Motion Design', 'Packaging Design', 'Social Media Design', 'Other',
 ]
 
-const SETTINGS_NAV = [
+const SETTINGS_NAV: { group: string; items: { id: string; label: string; icon: string; danger?: boolean }[] }[] = [
   { group: 'Account', items: [
     { id: 'profile',       label: 'Profile',        icon: '👤' },
     { id: 'notifications', label: 'Notifications',  icon: '🔔' },
@@ -609,9 +609,9 @@ export default function SettingsPage() {
               {group.items.map(item => (
                 <div
                   key={item.id}
-                  className={`sub-nav-item${activeSection === item.id ? ' active' : ''}${item.danger ? ' danger' : ''}`}
+                  className={`sub-nav-item${activeSection === item.id ? ' active' : ''}${item.danger === true ? ' danger' : ''}`}
                   onClick={() => setActiveSection(item.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', cursor: 'pointer', border: '1px solid transparent', color: item.danger ? '#EF4444' : '#6B6B7A', transition: 'all 0.15s', marginBottom: '2px' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', cursor: 'pointer', border: '1px solid transparent', color: item.danger === true ? '#EF4444' : '#6B6B7A', transition: 'all 0.15s', marginBottom: '2px' }}
                 >
                   <div className="sub-nav-icon" style={{ width: '24px', height: '24px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'transparent', transition: 'background 0.15s' }}>{item.icon}</div>
                   <span style={{ fontSize: '13px', fontWeight: 500 }}>{item.label}</span>
