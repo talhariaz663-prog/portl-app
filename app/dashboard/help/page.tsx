@@ -287,15 +287,15 @@ export default function HelpPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight:"100vh", background:"#07090f", display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <div style={{ width:"28px", height:"28px", border:"2px solid rgba(255,255,255,0.08)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
+      <div style={{ minHeight:"100vh", background:"#F5F6FA", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ width:"28px", height:"28px", border:"2px solid rgba(0,0,0,0.08)", borderTopColor:"#5B4CF5", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight:"100vh", background:"#07090f", fontFamily:"'Outfit',sans-serif", color:"#fff", display:"flex" }}>
+    <div style={{ minHeight:"100vh", background:"#F5F6FA", fontFamily:"'Outfit',sans-serif", color:"#12111A", display:"flex" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
@@ -319,24 +319,24 @@ export default function HelpPage() {
         .sidebar-bottom{padding:16px 12px 20px;border-top:1px solid rgba(255,255,255,0.05);}
         .user-card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
 
-        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(7,9,15,0.97);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
+        .topbar{display:none;position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,0.97);border-bottom:1px solid #E4E4E8;backdrop-filter:blur(20px);z-index:40;align-items:center;justify-content:space-between;padding:0 16px;}
         .main{margin-left:240px;min-height:100vh;padding:40px 48px;position:relative;flex:1;}
 
-        .search-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:11px 16px 11px 42px;color:#fff;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
-        .search-input::placeholder{color:rgba(255,255,255,0.25);}
-        .search-input:focus{border-color:rgba(91,76,245,0.4);background:rgba(91,76,245,0.04);}
+        .search-input{width:100%;background:#ffffff;border:1px solid #E4E4E8;border-radius:12px;padding:11px 16px 11px 42px;color:#12111A;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+        .search-input::placeholder{color:#9A9AAA;}
+        .search-input:focus{border-color:#5B4CF5;box-shadow:0 0 0 3px rgba(91,76,245,0.1);background:#fff;}
 
         .help-section{margin-bottom:40px;}
-        .help-section-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+        .help-section-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #E4E4E8;}
 
-        .faq-item{border-radius:14px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);overflow:hidden;margin-bottom:8px;transition:border-color 0.2s;}
-        .faq-item:hover{border-color:rgba(255,255,255,0.12);}
-        .faq-item.open{border-color:rgba(91,76,245,0.3);background:rgba(91,76,245,0.04);}
+        .faq-item{border-radius:10px;background:#ffffff;border:1px solid #E4E4E8;overflow:hidden;margin-bottom:8px;transition:border-color 0.2s,box-shadow 0.2s;}
+        .faq-item:hover{border-color:#D0D0D8;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+        .faq-item.open{border-color:rgba(91,76,245,0.3);background:rgba(91,76,245,0.02);}
 
         .faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;gap:12px;}
-        .faq-a{padding:0 20px 16px;font-size:13.5px;color:rgba(255,255,255,0.5);line-height:1.75;white-space:pre-line;border-top:1px solid rgba(255,255,255,0.05);}
+        .faq-a{padding:0 20px 16px;font-size:13.5px;color:#4A4A5A;line-height:1.75;white-space:pre-line;border-top:1px solid #E4E4E8;}
 
-        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(7,9,15,0.98);border-bottom:1px solid rgba(255,255,255,0.08);padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
+        .mobile-menu{position:fixed;top:60px;left:0;right:0;z-index:50;background:rgba(255,255,255,0.98);border-bottom:1px solid #E4E4E8;padding:16px;backdrop-filter:blur(20px);animation:fadeIn 0.2s ease forwards;}
 
         @media(max-width:768px){
           .sidebar{display:none!important;}
@@ -349,7 +349,7 @@ export default function HelpPage() {
       `}</style>
 
       {/* BG */}
-      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:`radial-gradient(ellipse 60% 40% at 100% 0%,rgba(91,76,245,0.06) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 0% 100%,rgba(11,171,108,0.05) 0%,transparent 60%),linear-gradient(rgba(91,76,245,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(91,76,245,0.02) 1px,transparent 1px)`,backgroundSize:"100% 100%,100% 100%,40px 40px,40px 40px"}} />
+      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:"radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)",backgroundSize:"40px 40px"}} />
 
       {/* Sidebar */}
       <aside className="sidebar">
@@ -384,7 +384,7 @@ export default function HelpPage() {
       <header className="topbar">
         <span style={{fontSize:"20px",fontWeight:900,letterSpacing:"-0.6px"}}>Portl<span style={{color:"#5B4CF5"}}>.</span></span>
         <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"8px",width:"36px",height:"36px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,0.7)",fontSize:"18px"}}>☰</button>
+          <button onClick={() => setMenuOpen(!menuOpen)} style={{background:"#F5F6FA",border:"1px solid #E4E4E8",borderRadius:"8px",width:"36px",height:"36px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#4A4A5A",fontSize:"18px"}}>☰</button>
         </div>
       </header>
 
@@ -397,9 +397,9 @@ export default function HelpPage() {
               </div>
             ))}
           </nav>
-          <div style={{borderTop:"1px solid rgba(255,255,255,0.06)",paddingTop:"12px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span style={{fontSize:"12px",color:"rgba(255,255,255,0.35)"}}>{userEmail}</span>
-            <button onClick={handleSignOut} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.35)",fontSize:"12px",fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",gap:"5px"}}><Icons.Signout /> Sign out</button>
+          <div style={{borderTop:"1px solid #E4E4E8",paddingTop:"12px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span style={{fontSize:"12px",color:"#6B6B7A"}}>{userEmail}</span>
+            <button onClick={handleSignOut} style={{background:"none",border:"none",cursor:"pointer",color:"#6B6B7A",fontSize:"12px",fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",gap:"5px"}}><Icons.Signout /> Sign out</button>
           </div>
         </div>
       )}
@@ -412,14 +412,14 @@ export default function HelpPage() {
             <div style={{width:"40px",height:"40px",borderRadius:"12px",background:"rgba(91,76,245,0.15)",border:"1px solid rgba(91,76,245,0.28)",display:"flex",alignItems:"center",justifyContent:"center",color:"#5B4CF5",fontSize:"18px"}}>?</div>
             <div>
               <h1 style={{fontSize:"clamp(22px,3vw,28px)",fontWeight:800,letterSpacing:"-0.6px"}}>Help &amp; Documentation</h1>
-              <p style={{fontSize:"13px",color:"rgba(255,255,255,0.35)",marginTop:"3px"}}>Everything you need to know about using Portl</p>
+              <p style={{fontSize:"13px",color:"#8A8A9A",marginTop:"3px"}}>Everything you need to know about using Portl</p>
             </div>
           </div>
         </div>
 
         {/* Search */}
         <div className="fi fi2" style={{position:"relative",marginBottom:"36px",maxWidth:"520px"}}>
-          <div style={{position:"absolute",left:"14px",top:"50%",transform:"translateY(-50%)",color:"rgba(255,255,255,0.3)",pointerEvents:"none"}}>
+          <div style={{position:"absolute",left:"14px",top:"50%",transform:"translateY(-50%)",color:"#9A9AAA",pointerEvents:"none"}}>
             <Icons.Search />
           </div>
           <input
@@ -433,9 +433,9 @@ export default function HelpPage() {
         {/* Sections */}
         <div className="fi fi3">
           {filteredSections.length === 0 ? (
-            <div style={{textAlign:"center",paddingTop:"40px",color:"rgba(255,255,255,0.3)"}}>
+            <div style={{textAlign:"center",paddingTop:"40px",color:"#8A8A9A"}}>
               <div style={{fontSize:"28px",marginBottom:"12px",opacity:0.4}}>⬡</div>
-              <div style={{fontSize:"15px",fontWeight:600,color:"rgba(255,255,255,0.4)"}}>No results for &ldquo;{search}&rdquo;</div>
+              <div style={{fontSize:"15px",fontWeight:600,color:"#6B6B7A"}}>No results for &ldquo;{search}&rdquo;</div>
             </div>
           ) : (
             filteredSections.map(section => (
@@ -444,8 +444,8 @@ export default function HelpPage() {
                   <div style={{width:"32px",height:"32px",borderRadius:"10px",background:`${section.color}18`,border:`1px solid ${section.color}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",color:section.color}}>
                     {section.emoji}
                   </div>
-                  <h2 style={{fontSize:"16px",fontWeight:700,letterSpacing:"-0.3px"}}>{section.title}</h2>
-                  <span style={{fontSize:"12px",color:"rgba(255,255,255,0.22)",marginLeft:"auto"}}>{section.topics.length} topics</span>
+                  <h2 style={{fontSize:"16px",fontWeight:700,letterSpacing:"-0.3px",color:"#12111A"}}>{section.title}</h2>
+                  <span style={{fontSize:"12px",color:"#8A8A9A",marginLeft:"auto"}}>{section.topics.length} topics</span>
                 </div>
 
                 <div>
@@ -455,8 +455,8 @@ export default function HelpPage() {
                     return (
                       <div key={key} className={`faq-item${isOpen?" open":""}`}>
                         <div className="faq-q" onClick={() => setActive(isOpen ? null : key)}>
-                          <span style={{fontSize:"14px",fontWeight:600,color:isOpen?"#fff":"rgba(255,255,255,0.75)"}}>{topic.q}</span>
-                          <span style={{fontSize:"18px",color:"rgba(255,255,255,0.3)",lineHeight:1,flexShrink:0,transform:isOpen?"rotate(45deg)":"none",transition:"transform 0.2s",display:"inline-block"}}>+</span>
+                          <span style={{fontSize:"14px",fontWeight:600,color:"#12111A"}}>{topic.q}</span>
+                          <span style={{fontSize:"18px",color:isOpen?"#5B4CF5":"#8A8A9A",lineHeight:1,flexShrink:0,transform:isOpen?"rotate(45deg)":"none",transition:"transform 0.2s,color 0.2s",display:"inline-block"}}>+</span>
                         </div>
                         {isOpen && (
                           <div className="faq-a">{topic.a}</div>
@@ -475,7 +475,7 @@ export default function HelpPage() {
           <div style={{fontSize:"20px",opacity:0.6}}>💡</div>
           <div>
             <div style={{fontSize:"13px",fontWeight:600,marginBottom:"3px"}}>Need more help?</div>
-            <div style={{fontSize:"12px",color:"rgba(255,255,255,0.4)"}}>If you have a question not covered here, reach out to the Portl team. We&apos;re always improving this documentation.</div>
+            <div style={{fontSize:"12px",color:"#6B6B7A"}}>If you have a question not covered here, reach out to the Portl team. We&apos;re always improving this documentation.</div>
           </div>
         </div>
       </main>
