@@ -32,7 +32,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} antialiased`}
       >
-        {children}
+        <style>{`
+          @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+        <div style={{ opacity: 0, transform: 'translateY(8px)', animation: 'pageEnter 0.22s ease forwards' }}>
+          {children}
+        </div>
       </body>
     </html>
   );
