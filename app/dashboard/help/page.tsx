@@ -301,7 +301,7 @@ export default function HelpPage() {
         * { box-sizing:border-box; margin:0; padding:0; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin   { to{transform:rotate(360deg)} }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
         .fi{animation:fadeUp 0.4s ease forwards;opacity:0}
         .fi1{animation-delay:0.04s}.fi2{animation-delay:0.08s}.fi3{animation-delay:0.12s}
@@ -405,7 +405,7 @@ export default function HelpPage() {
       )}
 
       {/* Main */}
-      <main className="main">
+      <main className="main" style={{animation:"fadeIn 0.2s ease forwards"}}>
         {/* Header */}
         <div className="fi fi1" style={{marginBottom:"32px"}}>
           <div style={{display:"flex",alignItems:"center",gap:"14px",marginBottom:"8px"}}>

@@ -517,7 +517,7 @@ export default function SettingsPage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes fadeIn    { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes fadeIn    { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin      { to{transform:rotate(360deg)} }
         @keyframes fadeNotif { 0%{opacity:1} 70%{opacity:1} 100%{opacity:0} }
 
@@ -650,7 +650,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Animated section content */}
-          <div key={activeSection} style={{ animation: 'fadeIn 0.2s ease forwards' }}>
+          <div key={activeSection} style={{ animation: 'fadeIn 0.18s ease forwards' }}>
             {sectionRenderers[activeSection]?.()}
           </div>
         </div>
