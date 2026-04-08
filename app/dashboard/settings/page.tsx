@@ -97,6 +97,7 @@ export default function SettingsPage() {
   const [userID,          setUserID]          = useState("");
   const [reviewCount,     setReviewCount]     = useState(0);
   const [menuOpen,        setMenuOpen]        = useState(false);
+  const [savedNotifKey,   setSavedNotifKey]   = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -201,6 +202,22 @@ export default function SettingsPage() {
     await supabase.from("profiles").delete().eq("id", userID);
     await supabase.auth.signOut();
     router.replace("/login");
+  };
+
+  const toggleNotifApproved = async () => {
+    const v = !notifyApproved; setNotifyApproved(v);
+    await supabase.from("profiles").update({ notify_approved: v }).eq("id", userID);
+    setSavedNotifKey("approved"); setTimeout(() => setSavedNotifKey(null), 1500);
+  };
+  const toggleNotifRevision = async () => {
+    const v = !notifyRevision; setNotifyRevision(v);
+    await supabase.from("profiles").update({ notify_revision: v }).eq("id", userID);
+    setSavedNotifKey("revision"); setTimeout(() => setSavedNotifKey(null), 1500);
+  };
+  const toggleNotifWeekly = async () => {
+    const v = !notifyWeekly; setNotifyWeekly(v);
+    await supabase.from("profiles").update({ notify_weekly: v }).eq("id", userID);
+    setSavedNotifKey("weekly"); setTimeout(() => setSavedNotifKey(null), 1500);
   };
 
   const handleExport = async () => {
@@ -311,11 +328,15 @@ export default function SettingsPage() {
         .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
         .four-stats{display:flex;gap:8px;}
         .four-stats > *{flex:1;}
+        .settings-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
+        @keyframes fadeSaved{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
+        .notif-saved{font-size:11px;color:#0BAB6C;font-weight:600;animation:fadeSaved 1.5s ease forwards;}
 
         @media(max-width:768px){
           .sidebar{display:none!important;}
           .topbar{display:flex!important;}
           .main{margin-left:0!important;padding:76px 16px 40px!important;}
+          .settings-grid{grid-template-columns:1fr!important;}
         }
         @media(max-width:600px){
           .two-col{grid-template-columns:1fr!important;}
@@ -377,7 +398,6 @@ export default function SettingsPage() {
 
       {/* ── Main ── */}
       <main className="main">
-        <div style={{maxWidth:"720px"}}>
 
           {/* Header */}
           <div className="fi fi1" style={{marginBottom:"28px"}}>
@@ -385,7 +405,9 @@ export default function SettingsPage() {
             <p style={{fontSize:"13px",color:"#8A8A9A",marginTop:"4px"}}>Manage your profile, branding and preferences</p>
           </div>
 
-          <div style={{display:"flex",flexDirection:"column",gap:"20px"}}>
+          <div className="settings-grid">
+            {/* ── LEFT COLUMN ── */}
+            <div style={{display:"flex",flexDirection:"column",gap:"20px"}}>
 
             {/* ── SECTION 1: PROFILE ── */}
             <div className="fi fi2" style={cardStyle}>
@@ -396,10 +418,10 @@ export default function SettingsPage() {
                   <div style={{fontSize:"12px",color:"#8A8A9A",marginTop:"2px"}}>Your public designer information</div>
                 </div>
               </div>
-              <div style={cardBodyStyle}>
+              <div style={{...cardBodyStyle, gap:"12px"}}>
                 {/* Avatar row */}
-                <div style={{display:"flex",alignItems:"center",gap:"14px"}}>
-                  <div style={{width:"64px",height:"64px",borderRadius:"16px",background:"linear-gradient(135deg,#5B4CF5,#0BAB6C)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",fontWeight:800,color:"#fff",flexShrink:0}}>
+                <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
+                  <div style={{width:"48px",height:"48px",borderRadius:"12px",background:"linear-gradient(135deg,#5B4CF5,#0BAB6C)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px",fontWeight:800,color:"#fff",flexShrink:0}}>
                     {initials}
                   </div>
                   <div>
@@ -445,6 +467,51 @@ export default function SettingsPage() {
               </div>
             </div>
 
+            {/* ── SECTION 5: DANGER ZONE ── */}
+            <div className="fi fi4" style={{...cardStyle, border:"1px solid rgba(239,68,68,0.2)", borderLeft:"3px solid #EF4444"}}>
+              <div style={{...cardHeaderStyle, background:"rgba(239,68,68,0.02)", borderBottom:"1px solid rgba(239,68,68,0.15)"}}>
+                <div style={{width:"32px",height:"32px",borderRadius:"8px",background:"rgba(239,68,68,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"15px"}}>⚠️</div>
+                <div>
+                  <div style={{fontSize:"14px",fontWeight:700,color:"#EF4444"}}>Danger Zone</div>
+                  <div style={{fontSize:"12px",color:"#8A8A9A",marginTop:"2px"}}>Irreversible actions — proceed with caution</div>
+                </div>
+              </div>
+              <div style={cardBodyStyle}>
+                {/* Sign out row */}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"12px"}}>
+                  <span style={{fontSize:"13px",color:"#6B6B7A"}}>Signed in as <strong style={{color:"#12111A",fontWeight:600}}>{email}</strong></span>
+                  <button className="ghost-btn" style={ghostBtn} onClick={handleSignOut}>Sign out</button>
+                </div>
+
+                <div style={{height:"1px",background:"#E4E4E8"}} />
+
+                {/* Export row */}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"12px"}}>
+                  <div>
+                    <div style={{fontSize:"13px",fontWeight:600,color:"#12111A"}}>Export my data</div>
+                    <div style={{fontSize:"12px",color:"#8A8A9A",marginTop:"2px"}}>Download all your projects, files and invoices</div>
+                  </div>
+                  <button className="ghost-btn" style={ghostBtn} onClick={handleExport}>Export</button>
+                </div>
+
+                <div style={{height:"1px",background:"#E4E4E8"}} />
+
+                {/* Delete row */}
+                <div>
+                  <div style={{fontSize:"13px",fontWeight:600,color:"#12111A",marginBottom:"4px"}}>Delete Account</div>
+                  <div style={{fontSize:"12px",color:"#8A8A9A",lineHeight:1.5,marginBottom:"12px"}}>Permanently deletes your account, all projects, files and invoices. This cannot be undone.</div>
+                  <button className="danger-ghost-btn" onClick={() => setShowDeleteConfirm(true)} style={{width:"100%",padding:"10px 20px",background:"rgba(239,68,68,0.06)",color:"#EF4444",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"10px",fontSize:"13px",fontWeight:600,fontFamily:"'Outfit',sans-serif",cursor:"pointer"}}>
+                    Delete my account
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            </div>{/* end left column */}
+
+            {/* ── RIGHT COLUMN ── */}
+            <div style={{display:"flex",flexDirection:"column",gap:"20px"}}>
+
             {/* ── SECTION 2: PORTAL BRANDING ── */}
             <div className="fi fi2" style={cardStyle}>
               <div style={cardHeaderStyle}>
@@ -485,6 +552,13 @@ export default function SettingsPage() {
                     ))}
                   </div>
                   <div style={hintStyle}>Used for buttons and highlights on your client portal</div>
+                  <div style={{marginTop:"10px"}}>
+                    <div style={{fontSize:"10px",fontWeight:600,color:"#B0B0BC",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"6px"}}>Preview</div>
+                    <div style={{display:"inline-flex",alignItems:"center",gap:"8px",padding:"8px 12px",background:"rgba(0,0,0,0.02)",border:"1px solid #E4E4E8",borderRadius:"10px"}}>
+                      <span style={{padding:"6px 14px",borderRadius:"8px",background:accentColor,color:"#fff",fontSize:"12px",fontWeight:700,letterSpacing:"0.02em"}}>Approve →</span>
+                      <span style={{fontSize:"11px",color:"#8A8A9A"}}>Portal button</span>
+                    </div>
+                  </div>
                 </div>
 
                 <SaveBtn saving={savingBranding} saved={savedBranding} label="Save Branding" onClick={saveBranding} />
@@ -502,20 +576,21 @@ export default function SettingsPage() {
               </div>
               <div style={cardBodyStyle}>
                 {[
-                  { label:"Client approves a stage", sub:"Get emailed when a client clicks Approve", value: notifyApproved, toggle: () => setNotifyApproved(v => !v) },
-                  { label:"Client requests revision",  sub:"Get emailed when a client requests changes", value: notifyRevision, toggle: () => setNotifyRevision(v => !v) },
-                  { label:"Weekly summary",             sub:"A weekly digest of your project activity", value: notifyWeekly,   toggle: () => setNotifyWeekly(v => !v),   last: true },
-                ].map((row, i) => (
-                  <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"16px",paddingBottom: row.last ? 0 : "12px",borderBottom: row.last ? "none" : "1px solid #F0F0F5"}}>
+                  { key:"approved", label:"Client approves a stage",    sub:"Get emailed when a client clicks Approve",      value: notifyApproved, toggle: toggleNotifApproved },
+                  { key:"revision", label:"Client requests revision",   sub:"Get emailed when a client requests changes",    value: notifyRevision, toggle: toggleNotifRevision },
+                  { key:"weekly",   label:"Weekly summary",             sub:"A weekly digest of your project activity",     value: notifyWeekly,   toggle: toggleNotifWeekly,  last: true },
+                ].map((row) => (
+                  <div key={row.key} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"16px",paddingBottom: row.last ? 0 : "12px",borderBottom: row.last ? "none" : "1px solid #F0F0F5"}}>
                     <div>
                       <div style={{fontSize:"13px",fontWeight:600,color:"#12111A"}}>{row.label}</div>
                       <div style={{fontSize:"12px",color:"#8A8A9A",marginTop:"2px"}}>{row.sub}</div>
                     </div>
-                    <Toggle on={row.value} onToggle={row.toggle} />
+                    <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                      {savedNotifKey === row.key && <span className="notif-saved">✓ Saved</span>}
+                      <Toggle on={row.value} onToggle={row.toggle} />
+                    </div>
                   </div>
                 ))}
-
-                <SaveBtn saving={savingNotif} saved={savedNotif} label="Save Preferences" onClick={saveNotifications} />
               </div>
             </div>
 
@@ -565,8 +640,8 @@ export default function SettingsPage() {
                       { value: invoiceCount,  label: "Invoices"  },
                       { value: approvalCount, label: "Approvals" },
                     ].map(s => (
-                      <div key={s.label} style={{background:"#F5F6FA",border:"1px solid #E4E4E8",borderRadius:"10px",padding:"12px",textAlign:"center"}}>
-                        <div style={{fontSize:"20px",fontWeight:800,color:"#12111A",letterSpacing:"-0.5px",lineHeight:1}}>{s.value}</div>
+                      <div key={s.label} style={{background:"#F5F6FA",border:"1px solid #E4E4E8",borderRadius:"10px",padding:"10px",textAlign:"center"}}>
+                        <div style={{fontSize:"18px",fontWeight:800,color:"#12111A",letterSpacing:"-0.5px",lineHeight:1}}>{s.value}</div>
                         <div style={{fontSize:"10px",fontWeight:700,color:"#8A8A9A",textTransform:"uppercase",letterSpacing:"0.05em",marginTop:"4px"}}>{s.label}</div>
                       </div>
                     ))}
@@ -575,48 +650,8 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* ── SECTION 5: DANGER ZONE ── */}
-            <div className="fi fi4" style={{...cardStyle, border:"1px solid rgba(239,68,68,0.2)"}}>
-              <div style={{...cardHeaderStyle, background:"rgba(239,68,68,0.02)", borderBottom:"1px solid rgba(239,68,68,0.15)"}}>
-                <div style={{width:"32px",height:"32px",borderRadius:"8px",background:"rgba(239,68,68,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"15px"}}>⚠️</div>
-                <div>
-                  <div style={{fontSize:"14px",fontWeight:700,color:"#EF4444"}}>Danger Zone</div>
-                  <div style={{fontSize:"12px",color:"#8A8A9A",marginTop:"2px"}}>Irreversible actions — proceed with caution</div>
-                </div>
-              </div>
-              <div style={cardBodyStyle}>
-                {/* Sign out row */}
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"12px"}}>
-                  <span style={{fontSize:"13px",color:"#6B6B7A"}}>Signed in as <strong style={{color:"#12111A",fontWeight:600}}>{email}</strong></span>
-                  <button className="ghost-btn" style={ghostBtn} onClick={handleSignOut}>Sign out</button>
-                </div>
-
-                <div style={{height:"1px",background:"#E4E4E8"}} />
-
-                {/* Export row */}
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"12px"}}>
-                  <div>
-                    <div style={{fontSize:"13px",fontWeight:600,color:"#12111A"}}>Export my data</div>
-                    <div style={{fontSize:"12px",color:"#8A8A9A",marginTop:"2px"}}>Download all your projects, files and invoices</div>
-                  </div>
-                  <button className="ghost-btn" style={ghostBtn} onClick={handleExport}>Export</button>
-                </div>
-
-                <div style={{height:"1px",background:"#E4E4E8"}} />
-
-                {/* Delete row */}
-                <div>
-                  <div style={{fontSize:"13px",fontWeight:600,color:"#12111A",marginBottom:"4px"}}>Delete Account</div>
-                  <div style={{fontSize:"12px",color:"#8A8A9A",lineHeight:1.5,marginBottom:"12px"}}>Permanently deletes your account, all projects, files and invoices. This cannot be undone.</div>
-                  <button className="danger-ghost-btn" onClick={() => setShowDeleteConfirm(true)} style={{width:"100%",padding:"10px 20px",background:"rgba(239,68,68,0.06)",color:"#EF4444",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"10px",fontSize:"13px",fontWeight:600,fontFamily:"'Outfit',sans-serif",cursor:"pointer"}}>
-                    Delete my account
-                  </button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
+            </div>{/* end right column */}
+          </div>{/* end settings-grid */}
       </main>
 
       {/* ── Delete Confirmation Modal ── */}
