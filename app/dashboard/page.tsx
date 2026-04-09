@@ -838,6 +838,29 @@ export default function DashboardPage() {
                 </div>
               )}
 
+              {/* Empty states */}
+              {filtered.length === 0 && projects.length === 0 && (
+                <div style={{ display:"flex", justifyContent:"center", padding:"24px 0" }}>
+                  <div style={{ background:"#ffffff", border:"1.5px dashed rgba(91,76,245,0.2)", borderRadius:"16px", padding:"56px 24px", textAlign:"center", maxWidth:"360px", width:"100%" }}>
+                    <div style={{ width:"56px", height:"56px", borderRadius:"16px", background:"rgba(91,76,245,0.08)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"24px", margin:"0 auto 16px" }}>⬡</div>
+                    <div style={{ fontSize:"16px", fontWeight:800, color:"#12111A", marginBottom:"6px" }}>Your studio is empty</div>
+                    <div style={{ fontSize:"13px", color:"#8A8A9A", lineHeight:1.6, maxWidth:"280px", margin:"0 auto 20px" }}>Create your first project and send your client a portal link in under 2 minutes.</div>
+                    <button onClick={() => router.push("/dashboard/new")} style={{ background:"#5B4CF5", color:"#fff", border:"none", borderRadius:"10px", padding:"10px 20px", fontSize:"13px", fontWeight:700, cursor:"pointer" }}>+ Create First Project</button>
+                  </div>
+                </div>
+              )}
+
+              {filtered.length === 0 && projects.length > 0 && (
+                <div style={{ display:"flex", justifyContent:"center", padding:"24px 0" }}>
+                  <div style={{ background:"#ffffff", border:"1.5px dashed rgba(91,76,245,0.2)", borderRadius:"16px", padding:"56px 24px", textAlign:"center", maxWidth:"360px", width:"100%" }}>
+                    <div style={{ width:"56px", height:"56px", borderRadius:"16px", background:"rgba(91,76,245,0.08)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"24px", margin:"0 auto 16px" }}>⬡</div>
+                    <div style={{ fontSize:"16px", fontWeight:800, color:"#12111A", marginBottom:"6px" }}>No projects match this filter</div>
+                    <div style={{ fontSize:"13px", color:"#8A8A9A", lineHeight:1.6, maxWidth:"280px", margin:"0 auto 20px" }}>Try selecting a different status above</div>
+                    <button onClick={() => setFilter("all")} style={{ background:"transparent", color:"#5B4CF5", border:"1.5px solid rgba(91,76,245,0.35)", borderRadius:"10px", padding:"10px 20px", fontSize:"13px", fontWeight:700, cursor:"pointer" }}>Clear filter</button>
+                  </div>
+                </div>
+              )}
+
               {/* Grid */}
               {filtered.length > 0 && (
                 <div className="bento bento-projects">
