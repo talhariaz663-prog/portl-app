@@ -237,14 +237,20 @@ export default function ActivityPage() {
             <div style={{width:"28px",height:"28px",border:"2px solid rgba(0,0,0,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
           </div>
         ) : activity.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#6B6B7A"}}>
-            <div style={{fontSize:"32px",marginBottom:"12px",opacity:0.4}}>◎</div>
-            <div style={{fontSize:"14px",fontWeight:600,color:"#4A4A5A",marginBottom:"6px"}}>No activity yet</div>
-            <div style={{fontSize:"13px",lineHeight:1.6}}>Activity will appear here once clients start interacting with your portals.</div>
+          <div className="fi fi3" style={{display:"flex",justifyContent:"center",marginTop:"20px"}}>
+            <div style={{background:"#ffffff",border:"1.5px dashed rgba(11,171,108,0.2)",borderRadius:"16px",padding:"56px 24px",textAlign:"center",maxWidth:"380px",width:"100%"}}>
+              <div style={{width:"56px",height:"56px",borderRadius:"16px",background:"rgba(11,171,108,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px",margin:"0 auto 16px"}}>◷</div>
+              <div style={{fontSize:"16px",fontWeight:800,color:"#12111A",marginBottom:"6px"}}>No activity yet</div>
+              <div style={{fontSize:"13px",color:"#8A8A9A",lineHeight:1.6,maxWidth:"300px",margin:"0 auto"}}>When clients view your portal, approve work, or request changes — it all shows up here.</div>
+            </div>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#6B6B7A"}}>
-            <div style={{fontSize:"14px",fontWeight:600,color:"#4A4A5A"}}>No {filter.replace("_"," ")} activity</div>
+          <div className="fi fi3" style={{display:"flex",justifyContent:"center",marginTop:"20px"}}>
+            <div style={{background:"#ffffff",border:"1.5px dashed rgba(11,171,108,0.2)",borderRadius:"16px",padding:"56px 24px",textAlign:"center",maxWidth:"380px",width:"100%"}}>
+              <div style={{width:"56px",height:"56px",borderRadius:"16px",background:"rgba(11,171,108,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px",margin:"0 auto 16px"}}>◷</div>
+              <div style={{fontSize:"16px",fontWeight:800,color:"#12111A",marginBottom:"6px"}}>No {filter.replace("_"," ")} activity</div>
+              <div style={{fontSize:"13px",color:"#8A8A9A",lineHeight:1.6,maxWidth:"300px",margin:"0 auto"}}>Try selecting a different filter above.</div>
+            </div>
           </div>
         ) : (
           <div className="fi fi3" style={{display:"flex",flexDirection:"column",gap:"24px"}}>
