@@ -778,31 +778,31 @@ export default function DashboardPage() {
               <div className="bento bento-top">
                 {/* Total */}
                 <div className="card stat-card">
-                  <div style={{ fontSize:"11px", fontWeight:700, color:"#6B6B7A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Total</div>
+                  <div style={{ fontSize:"10px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Total</div>
                   <div style={{ fontSize:"32px", fontWeight:800, letterSpacing:"-1px", color:"#12111A", lineHeight:1 }}>{counts.all}</div>
-                  <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>projects</div>
+                  <div style={{ fontSize:"11px", color:"#8A8A9A", marginTop:"6px" }}>projects</div>
                 </div>
 
                 {/* In Review */}
-                <div className="card stat-card" style={{ background:"rgba(245,158,11,0.04)", borderColor:"rgba(245,158,11,0.2)", cursor: counts.review > 0 ? "pointer" : "default" }}
+                <div className="card stat-card" style={{ cursor: counts.review > 0 ? "pointer" : "default" }}
                   onClick={() => counts.review > 0 && setFilter("review")}>
-                  <div style={{ fontSize:"11px", fontWeight:700, color:"#F59E0B", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>In Review</div>
+                  <div style={{ fontSize:"10px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>In Review</div>
                   <div style={{ fontSize:"32px", fontWeight:800, letterSpacing:"-1px", color:"#F59E0B", lineHeight:1 }}>{counts.review}</div>
-                  <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>awaiting client</div>
+                  <div style={{ fontSize:"11px", color:"#8A8A9A", marginTop:"6px" }}>awaiting client</div>
                 </div>
                 {/* Active */}
-                <div className="card stat-card" style={{ background:"rgba(91,76,245,0.04)", borderColor:"rgba(91,76,245,0.2)", cursor:"pointer" }}
+                <div className="card stat-card" style={{ cursor:"pointer" }}
                   onClick={() => setFilter("active")}>
-                  <div style={{ fontSize:"11px", fontWeight:700, color:"#5B4CF5", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Active</div>
+                  <div style={{ fontSize:"10px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Active</div>
                   <div style={{ fontSize:"32px", fontWeight:800, letterSpacing:"-1px", color:"#5B4CF5", lineHeight:1 }}>{counts.active}</div>
-                  <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>in progress</div>
+                  <div style={{ fontSize:"11px", color:"#8A8A9A", marginTop:"6px" }}>in progress</div>
                 </div>
                 {/* Approved */}
-                <div className="card stat-card" style={{ background:"rgba(11,171,108,0.04)", borderColor:"rgba(11,171,108,0.2)", cursor:"pointer" }}
+                <div className="card stat-card" style={{ cursor:"pointer" }}
                   onClick={() => setFilter("approved")}>
-                  <div style={{ fontSize:"11px", fontWeight:700, color:"#0BAB6C", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Approved</div>
+                  <div style={{ fontSize:"10px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Approved</div>
                   <div style={{ fontSize:"32px", fontWeight:800, letterSpacing:"-1px", color:"#0BAB6C", lineHeight:1 }}>{counts.approved}</div>
-                  <div style={{ fontSize:"12px", color:"#8A8A9A", marginTop:"6px" }}>completed</div>
+                  <div style={{ fontSize:"11px", color:"#8A8A9A", marginTop:"6px" }}>completed</div>
                 </div>
               </div>
             </div>
@@ -821,20 +821,6 @@ export default function DashboardPage() {
                       </button>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Empty state */}
-              {projects.length === 0 && !error && (
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", paddingTop:"60px", gap:"16px", textAlign:"center" }}>
-                  <div style={{ width:"64px", height:"64px", borderRadius:"18px", background:"rgba(91,76,245,0.1)", border:"1px solid rgba(91,76,245,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <Icons.Projects />
-                  </div>
-                  <div style={{ fontSize:"16px", fontWeight:700, color:"#12111A" }}>Your studio is empty</div>
-                  <div style={{ fontSize:"13px", color:"#6B6B7A", maxWidth:"280px", lineHeight:1.6 }}>Create your first project and start delivering work to clients.</div>
-                  <button className="new-btn" style={{ marginTop:"8px" }} onClick={() => router.push("/dashboard/new")}>
-                    <Icons.Plus /> Create First Project
-                  </button>
                 </div>
               )}
 
