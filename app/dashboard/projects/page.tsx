@@ -296,13 +296,22 @@ export default function ProjectsPage() {
           <div style={{display:"flex",justifyContent:"center",paddingTop:"60px"}}>
             <div style={{width:"28px",height:"28px",border:"2px solid rgba(0,0,0,0.08)",borderTopColor:"#5B4CF5",borderRadius:"50%",animation:"spin 0.8s linear infinite"}} />
           </div>
-        ) : filtered.length === 0 ? (
-          <div className="fi fi3" style={{textAlign:"center",paddingTop:"60px",color:"#6B6B7A"}}>
-            <div style={{fontSize:"32px",marginBottom:"12px",opacity:0.4}}>⬡</div>
-            <div style={{fontSize:"14px",fontWeight:600,marginBottom:"6px",color:"#4A4A5A"}}>
-              {search ? "No projects match your search" : "No projects yet"}
+        ) : filtered.length === 0 && projects.length === 0 ? (
+          <div className="fi fi3" style={{display:"flex",justifyContent:"center",padding:"24px 0"}}>
+            <div style={{background:"#ffffff",border:"1.5px dashed rgba(91,76,245,0.2)",borderRadius:"16px",padding:"56px 24px",textAlign:"center",maxWidth:"360px",width:"100%"}}>
+              <div style={{width:"56px",height:"56px",borderRadius:"16px",background:"rgba(91,76,245,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px",margin:"0 auto 16px"}}>📁</div>
+              <div style={{fontSize:"16px",fontWeight:800,color:"#12111A",marginBottom:"6px"}}>No projects yet</div>
+              <div style={{fontSize:"13px",color:"#8A8A9A",lineHeight:1.6,maxWidth:"280px",margin:"0 auto 20px"}}>All your client projects will appear here. Create your first one to get started.</div>
+              <button onClick={() => router.push("/dashboard/new")} style={{background:"#5B4CF5",color:"#fff",border:"none",borderRadius:"10px",padding:"10px 20px",fontSize:"13px",fontWeight:700,cursor:"pointer"}}>+ New Project</button>
             </div>
-            {!search && <button className="new-btn" style={{margin:"16px auto 0"}} onClick={() => router.push("/dashboard/new")}><Icons.Plus /> Create First Project</button>}
+          </div>
+        ) : filtered.length === 0 && projects.length > 0 ? (
+          <div className="fi fi3" style={{display:"flex",justifyContent:"center",padding:"24px 0"}}>
+            <div style={{background:"#ffffff",border:"1.5px dashed rgba(91,76,245,0.2)",borderRadius:"16px",padding:"56px 24px",textAlign:"center",maxWidth:"360px",width:"100%"}}>
+              <div style={{width:"56px",height:"56px",borderRadius:"16px",background:"rgba(91,76,245,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px",margin:"0 auto 16px"}}>📁</div>
+              <div style={{fontSize:"16px",fontWeight:800,color:"#12111A",marginBottom:"6px"}}>No projects match your search</div>
+              <div style={{fontSize:"13px",color:"#8A8A9A",lineHeight:1.6,maxWidth:"280px",margin:"0 auto"}}>Try a different search term or filter</div>
+            </div>
           </div>
         ) : (
           <div className="fi fi3" style={{display:"flex",flexDirection:"column",gap:"8px"}}>
