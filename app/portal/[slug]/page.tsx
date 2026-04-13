@@ -95,14 +95,11 @@ export default function ClientPortalPage() {
     // Designer profile
     const { data: profile } = await supabase
       .from('profiles')
-      .select('studio_name, accent_color')
+      .select('studio_name, accent_color, full_name')
       .eq('id', (proj as Project).user_id)
       .single()
-    if (profile) {
-      const p = profile as { studio_name: string | null; accent_color: string | null }
-      setStudioName(p.studio_name ?? 'Your Designer')
-      setAccentColor(p.accent_color ?? '#5B4CF5')
-    }
+    setStudioName(profile?.studio_name || '')
+    setAccentColor(profile?.accent_color || '#5B4CF5')
 
     const { data: sd } = await supabase
       .from('stages')
