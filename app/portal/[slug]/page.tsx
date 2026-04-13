@@ -279,19 +279,21 @@ export default function ClientPortalPage() {
 
           {/* Top row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{
-              background: 'rgba(255,255,255,0.07)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '6px',
-              padding: '4px 10px',
-              fontSize: '10px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: 'rgba(255,255,255,0.45)',
-            }}>
-              {studioName}
-            </div>
+            {studioName ? (
+              <div style={{
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '6px',
+                padding: '4px 10px',
+                fontSize: '10px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: 'rgba(255,255,255,0.45)',
+              }}>
+                {studioName}
+              </div>
+            ) : <div />}
             <div style={{ fontSize: '13px', fontWeight: 900, color: 'rgba(255,255,255,0.2)' }}>
               Portl<span style={{ color: ac }}>.</span>
             </div>
@@ -350,7 +352,7 @@ export default function ClientPortalPage() {
       {/* ════════════════════════════════════════════════════════
           SECTION 2 — BODY (warm paper)
       ════════════════════════════════════════════════════════ */}
-      <main className="portal-body" style={{ background: '#F8F6F1', padding: '28px 32px', maxWidth: '640px', margin: '0 auto' }}>
+      <main className="portal-body" style={{ background: '#F8F6F1', padding: '28px 32px', maxWidth: '640px', margin: '0 auto', width: '100%' }}>
 
         {/* Stage list label */}
         <div style={{
@@ -370,8 +372,8 @@ export default function ClientPortalPage() {
 
             let numBg    = 'rgba(0,0,0,0.05)'
             let numColor = '#C8C5C0'
-            if (isComplete)                      { numBg = 'rgba(11,171,108,0.12)'; numColor = '#0BAB6C' }
-            else if (isSelected || isInProgress) { numBg = ac + '18';              numColor = ac }
+            if (isComplete)      { numBg = 'rgba(11,171,108,0.12)'; numColor = '#0BAB6C' }
+            else if (isSelected) { numBg = ac + '18';               numColor = ac }
 
             return (
               <div
@@ -434,7 +436,7 @@ export default function ClientPortalPage() {
         {/* ════════════════════════════════════════════════════════
             SECTION 3 — ACTIVE STAGE PANEL
         ════════════════════════════════════════════════════════ */}
-        {activeStage && (
+        {activeStageId && activeStage && (
           <div style={{
             marginTop: '24px',
             background: '#fff',
