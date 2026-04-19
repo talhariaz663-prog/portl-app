@@ -305,7 +305,7 @@ export default function SettingsPage() {
     <div style={cardStyle}>
       {/* Avatar row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg,#5B4CF5,#0BAB6C)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#5B4CF5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: '#FFFFFF', flexShrink: 0 }}>
           {initials}
         </div>
         <div>

@@ -40,7 +40,7 @@ function LoginForm() {
   return (
     <div style={{
       position: "relative", minHeight: "100vh", overflow: "hidden",
-      background: "linear-gradient(135deg, #F0EFFE 0%, #F7F5FF 50%, #FAFBFF 100%)",
+      background: "#0D0B1A",
       fontFamily: "'Outfit', sans-serif",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "20px 16px",
@@ -112,33 +112,33 @@ function LoginForm() {
         .glass-card {
           width: 100%;
           max-width: 440px;
-          background: rgba(255,255,255,0.7);
-          border: 1px solid rgba(91,76,245,0.15);
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1);
           border-radius: 24px;
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           padding: 48px;
           position: relative;
           z-index: 10;
-          box-shadow: 0 8px 40px rgba(91,76,245,0.08), 0 2px 8px rgba(0,0,0,0.04);
+          box-shadow: 0 8px 40px rgba(0,0,0,0.4);
         }
 
         .email-input {
           width: 100%;
-          background: #fff;
-          border: 1.5px solid #E8E4FE;
+          background: rgba(255,255,255,0.08);
+          border: 1.5px solid rgba(255,255,255,0.12);
           border-radius: 12px;
           padding: 13px 16px;
-          color: #1a1a2e;
+          color: #FFFFFF;
           font-family: 'Outfit', sans-serif;
           font-size: 14px;
           outline: none;
           transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .email-input::placeholder { color: #b0aac8; }
+        .email-input::placeholder { color: rgba(255,255,255,0.3); }
         .email-input:focus {
-          border-color: #5B4CF5;
-          box-shadow: 0 0 0 3px rgba(91,76,245,0.1);
+          border-color: rgba(91,76,245,0.8);
+          box-shadow: 0 0 0 3px rgba(91,76,245,0.25);
         }
 
         .submit-btn {
@@ -188,10 +188,10 @@ function LoginForm() {
           /* Sent state */
           <div className="fade-2" style={{ textAlign: "center", padding: "8px 0" }}>
             <div style={{ fontSize: "44px", marginBottom: "16px", lineHeight: 1 }}>📬</div>
-            <h2 style={{ color: "#1a1a2e", fontSize: "20px", fontWeight: 700, marginBottom: "8px" }}>
+            <h2 style={{ color: "#FFFFFF", fontSize: "20px", fontWeight: 700, marginBottom: "8px" }}>
               Check your inbox
             </h2>
-            <p style={{ color: "#7b7494", fontSize: "13.5px", lineHeight: 1.6 }}>
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "13.5px", lineHeight: 1.6 }}>
               Magic link sent to{" "}
               <span style={{ color: "#5B4CF5", fontWeight: 600 }}>{email}</span>
             </p>
@@ -201,12 +201,12 @@ function LoginForm() {
             {/* Heading */}
             <div className="fade-2" style={{ marginBottom: "28px", textAlign: "center" }}>
               <h1 style={{
-                fontSize: "26px", fontWeight: 700, color: "#1a1a2e",
+                fontSize: "26px", fontWeight: 700, color: "#FFFFFF",
                 marginBottom: "8px", letterSpacing: "-0.4px",
               }}>
                 Welcome back.
               </h1>
-              <p style={{ fontSize: "14px", color: "#7b7494", lineHeight: 1.55 }}>
+              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.55)", lineHeight: 1.55 }}>
                 Enter your email and we&apos;ll send you a magic link.
               </p>
             </div>
@@ -215,7 +215,7 @@ function LoginForm() {
             <div className="fade-3" style={{ marginBottom: "12px" }}>
               <label style={{
                 display: "block", fontSize: "11px", fontWeight: 600,
-                color: "#9993b4", textTransform: "uppercase",
+                color: "rgba(255,255,255,0.45)", textTransform: "uppercase",
                 letterSpacing: "0.07em", marginBottom: "8px",
               }}>
                 Email Address
@@ -265,7 +265,7 @@ function LoginForm() {
 
             {/* Footer note */}
             <div className="fade-5" style={{ textAlign: "center" }}>
-              <p style={{ fontSize: "12px", color: "#b0aac8" }}>
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>
                 No password needed. No account required.
               </p>
             </div>

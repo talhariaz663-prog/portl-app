@@ -12,6 +12,7 @@ interface Project {
   client_name: string
   status: string
   user_id: string
+  designer_id: string
   created_at: string
 }
 interface Stage {
@@ -80,13 +81,14 @@ export default function ClientPortalPage() {
   const [studioName,        setStudioName]        = useState('Your Designer')
   const [accentColor,       setAccentColor]       = useState('#5B4CF5')
   const [historyExpanded,   setHistoryExpanded]   = useState(false)
+  const [designerProfile,   setDesignerProfile]   = useState<{ full_name: string | null; studio_name: string | null } | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true); setError(null)
 
     const { data: proj, error: pe } = await supabase
       .from('projects')
-      .select('id, name, client_name, status, user_id, created_at')
+      .select('id, name, client_name, status, user_id, designer_id, created_at')
       .eq('portal_slug', slug)
       .single()
     if (pe || !proj) { setError('Portal not found.'); setLoading(false); return }
@@ -100,6 +102,13 @@ export default function ClientPortalPage() {
       .single()
     setStudioName(profile?.studio_name || '')
     setAccentColor(profile?.accent_color || '#5B4CF5')
+
+    const { data: dp } = await supabase
+      .from('profiles')
+      .select('full_name, studio_name')
+      .eq('id', proj.designer_id)
+      .single()
+    setDesignerProfile(dp)
 
     const { data: sd } = await supabase
       .from('stages')
@@ -189,7 +198,7 @@ export default function ClientPortalPage() {
   const activeStage      = stages.find(s => s.id === activeStageId)
   const activeStageFiles = files.filter(f => f.stage_id === activeStageId)
   const activeActivity   = activity.filter(a => a.stage_id === activeStageId)
-  const completeCount    = stages.filter(s => s.status === 'complete').length
+  const completeCount    = stages.filter(s => s.status === 'complete' || s.status === 'in_progress').length
   const needsApproval    = activeStage?.status === 'in_progress' && activeStageFiles.length > 0
 
   const designerNote = activeStage?.notes
@@ -340,7 +349,7 @@ export default function ClientPortalPage() {
                   background: s.status === 'complete'
                     ? ac
                     : s.status === 'in_progress'
-                      ? 'rgba(255,255,255,0.3)'
+                      ? ac + '80'
                       : 'rgba(255,255,255,0.08)',
                 }} />
               ))}
@@ -370,8 +379,8 @@ export default function ClientPortalPage() {
             const isPending    = stage.status === 'not_started'
             const isSelected   = stage.id === activeStageId
 
-            let numBg    = 'rgba(0,0,0,0.05)'
-            let numColor = '#C8C5C0'
+            let numBg    = '#E4E4E8'
+            let numColor = '#4B5563'
             if (isComplete)      { numBg = 'rgba(11,171,108,0.12)'; numColor = '#0BAB6C' }
             else if (isSelected) { numBg = ac + '18';               numColor = ac }
 
@@ -394,7 +403,7 @@ export default function ClientPortalPage() {
                   width: '32px', height: '32px', borderRadius: '8px',
                   background: numBg, color: numColor,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '11px', fontWeight: 800, flexShrink: 0,
+                  fontSize: '11px', fontWeight: isPending ? 500 : 800, flexShrink: 0,
                 }}>
                   {isComplete ? '✓' : i + 1}
                 </div>
@@ -410,7 +419,7 @@ export default function ClientPortalPage() {
                   </div>
                   <div style={{
                     fontSize: '11px',
-                    color: isComplete ? '#0BAB6C' : isInProgress ? ac : '#C8C5C0',
+                    color: isComplete ? '#0BAB6C' : isInProgress ? '#F59E0B' : '#C8C5C0',
                   }}>
                     {isComplete ? 'Complete' : isInProgress ? 'Awaiting your review' : 'Not started'}
                   </div>
@@ -424,7 +433,7 @@ export default function ClientPortalPage() {
                   {isInProgress && isSelected && !isComplete && (
                     <div style={{
                       width: '8px', height: '8px', borderRadius: '50%',
-                      background: ac, animation: 'pulse 2s infinite',
+                      background: '#F59E0B', animation: 'pulse 2s infinite',
                     }} />
                   )}
                 </div>
@@ -457,14 +466,14 @@ export default function ClientPortalPage() {
                   Your approval is needed
                 </div>
                 <div style={{ fontSize: '13px', color: '#6B6B7A', marginBottom: '16px' }}>
-                  {studioName} has submitted {activeStage.title} for your review.
+                  {designerProfile?.studio_name || designerProfile?.full_name || 'Your designer'} has submitted {activeStage.title} for your review.
                 </div>
 
                 <div className="approval-btns" style={{ display: 'flex', gap: '10px' }}>
                   <button
                     onClick={handleApprove}
                     style={{
-                      background: ac, color: '#fff', border: 'none',
+                      background: '#5B4CF5', color: '#fff', border: 'none',
                       borderRadius: '8px', padding: '11px 20px',
                       fontSize: '13px', fontWeight: 700, flex: 1,
                       cursor: 'pointer', fontFamily: "'Outfit',sans-serif",
@@ -732,7 +741,7 @@ export default function ClientPortalPage() {
           <button
             onClick={() => window.open('https://portl-app.vercel.app', '_blank')}
             style={{
-              fontSize: '12px', color: ac, fontWeight: 600,
+              fontSize: '12px', color: '#5B4CF5', fontWeight: 600,
               cursor: 'pointer', background: 'none', border: 'none',
               fontFamily: "'Outfit',sans-serif",
             }}

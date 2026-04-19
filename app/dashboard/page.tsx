@@ -95,6 +95,8 @@ export default function DashboardPage() {
   const [isMobile,    setIsMobile]    = useState(false);
   const [activeNav,   setActiveNav]   = useState("Studio");
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [profileData, setProfileData] = useState<{ full_name: string | null; studio_name: string | null } | null>(null);
+  const [stagesMap,   setStagesMap]   = useState<Record<string, { total: number; active: number }>>({});
   const [lastSeen,    setLastSeen]    = useState<Date>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(NOTIF_KEY);
@@ -118,7 +120,7 @@ export default function DashboardPage() {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("onboarding_complete")
+      .select("onboarding_complete, full_name, studio_name")
       .eq("id", session.user.id)
       .single();
 
@@ -126,6 +128,7 @@ export default function DashboardPage() {
       router.push("/onboarding");
       return;
     }
+    setProfileData({ full_name: profile.full_name ?? null, studio_name: profile.studio_name ?? null });
 
     const { data: projData, error: dbError } = await supabase
       .from("projects")
@@ -155,6 +158,20 @@ export default function DashboardPage() {
         (a.type === "approved" || a.type === "changes_requested")
       ).length;
       setUnreadCount(unread);
+
+      // Stage progress per project
+      const { data: allStagesForProgress } = await supabase
+        .from("stages")
+        .select("id, project_id, status")
+        .in("project_id", projectIds);
+      const grouped: Record<string, { total: number; active: number }> = {};
+      projectIds.forEach(id => { grouped[id] = { total: 0, active: 0 }; });
+      ((allStagesForProgress ?? []) as { project_id: string; status: string }[]).forEach(s => {
+        if (!grouped[s.project_id]) grouped[s.project_id] = { total: 0, active: 0 };
+        grouped[s.project_id].total++;
+        if (s.status === "in_progress" || s.status === "complete") grouped[s.project_id].active++;
+      });
+      setStagesMap(grouped);
 
       // Action items
       const { data: revisions } = await supabase
@@ -265,7 +282,7 @@ export default function DashboardPage() {
   const filtered      = filter === "all" ? projects : projects.filter(p => p.status === filter);
   const initials      = userEmail ? userEmail.slice(0, 2).toUpperCase() : "??";
   const hour          = new Date().getHours();
-  const firstName     = (() => { const n = userEmail.split("@")[0].split(".")[0]; return n ? n.charAt(0).toUpperCase() + n.slice(1) : "there"; })();
+  const displayName   = profileData?.full_name || profileData?.studio_name || userEmail?.split("@")[0] || "there";
   const reviewProjs   = projects.filter(p => p.status === "review");
   const recentActivity = activity.filter(a => a.type === "approved" || a.type === "changes_requested").slice(0, 5);
   const hasUnread     = unreadCount > 0;
@@ -386,7 +403,7 @@ export default function DashboardPage() {
 
         /* Bento grid */
         .bento { display:grid; gap:16px; }
-        .bento-top { grid-template-columns:repeat(4,1fr); }
+        .bento-top { grid-template-columns:repeat(4,minmax(0,1fr)); }
         .bento-mid { grid-template-columns:2fr 1fr; }
         .bento-projects { grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
 
@@ -694,7 +711,7 @@ export default function DashboardPage() {
               The Studio
             </h1>
             <div style={{ fontSize:"13px", color:"#8A8A9A" }}>
-              Good {hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening"}, {firstName}
+              Good {hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening"}, {displayName}
             </div>
           </div>
           <button className="new-btn" onClick={() => router.push("/dashboard/new")} id="desktop-new-btn" style={{ display:"none" }}>
@@ -775,7 +792,7 @@ export default function DashboardPage() {
             {/* ── ZONE 2: OVERVIEW STATS ── */}
             <div className="fi fi3" style={{ marginBottom:"24px" }}>
               <div style={{ fontSize:"11px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"12px" }}>Overview</div>
-              <div className="bento bento-top">
+              <div className="bento bento-top" style={{ overflowX: "auto" }}>
                 {/* Total */}
                 <div className="card stat-card">
                   <div style={{ fontSize:"10px", fontWeight:700, color:"#8A8A9A", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"10px" }}>Total</div>
@@ -867,6 +884,27 @@ export default function DashboardPage() {
                             <div style={{ fontSize:"12px", color:"#8A8A9A", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{project.client_name}</div>
                           </div>
                         </div>
+
+                        {/* Progress bar */}
+                        {(() => {
+                          const stageInfo = stagesMap[project.id] ?? { total: 0, active: 0 };
+                          const completedCount = stageInfo.active;
+                          const totalStages = stageInfo.total;
+                          return totalStages > 0 ? (
+                            <div style={{ marginTop: 10, marginBottom: 6 }}>
+                              <div style={{ height: 3, background: "#E4E4E8", borderRadius: 999 }}>
+                                <div style={{
+                                  height: 3, borderRadius: 999, background: "#5B4CF5",
+                                  width: `${Math.round((completedCount / totalStages) * 100)}%`,
+                                  transition: "width 0.3s ease",
+                                }} />
+                              </div>
+                              <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 4 }}>
+                                {completedCount} of {totalStages} stages
+                              </p>
+                            </div>
+                          ) : null;
+                        })()}
 
                         {/* Footer */}
                         <div style={{ borderTop:"1px solid #E4E4E8", paddingTop:"10px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>

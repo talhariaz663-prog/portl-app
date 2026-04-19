@@ -415,12 +415,12 @@ export default function PaymentsPage() {
         </div>
 
         {/* ── Stats ── */}
-        <div className="fi fi2 stats-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",marginBottom:"20px"}}>
+        <div className="fi fi2 stats-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:"10px",marginBottom:"20px",overflowX:"auto"}}>
           {([
             { label:"Total",   value: String(stats.total),   sub:"invoices",   color:"#12111A"  },
             { label:"Unpaid",  value: String(stats.unpaid),  sub:"pending",    color:"#F59E0B"  },
             { label:"Paid",    value: String(stats.paid),    sub:"collected",  color:"#0BAB6C"  },
-            { label:"Revenue", value: formatCurrency(stats.revenue,"USD"), sub:"total paid", color:"#5B4CF5", small:true },
+            { label:"Revenue", value: formatCurrency(stats.revenue,"USD"), sub:"total paid", color:"#0BAB6C", small:true },
           ] as {label:string;value:string;sub:string;color:string;small?:boolean}[]).map(s => (
             <div key={s.label} className="stat-card">
               <div style={{fontSize:"10px",fontWeight:700,color:"#8A8A9A",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"6px"}}>{s.label}</div>

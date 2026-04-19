@@ -502,7 +502,9 @@ export default function ProjectDetailPage() {
       <header className="topbar" style={{ position:"fixed", top:0, left:0, right:0, height:"60px", zIndex:40, background:"rgba(255,255,255,0.97)", borderBottom:"1px solid #E4E4E8", backdropFilter:"blur(20px)", alignItems:"center", justifyContent:"space-between", padding:"0 16px" }}>
         <button onClick={() => router.push("/dashboard")} style={{ background:"#F5F6FA", border:"1px solid #E4E4E8", borderRadius:"8px", width:"36px", height:"36px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:"#4A4A5A", fontSize:"16px" }}>←</button>
         <span style={{ fontSize:"18px", fontWeight:800, letterSpacing:"-0.5px" }}>Portl<span style={{ color:"#5B4CF5", fontSize:"22px" }}>.</span></span>
-        <button className={`share-btn${copied?" copied":""}`} onClick={copyPortalLink} style={{ padding:"8px 12px", fontSize:"12px" }}>{copied?"✓ Copied":"⬡ Share"}</button>
+        <button className={`share-btn${copied?" copied":""}`} onClick={copyPortalLink} style={{ padding:"8px 12px", fontSize:"12px" }}>
+          {copied ? "✓ Copied" : <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Share</>}
+        </button>
       </header>
 
       <main className="main-content" style={{ position:"relative", zIndex:1 }}>
@@ -524,7 +526,9 @@ export default function ProjectDetailPage() {
                   <span style={{ width:"6px", height:"6px", borderRadius:"50%", background:ps.color }} />{ps.label}
                 </button>
               )}
-              <button className={`share-btn${copied?" copied":""}`} onClick={copyPortalLink} style={{ display:"none" }} id="desktop-share-btn">{copied?"✓ Copied!":"⬡ Share portal"}</button>
+              <button className={`share-btn${copied?" copied":""}`} onClick={copyPortalLink} style={{ display:"none" }} id="desktop-share-btn">
+                {copied ? "✓ Copied!" : <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Share portal</>}
+              </button>
               <style>{`@media(min-width:769px){#desktop-share-btn{display:flex!important}}`}</style>
             </div>
           </div>
@@ -548,7 +552,7 @@ export default function ProjectDetailPage() {
 
         {/* Stage tabs */}
         {stages.length > 0 && (
-          <div className="fi fi2 tabs-row" style={{ display:"flex", overflowX:"auto", gap:"6px", marginBottom:"20px", paddingBottom:"2px" }}>
+          <div className="fi fi2 tabs-row" style={{ display:"flex", overflowX:"auto", WebkitOverflowScrolling:"touch", gap:"6px", marginBottom:"20px", paddingBottom:"2px" }}>
             {stages.map((stage, i) => {
               const st = STAGE_STATUS[stage.status];
               const isActive = activeStageId === stage.id;
@@ -571,6 +575,7 @@ export default function ProjectDetailPage() {
 
         {/* Stage panel */}
         {activeStage && (
+          <>
           <div className="fi fi3 stage-grid">
 
             {/* LEFT */}
@@ -726,7 +731,6 @@ export default function ProjectDetailPage() {
                 </div>
               )}
 
-              <button className="delete-btn" onClick={() => setShowDeleteConfirm(true)}>🗑 Delete project</button>
             </div>
 
             {/* RIGHT: Files */}
@@ -771,6 +775,26 @@ export default function ProjectDetailPage() {
               )}
             </div>
           </div>
+
+          {/* Danger Zone */}
+          <div style={{ marginTop: 40, paddingTop: 24, borderTop: "1px solid #E4E4E8" }}>
+            <p style={{ fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.07em", color: "#9CA3AF", marginBottom: 12 }}>Danger zone</p>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              style={{
+                background: "transparent", border: "1px solid #EF4444", borderRadius: 10,
+                padding: "8px 16px", color: "#EF4444", fontSize: 13,
+                fontFamily: "'Outfit', sans-serif", cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 6,
+              }}
+            >
+              Delete project
+            </button>
+            <p style={{ fontSize: 12, color: "#9CA3AF", marginTop: 8 }}>
+              This will permanently delete the project and all its files. This cannot be undone.
+            </p>
+          </div>
+          </>
         )}
 
         {stages.length===0&&!loading&&(
